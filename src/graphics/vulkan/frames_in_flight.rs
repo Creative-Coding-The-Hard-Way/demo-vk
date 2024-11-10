@@ -30,6 +30,7 @@ pub struct Frame {
     command_buffer: vk::CommandBuffer,
     swapchain_image_index: u32,
     frame_index: usize,
+    swapchain_image: vk::Image,
 }
 
 impl Frame {
@@ -44,9 +45,14 @@ impl Frame {
     pub fn frame_index(&self) -> usize {
         self.frame_index
     }
+
+    pub fn swapchain_image(&self) -> vk::Image {
+        self.swapchain_image
+    }
 }
 
 /// Per-frame synchronization primitives.
+#[derive(Debug)]
 struct FrameSync {
     swapchain_image_acquired: raii::Semaphore,
     color_attachment_written: raii::Semaphore,
@@ -67,6 +73,7 @@ struct FrameSync {
 /// commands submitted to that frame are guaranteed to be complete. Thus, the
 /// application can keep N copies of a resource and use the frame_index to
 /// prevent synchronization errors.
+#[derive(Debug)]
 pub struct FramesInFlight {
     frames: Vec<FrameSync>,
     frame_index: usize,
@@ -237,6 +244,7 @@ impl FramesInFlight {
             command_buffer: frame_sync.command_buffer,
             swapchain_image_index,
             frame_index: self.frame_index,
+            swapchain_image: swapchain.images()[swapchain_image_index as usize],
         }))
     }
 
