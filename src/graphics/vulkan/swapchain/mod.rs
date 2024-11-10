@@ -38,7 +38,7 @@ impl Swapchain {
         cxt: Arc<VulkanContext>,
         framebuffer_size: (u32, u32),
         previous_swapchain: Option<vk::SwapchainKHR>,
-    ) -> Result<Arc<Self>> {
+    ) -> Result<Self> {
         let (swapchain, extent, format) = settings::create_swapchain(
             &cxt,
             framebuffer_size,
@@ -68,14 +68,14 @@ impl Swapchain {
                 .push(raii::ImageView::new(cxt.device.clone(), &create_info)?);
         }
 
-        Ok(Arc::new(Self {
+        Ok(Self {
             swapchain,
             extent,
             format,
             images,
             image_views,
             cxt,
-        }))
+        })
     }
 
     /// Returns the non-owning Vulkan swapchain handle.

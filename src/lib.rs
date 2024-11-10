@@ -1,6 +1,7 @@
 use std::ops::{Add, Div, Mul, Range, Sub};
 
 pub mod app;
+pub mod demo;
 pub mod graphics;
 
 pub fn map<T>(x: T, input_range: Range<T>, output_range: Range<T>) -> T

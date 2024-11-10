@@ -11,9 +11,9 @@ struct Args {}
 
 /// An app is just a struct. It can contain state and clean itself up in drop if
 /// needed.
-struct GlfwExample;
+struct GLFWApp;
 
-impl App for GlfwExample {
+impl App for GLFWApp {
     type Args = Args;
 
     /// Create a new instance of the app.
@@ -53,5 +53,5 @@ impl App for GlfwExample {
 pub fn main() {
     // app_main creates an instance of the app and starts the GLFW loop to
     // process events, etc...
-    app_main::<GlfwExample>();
+    app_main::<GLFWApp>();
 }

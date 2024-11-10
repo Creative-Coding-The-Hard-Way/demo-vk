@@ -1,21 +1,16 @@
 use {
-    anyhow::{Context, Result},
+    anyhow::Result,
     clap::Parser,
     core::f32,
     demo_vk::{
-        app::{app_main, App},
+        app::FullscreenToggle,
+        demo::{demo_main, Demo, Graphics},
         graphics::{
-            ortho_projection,
-            vulkan::{
-                FrameStatus, FramesInFlight, PresentImageStatus, Swapchain,
-                VulkanContext,
-            },
-            BindlessTextureAtlas, Sprite, SpriteLayer, StreamingSprites,
-            SwapchainColorPass, TextureLoader,
+            ortho_projection, BindlessTextureAtlas, Sprite, SpriteLayer,
+            StreamingSprites, SwapchainColorPass, TextureLoader,
         },
-        trace,
     },
-    glfw::{Action, Key, Window, WindowEvent},
+    glfw::{Action, Key, WindowEvent},
     nalgebra::Similarity2,
     std::{sync::Arc, time::Instant},
 };
@@ -27,44 +22,31 @@ struct Args {}
 struct Sprites {
     start_time: Instant,
     last_frame: Instant,
-
-    world_layer: SpriteLayer,
     sprites: StreamingSprites,
-    atlas: BindlessTextureAtlas,
 
-    // Vulkan resources
-    frames_in_flight: FramesInFlight,
+    fullscreen_toggle: FullscreenToggle,
+    world_layer: SpriteLayer,
+    atlas: BindlessTextureAtlas,
     color_pass: SwapchainColorPass,
-    swapchain: Arc<Swapchain>,
-    swapchain_needs_rebuild: bool,
-    ctx: Arc<VulkanContext>,
 }
 
-impl App for Sprites {
+impl Demo for Sprites {
     type Args = Args;
 
-    fn new(window: &mut glfw::Window, _args: Self::Args) -> Result<Self>
-    where
-        Self: Sized,
-    {
+    fn new(
+        window: &mut glfw::Window,
+        gfx: &mut Graphics<Args>,
+    ) -> Result<Self> {
         window.set_all_polling(true);
-
-        let ctx = VulkanContext::new(window)
-            .with_context(trace!("Unable to create device!"))?;
-
         let (w, h) = window.get_framebuffer_size();
-        let swapchain = Swapchain::new(ctx.clone(), (w as u32, h as u32), None)
-            .with_context(trace!("Unable to create swapchain!"))?;
 
-        let frames_in_flight = FramesInFlight::new(ctx.clone(), 2)
-            .with_context(trace!("Unable to create frames_in_flight!"))?;
+        let ctx = &gfx.vulkan;
 
-        let color_pass = SwapchainColorPass::new(ctx.clone(), &swapchain)?;
-
+        let color_pass = SwapchainColorPass::new(ctx.clone(), &gfx.swapchain)?;
         let mut atlas = BindlessTextureAtlas::new(
             ctx.clone(),
             1024 * 10,
-            &frames_in_flight,
+            &gfx.frames_in_flight,
         )?;
 
         let mut loader = TextureLoader::new(ctx.clone())?;
@@ -75,56 +57,50 @@ impl App for Sprites {
 
         let world_layer = SpriteLayer::builder()
             .ctx(ctx.clone())
-            .frames_in_flight(&frames_in_flight)
+            .frames_in_flight(&gfx.frames_in_flight)
             .texture_atlas_layout(atlas.descriptor_set_layout())
             .render_pass(color_pass.renderpass())
-            .swapchain(&swapchain)
+            .swapchain(&gfx.swapchain)
             .projection(ortho_projection(w as f32 / h as f32, 10.0))
             .build()?;
 
-        let sprites = StreamingSprites::new(ctx.clone(), &frames_in_flight)?;
+        let sprites =
+            StreamingSprites::new(ctx.clone(), &gfx.frames_in_flight)?;
 
         Ok(Self {
             start_time: Instant::now(),
             last_frame: Instant::now(),
+            fullscreen_toggle: FullscreenToggle::new(window),
             world_layer,
             sprites,
             atlas,
-            frames_in_flight,
             color_pass,
-            swapchain,
-            swapchain_needs_rebuild: false,
-            ctx,
         })
     }
 
     fn handle_event(
         &mut self,
-        window: &mut Window,
-        event: WindowEvent,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] event: glfw::WindowEvent,
     ) -> Result<()> {
-        if let glfw::WindowEvent::Key(Key::Escape, _, Action::Release, _) =
-            event
-        {
-            window.set_should_close(true);
+        match event {
+            WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
+                window.set_should_close(true);
+            }
+            WindowEvent::Key(Key::Space, _, Action::Release, _) => {
+                self.fullscreen_toggle.toggle_fullscreen(window)?;
+            }
+            _ => (),
         }
-
         Ok(())
     }
 
-    fn update(&mut self, window: &mut Window) -> Result<()> {
-        if self.swapchain_needs_rebuild {
-            self.rebuild_swapchain(window)?;
-            self.world_layer.rebuild_swapchain_resources(
-                &self.swapchain,
-                self.color_pass.renderpass(),
-                &self.frames_in_flight,
-            )?;
-            let (w, h) = window.get_framebuffer_size();
-            self.world_layer
-                .set_projection(&ortho_projection(w as f32 / h as f32, 10.0));
-        }
-
+    fn update(
+        &mut self,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+    ) -> Result<()> {
         let (_dt, t) = {
             let now = Instant::now();
             let dt = now.duration_since(self.last_frame).as_secs_f32();
@@ -146,70 +122,48 @@ impl App for Sprites {
                     )),
             );
         }
+        Ok(())
+    }
 
-        let frame = match self.frames_in_flight.start_frame(&self.swapchain)? {
-            FrameStatus::FrameStarted(frame) => frame,
-            FrameStatus::SwapchainNeedsRebuild => {
-                self.swapchain_needs_rebuild = true;
-                return Ok(());
-            }
-        };
-
+    fn draw(
+        &mut self,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] frame: &demo_vk::graphics::vulkan::Frame,
+    ) -> Result<()> {
         self.color_pass
-            .begin_render_pass(&frame, [0.0, 0.0, 0.0, 0.0]);
+            .begin_render_pass(frame, [0.0, 0.0, 0.0, 0.0]);
 
-        self.atlas.bind_frame_descriptor(&frame)?;
-        self.sprites.flush(&frame)?;
+        self.atlas.bind_frame_descriptor(frame)?;
+        self.sprites.flush(frame)?;
         self.world_layer
-            .begin_frame_commands(&frame)?
+            .begin_frame_commands(frame)?
             .draw(&self.sprites)?
             .finish();
 
-        self.color_pass.end_render_pass(&frame);
-
-        if self
-            .frames_in_flight
-            .present_frame(&self.swapchain, frame)?
-            == PresentImageStatus::SwapchainNeedsRebuild
-        {
-            self.swapchain_needs_rebuild = true;
-        }
-
+        self.color_pass.end_render_pass(frame);
         Ok(())
     }
-}
 
-impl Sprites {
-    fn rebuild_swapchain(&mut self, window: &mut Window) -> Result<()> {
-        self.swapchain_needs_rebuild = false;
-
-        // wait for all pending work to finish
-        self.frames_in_flight.wait_for_all_frames_to_complete()?;
-
-        self.swapchain = {
-            let (w, h) = window.get_framebuffer_size();
-            Swapchain::new(
-                self.ctx.clone(),
-                (w as u32, h as u32),
-                Some(self.swapchain.raw()),
-            )?
-        };
-
+    fn rebuild_swapchain_resources(
+        &mut self,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+    ) -> Result<()> {
         self.color_pass =
-            SwapchainColorPass::new(self.ctx.clone(), &self.swapchain)?;
-
+            SwapchainColorPass::new(gfx.vulkan.clone(), &gfx.swapchain)?;
+        self.world_layer.rebuild_swapchain_resources(
+            &gfx.swapchain,
+            self.color_pass.renderpass(),
+            &gfx.frames_in_flight,
+        )?;
+        let (w, h) = window.get_framebuffer_size();
+        self.world_layer
+            .set_projection(&ortho_projection(w as f32 / h as f32, 10.0));
         Ok(())
-    }
-}
-
-impl Drop for Sprites {
-    fn drop(&mut self) {
-        self.frames_in_flight
-            .wait_for_all_frames_to_complete()
-            .expect("Error while shutting down!");
     }
 }
 
 fn main() {
-    app_main::<Sprites>();
+    demo_main::<Sprites>();
 }

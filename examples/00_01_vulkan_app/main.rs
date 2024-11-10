@@ -19,14 +19,14 @@ struct Args {}
 /// An app is just a struct. It can contain state and clean itself up in drop if
 /// needed.
 #[derive(Debug)]
-struct VulkanExample {
+struct VulkanApp {
     ctx: Arc<VulkanContext>,
-    swapchain: Arc<Swapchain>,
+    swapchain: Swapchain,
     frames_in_flight: FramesInFlight,
     swapchain_needs_rebuild: bool,
 }
 
-impl App for VulkanExample {
+impl App for VulkanApp {
     type Args = Args;
 
     /// Create a new instance of the app.
@@ -141,5 +141,5 @@ impl App for VulkanExample {
 pub fn main() {
     // app_main creates an instance of the app and starts the GLFW loop to
     // process events, etc...
-    app_main::<VulkanExample>();
+    app_main::<VulkanApp>();
 }
