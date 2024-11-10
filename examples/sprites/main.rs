@@ -2,10 +2,7 @@ use {
     anyhow::{Context, Result},
     clap::Parser,
     core::f32,
-    glfw::{Action, Key, Window, WindowEvent},
-    nalgebra::Similarity2,
-    std::{sync::Arc, time::Instant},
-    sts::{
+    demo_vk::{
         app::{app_main, App},
         graphics::{
             ortho_projection,
@@ -18,6 +15,9 @@ use {
         },
         trace,
     },
+    glfw::{Action, Key, Window, WindowEvent},
+    nalgebra::Similarity2,
+    std::{sync::Arc, time::Instant},
 };
 
 #[derive(Parser, Debug)]

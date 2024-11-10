@@ -4,13 +4,7 @@
 use {
     anyhow::{Context, Result},
     clap::Parser,
-    glfw::{Action, Key, WindowEvent},
-    std::{
-        path::PathBuf,
-        sync::Arc,
-        time::{Duration, Instant},
-    },
-    sts::{
+    demo_vk::{
         app::{app_main, App, FullscreenToggle},
         graphics::{
             vulkan::{
@@ -20,6 +14,12 @@ use {
             FullscreenQuad, Recompiler, SwapchainColorPass, TextureLoader,
         },
         trace,
+    },
+    glfw::{Action, Key, WindowEvent},
+    std::{
+        path::PathBuf,
+        sync::Arc,
+        time::{Duration, Instant},
     },
 };
 
@@ -207,8 +207,8 @@ impl App for LiveReload {
 
             FrameData {
                 mouse_pos: [
-                    sts::map(x, 0.0..w, -1.0..1.0),
-                    sts::map(y, 0.0..h, 1.0..-1.0),
+                    demo_vk::map(x, 0.0..w, -1.0..1.0),
+                    demo_vk::map(y, 0.0..h, 1.0..-1.0),
                 ],
                 screen_size: [w, h],
                 time: (now - self.start_time).as_secs_f32(),

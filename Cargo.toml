@@ -1,5 +1,5 @@
 [package]
-name = "sts" # shader-toy-slang
+name = "demo_vk"
 version = "0.1.0"
 edition = "2021"
 

@@ -1,16 +1,13 @@
-# Shader-Toy-Slang
+# Demo-VK
 
-The library + example in this binary exist because I wanted to experiment with
-[shader-slang](https://github.com/shader-slang/slang) which is now included in
-the Vulkan SDK (see the [1.3.296.0 release notes](https://vulkan.lunarg.com/doc/sdk/1.3.296.0/windows/release_notes.html)).
+Every time I experiment with Vulkan, I end up writing the same handful of
+utilities and starting points. This repo is a collection of some of the most
+common.
 
-## Demos
+## External Dependencies
 
-Working shader demos are placed in the [demos](./demos/) directory. Demos use
-the [Live Reload](./examples/live_reload/) binary.
-
-## Dependencies
+- [Latest Vulkan SDK](https://vulkan.lunarg.com/)
 
 - `slangc`: The [shader-slang](https://github.com/shader-slang/slang) compiler
-  is expected to be on the system PATH. The compiler binary is
-  available as part of the Vulkan SDK.
+  is expected to be on the system PATH. The compiler binary is available as part
+  of the Vulkan SDK.
