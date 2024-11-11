@@ -6,6 +6,7 @@ use {
         graphics::{vulkan::Frame, SwapchainColorPass},
     },
     glfw::Window,
+    std::time::Instant,
 };
 
 #[derive(Debug, Parser)]
@@ -32,9 +33,14 @@ impl Demo for ExampleDemo {
         #[allow(unused_variables)] gfx: &mut Gfx,
         #[allow(unused_variables)] frame: &Frame,
     ) -> Result<()> {
+        log::info!("{}", gfx.metrics);
+
+        let before_color_pass = Instant::now();
         self.color_pass
             .begin_render_pass(frame, [0.2, 0.2, 0.25, 1.0]);
         self.color_pass.end_render_pass(frame);
+        gfx.metrics.ms_since("color pass ms", before_color_pass);
+
         Ok(())
     }
 

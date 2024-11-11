@@ -15,10 +15,132 @@ use {
     clap::Parser,
     spin_sleep_util::Interval,
     std::{
+        collections::BTreeMap,
         sync::Arc,
         time::{Duration, Instant},
     },
 };
+
+#[derive(Debug)]
+pub struct FrameMetrics {
+    target_fps: usize,
+    last_frame: Instant,
+    ms_per_frame: RollingAverage,
+    ms_per_update: RollingAverage,
+    ms_per_draw: RollingAverage,
+    metrics: BTreeMap<String, RollingAverage>,
+}
+
+impl FrameMetrics {
+    /// Creates a new FrameMetrics instance.
+    fn new(target_fps: usize) -> Self {
+        Self {
+            target_fps,
+            last_frame: Instant::now(),
+            ms_per_frame: RollingAverage::new(
+                target_fps,
+                1.0 / target_fps as f32,
+            ),
+            ms_per_update: RollingAverage::new(
+                target_fps,
+                1.0 / target_fps as f32,
+            ),
+            ms_per_draw: RollingAverage::new(
+                target_fps,
+                1.0 / target_fps as f32,
+            ),
+            metrics: BTreeMap::new(),
+        }
+    }
+
+    /// Called when the application is unpaused.
+    ///
+    /// Resets the last frame time so there isn't a single massively slow frame.
+    fn unpause(&mut self) {
+        self.last_frame = Instant::now();
+    }
+
+    /// Calculates the time since the last frame and update internal metrics.
+    ///
+    /// Returns the time since the last frame in seconds.
+    fn frame_tick(&mut self) -> f32 {
+        let now = Instant::now();
+        let frame_seconds = now.duration_since(self.last_frame).as_secs_f32();
+        self.last_frame = now;
+        self.ms_per_frame.push(frame_seconds * 1000.0);
+
+        frame_seconds
+    }
+
+    fn update_tick(&mut self, before_update: Instant) {
+        let ms =
+            Instant::now().duration_since(before_update).as_secs_f32() * 1000.0;
+        self.ms_per_update.push(ms);
+    }
+
+    fn draw_tick(&mut self, before_draw: Instant) {
+        let ms =
+            Instant::now().duration_since(before_draw).as_secs_f32() * 1000.0;
+        self.ms_per_draw.push(ms);
+    }
+
+    /// Records the milliseconds from start_time until now() at the time this
+    /// function is called.
+    ///
+    /// Returns the milliseconds since the start time.
+    pub fn ms_since(
+        &mut self,
+        name: impl Into<String>,
+        start_time: Instant,
+    ) -> f32 {
+        let ms =
+            Instant::now().duration_since(start_time).as_secs_f32() * 1000.0;
+        self.record_metric(name, ms);
+        ms
+    }
+
+    /// Saves a duration to the frame metrics.
+    pub fn record_metric(&mut self, name: impl Into<String>, value: f32) {
+        let metric = self
+            .metrics
+            .entry(name.into())
+            .or_insert_with(|| RollingAverage::new(self.target_fps, value));
+        metric.push(value);
+    }
+
+    /// Resets all tracked metrics.
+    pub fn reset_metrics(&mut self) {
+        self.metrics.clear();
+    }
+}
+
+impl std::fmt::Display for FrameMetrics {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let precision = f.precision().unwrap_or(2);
+        f.write_fmt(format_args!(
+            indoc::indoc! {"
+                Frame Metrics
+                fps : {:.0}
+                mspf: {:.*}
+                mspu: {:.*}
+                mspd: {:.*}
+            "},
+            1000.0 / self.ms_per_frame.average(),
+            precision,
+            self.ms_per_frame,
+            precision,
+            self.ms_per_update,
+            precision,
+            self.ms_per_draw,
+        ))?;
+
+        for (name, metric) in self.metrics.iter() {
+            f.write_fmt(format_args!("{}: {:.*}\n", name, precision, metric))?;
+        }
+
+        Ok(())
+    }
+}
 
 /// Standard graphics resources provided by the Demo.
 pub struct Graphics<A> {
@@ -34,8 +156,8 @@ pub struct Graphics<A> {
     /// The demo's cli args
     pub args: A,
 
-    frame_duration: RollingAverage,
-    last_frame: Instant,
+    pub metrics: FrameMetrics,
+
     fps_limiter: Interval,
 
     swapchain_needs_rebuild: bool,
@@ -206,7 +328,7 @@ impl<D: Demo> DemoApp<D> {
                 self.demo.unpaused(window, &mut self.graphics)?;
             }
             self.graphics.paused = false;
-            self.graphics.last_frame = Instant::now();
+            self.graphics.metrics.unpause();
         }
         Ok(self.graphics.paused)
     }
@@ -244,11 +366,7 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             swapchain,
             frames_in_flight,
             args,
-            frame_duration: RollingAverage::new(
-                D::FRAMES_PER_SECOND as usize,
-                1.0 / D::FRAMES_PER_SECOND as f32,
-            ),
-            last_frame: Instant::now(),
+            metrics: FrameMetrics::new(D::FRAMES_PER_SECOND as usize),
             swapchain_needs_rebuild: false,
             paused: false,
         };
@@ -299,27 +417,24 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             self.graphics.swapchain_needs_rebuild = false;
         }
 
-        let now = Instant::now();
-        let frame_time =
-            now.duration_since(self.graphics.last_frame).as_secs_f32() * 1000.0;
-        self.graphics.last_frame = now;
-        self.graphics.frame_duration.push(frame_time);
+        self.graphics.metrics.frame_tick();
 
-        log::info!(
-            indoc::indoc! {"
-                fps : {:.0}
-                mspf: {:.4}
-            "},
-            1000.0 / self.graphics.frame_duration.average(),
-            self.graphics.frame_duration,
-        );
+        // Update application logic
+        // ------------------------
 
+        let before_update = Instant::now();
         self.demo
             .update(window, &mut self.graphics)
             .with_context(trace!("Unhandled error in Demo::update()!"))?;
+        self.graphics.metrics.update_tick(before_update);
 
-        // Start the next frame
+        // Limit FPS, wait just before acquiring the frame
         self.graphics.fps_limiter.tick();
+
+        // Prepare frame command buffer and submit
+        // ---------------------------------------
+
+        let before_draw = Instant::now();
         let frame = match self
             .graphics
             .frames_in_flight
@@ -343,6 +458,7 @@ impl<D: Demo + Sized> App for DemoApp<D> {
         if result == PresentImageStatus::SwapchainNeedsRebuild {
             self.graphics.swapchain_needs_rebuild = true;
         }
+        self.graphics.metrics.draw_tick(before_draw);
 
         Ok(())
     }
