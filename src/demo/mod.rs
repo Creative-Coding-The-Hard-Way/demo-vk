@@ -28,6 +28,7 @@ pub struct Graphics<A> {
     pub args: A,
 
     swapchain_needs_rebuild: bool,
+    paused: bool,
 }
 
 /// A demo is an opinionated application that automatically creates the
@@ -145,11 +146,57 @@ pub trait Demo {
     ) -> Result<()> {
         Ok(())
     }
+
+    /// Called when the application is paused.
+    ///
+    /// The application is paused automatically any time the framebuffer has
+    /// size of 0. This occurs when the application is minimized, etc..
+    fn paused(
+        &mut self,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+    ) -> Result<()> {
+        Ok(())
+    }
+
+    /// Called when the application is unpaused.
+    fn unpaused(
+        &mut self,
+        #[allow(unused_variables)] window: &mut glfw::Window,
+        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+    ) -> Result<()> {
+        Ok(())
+    }
 }
 
 struct DemoApp<D: Demo> {
     graphics: Graphics<D::Args>,
     demo: D,
+}
+
+impl<D: Demo> DemoApp<D> {
+    /// Called any time the framebuffer size may have changed.
+    /// Returns the current paused status for convenience.
+    fn framebuffer_size_changed(
+        &mut self,
+        window: &mut glfw::Window,
+    ) -> Result<bool> {
+        let (w, h) = window.get_framebuffer_size();
+        let should_pause = w == 0 || h == 0;
+
+        if should_pause {
+            if !self.graphics.paused {
+                self.demo.paused(window, &mut self.graphics)?;
+            }
+            self.graphics.paused = true;
+        } else {
+            if self.graphics.paused {
+                self.demo.unpaused(window, &mut self.graphics)?;
+            }
+            self.graphics.paused = false;
+        }
+        Ok(self.graphics.paused)
+    }
 }
 
 impl<D: Demo + Sized> App for DemoApp<D> {
@@ -180,6 +227,7 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             frames_in_flight,
             args,
             swapchain_needs_rebuild: false,
+            paused: false,
         };
         let demo = D::new(window, &mut graphics)
             .with_context(trace!("Error initializing demo!"))?;
@@ -196,14 +244,21 @@ impl<D: Demo + Sized> App for DemoApp<D> {
     }
 
     fn update(&mut self, window: &mut glfw::Window) -> Result<()> {
+        if self.graphics.paused && self.framebuffer_size_changed(window)? {
+            std::hint::spin_loop();
+            return Ok(());
+        }
+
         if self.graphics.swapchain_needs_rebuild {
-            self.graphics.swapchain_needs_rebuild = false;
             self.graphics
                 .frames_in_flight
                 .wait_for_all_frames_to_complete()
                 .with_context(trace!(
                     "Error waiting for frames before swapchain rebuild!"
                 ))?;
+            if self.framebuffer_size_changed(window)? {
+                return Ok(());
+            }
             let (w, h) = window.get_framebuffer_size();
             self.graphics.swapchain = Swapchain::new(
                 self.graphics.vulkan.clone(),
@@ -217,6 +272,8 @@ impl<D: Demo + Sized> App for DemoApp<D> {
                 .with_context(trace!(
                     "Error while rebuilding demo swapchain resources!"
                 ))?;
+
+            self.graphics.swapchain_needs_rebuild = false;
         }
 
         self.demo
