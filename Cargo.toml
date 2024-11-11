@@ -24,6 +24,7 @@ ctrlc = "*"
 image = "*"
 bon = "*"
 nalgebra = "*"
+spin_sleep_util = "*"
 
 [dependencies.glfw]
 version = "*"

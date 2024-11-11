@@ -1,4 +1,7 @@
+mod rolling_average;
+
 use {
+    self::rolling_average::RollingAverage,
     crate::{
         app::{app_main, App},
         graphics::vulkan::{
@@ -10,7 +13,11 @@ use {
     anyhow::{Context, Result},
     ash::vk,
     clap::Parser,
-    std::sync::Arc,
+    spin_sleep_util::Interval,
+    std::{
+        sync::Arc,
+        time::{Duration, Instant},
+    },
 };
 
 /// Standard graphics resources provided by the Demo.
@@ -26,6 +33,10 @@ pub struct Graphics<A> {
 
     /// The demo's cli args
     pub args: A,
+
+    frame_duration: RollingAverage,
+    last_frame: Instant,
+    fps_limiter: Interval,
 
     swapchain_needs_rebuild: bool,
     paused: bool,
@@ -46,6 +57,7 @@ pub trait Demo {
     type Args: Sized + Parser;
     const FRAMES_IN_FLIGHT_COUNT: usize = 3;
     const INITIAL_WINDOW_SIZE: (i32, i32) = (1024, 768);
+    const FRAMES_PER_SECOND: u32 = 120;
 
     /// Creates a new instance of the demo.
     /// The application is allowed to modify the window based on its own
@@ -194,6 +206,7 @@ impl<D: Demo> DemoApp<D> {
                 self.demo.unpaused(window, &mut self.graphics)?;
             }
             self.graphics.paused = false;
+            self.graphics.last_frame = Instant::now();
         }
         Ok(self.graphics.paused)
     }
@@ -221,11 +234,21 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             FramesInFlight::new(vulkan.clone(), D::FRAMES_IN_FLIGHT_COUNT)
                 .with_context(trace!("Unable to create frames in flight!"))?;
 
+        let fps_limiter = spin_sleep_util::interval(Duration::from_secs_f64(
+            1.0 / D::FRAMES_PER_SECOND as f64,
+        ));
+
         let mut graphics = Graphics {
+            fps_limiter,
             vulkan,
             swapchain,
             frames_in_flight,
             args,
+            frame_duration: RollingAverage::new(
+                D::FRAMES_PER_SECOND as usize,
+                1.0 / D::FRAMES_PER_SECOND as f32,
+            ),
+            last_frame: Instant::now(),
             swapchain_needs_rebuild: false,
             paused: false,
         };
@@ -276,11 +299,27 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             self.graphics.swapchain_needs_rebuild = false;
         }
 
+        let now = Instant::now();
+        let frame_time =
+            now.duration_since(self.graphics.last_frame).as_secs_f32() * 1000.0;
+        self.graphics.last_frame = now;
+        self.graphics.frame_duration.push(frame_time);
+
+        log::info!(
+            indoc::indoc! {"
+                fps : {:.0}
+                mspf: {:.4}
+            "},
+            1000.0 / self.graphics.frame_duration.average(),
+            self.graphics.frame_duration,
+        );
+
         self.demo
             .update(window, &mut self.graphics)
             .with_context(trace!("Unhandled error in Demo::update()!"))?;
 
         // Start the next frame
+        self.graphics.fps_limiter.tick();
         let frame = match self
             .graphics
             .frames_in_flight
