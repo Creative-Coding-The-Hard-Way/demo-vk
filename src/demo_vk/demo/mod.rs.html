@@ -347,15 +347,11 @@
 <a href="#347" id="347">347</a>
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-</pre></div><pre class="rust"><code><span class="kw">mod </span>rolling_average;
+</pre></div><pre class="rust"><code><span class="kw">mod </span>frame_metrics;
+<span class="kw">mod </span>rolling_average;
 
 <span class="kw">use </span>{
-    <span class="self">self</span>::rolling_average::RollingAverage,
+    <span class="self">self</span>::frame_metrics::FrameMetrics,
     <span class="kw">crate</span>::{
         app::{app_main, App},
         graphics::vulkan::{
@@ -388,8 +384,8 @@
     <span class="doccomment">/// The demo's cli args
     </span><span class="kw">pub </span>args: A,
 
-    frame_duration: RollingAverage,
-    last_frame: Instant,
+    <span class="kw">pub </span>metrics: FrameMetrics,
+
     fps_limiter: Interval,
 
     swapchain_needs_rebuild: bool,
@@ -560,7 +556,7 @@
                 <span class="self">self</span>.demo.unpaused(window, <span class="kw-2">&amp;mut </span><span class="self">self</span>.graphics)<span class="question-mark">?</span>;
             }
             <span class="self">self</span>.graphics.paused = <span class="bool-val">false</span>;
-            <span class="self">self</span>.graphics.last_frame = Instant::now();
+            <span class="self">self</span>.graphics.metrics.unpause();
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.graphics.paused)
     }
@@ -598,11 +594,7 @@
             swapchain,
             frames_in_flight,
             args,
-            frame_duration: RollingAverage::new(
-                D::FRAMES_PER_SECOND <span class="kw">as </span>usize,
-                <span class="number">1.0 </span>/ D::FRAMES_PER_SECOND <span class="kw">as </span>f32,
-            ),
-            last_frame: Instant::now(),
+            metrics: FrameMetrics::new(D::FRAMES_PER_SECOND <span class="kw">as </span>usize),
             swapchain_needs_rebuild: <span class="bool-val">false</span>,
             paused: <span class="bool-val">false</span>,
         };
@@ -653,27 +645,24 @@
             <span class="self">self</span>.graphics.swapchain_needs_rebuild = <span class="bool-val">false</span>;
         }
 
-        <span class="kw">let </span>now = Instant::now();
-        <span class="kw">let </span>frame_time =
-            now.duration_since(<span class="self">self</span>.graphics.last_frame).as_secs_f32() * <span class="number">1000.0</span>;
-        <span class="self">self</span>.graphics.last_frame = now;
-        <span class="self">self</span>.graphics.frame_duration.push(frame_time);
+        <span class="self">self</span>.graphics.metrics.frame_tick();
 
-        <span class="macro">log::info!</span>(
-            <span class="macro">indoc::indoc!</span> {<span class="string">"
-                fps : {:.0}
-                mspf: {:.4}
-            "</span>},
-            <span class="number">1000.0 </span>/ <span class="self">self</span>.graphics.frame_duration.average(),
-            <span class="self">self</span>.graphics.frame_duration,
-        );
+        <span class="comment">// Update application logic
+        // ------------------------
 
+        </span><span class="kw">let </span>before_update = Instant::now();
         <span class="self">self</span>.demo
             .update(window, <span class="kw-2">&amp;mut </span><span class="self">self</span>.graphics)
             .with_context(<span class="macro">trace!</span>(<span class="string">"Unhandled error in Demo::update()!"</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.graphics.metrics.update_tick(before_update);
 
-        <span class="comment">// Start the next frame
+        <span class="comment">// Limit FPS, wait just before acquiring the frame
         </span><span class="self">self</span>.graphics.fps_limiter.tick();
+
+        <span class="comment">// Prepare frame command buffer and submit
+        // ---------------------------------------
+
+        </span><span class="kw">let </span>before_draw = Instant::now();
         <span class="kw">let </span>frame = <span class="kw">match </span><span class="self">self
             </span>.graphics
             .frames_in_flight
@@ -697,6 +686,7 @@
         <span class="kw">if </span>result == PresentImageStatus::SwapchainNeedsRebuild {
             <span class="self">self</span>.graphics.swapchain_needs_rebuild = <span class="bool-val">true</span>;
         }
+        <span class="self">self</span>.graphics.metrics.draw_tick(before_draw);
 
         <span class="prelude-val">Ok</span>(())
     }
