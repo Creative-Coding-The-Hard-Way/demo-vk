@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Buffer","CommandPool","DebugUtils","DescriptorPool","DescriptorSetLayout","Device","DeviceMemory","Fence","Framebuffer","Image","ImageView","Instance","Pipeline","PipelineLayout","RenderPass","Sampler","Semaphore","ShaderModule","Surface","Swapchain"]};
