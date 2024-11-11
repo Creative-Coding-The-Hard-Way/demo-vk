@@ -122,6 +122,8 @@ impl Demo for Sprites {
                     )),
             );
         }
+
+        log::info!("{}", gfx.metrics);
         Ok(())
     }
 
