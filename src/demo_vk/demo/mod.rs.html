@@ -313,7 +313,49 @@
 <a href="#313" id="313">313</a>
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>{
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+</pre></div><pre class="rust"><code><span class="kw">mod </span>rolling_average;
+
+<span class="kw">use </span>{
+    <span class="self">self</span>::rolling_average::RollingAverage,
     <span class="kw">crate</span>::{
         app::{app_main, App},
         graphics::vulkan::{
@@ -325,7 +367,11 @@
     anyhow::{Context, <span class="prelude-ty">Result</span>},
     ash::vk,
     clap::Parser,
-    std::sync::Arc,
+    spin_sleep_util::Interval,
+    std::{
+        sync::Arc,
+        time::{Duration, Instant},
+    },
 };
 
 <span class="doccomment">/// Standard graphics resources provided by the Demo.
@@ -341,6 +387,10 @@
 
     <span class="doccomment">/// The demo's cli args
     </span><span class="kw">pub </span>args: A,
+
+    frame_duration: RollingAverage,
+    last_frame: Instant,
+    fps_limiter: Interval,
 
     swapchain_needs_rebuild: bool,
     paused: bool,
@@ -361,6 +411,7 @@
     <span class="kw">type </span>Args: Sized + Parser;
     <span class="kw">const </span>FRAMES_IN_FLIGHT_COUNT: usize = <span class="number">3</span>;
     <span class="kw">const </span>INITIAL_WINDOW_SIZE: (i32, i32) = (<span class="number">1024</span>, <span class="number">768</span>);
+    <span class="kw">const </span>FRAMES_PER_SECOND: u32 = <span class="number">120</span>;
 
     <span class="doccomment">/// Creates a new instance of the demo.
     /// The application is allowed to modify the window based on its own
@@ -509,6 +560,7 @@
                 <span class="self">self</span>.demo.unpaused(window, <span class="kw-2">&amp;mut </span><span class="self">self</span>.graphics)<span class="question-mark">?</span>;
             }
             <span class="self">self</span>.graphics.paused = <span class="bool-val">false</span>;
+            <span class="self">self</span>.graphics.last_frame = Instant::now();
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.graphics.paused)
     }
@@ -536,11 +588,21 @@
             FramesInFlight::new(vulkan.clone(), D::FRAMES_IN_FLIGHT_COUNT)
                 .with_context(<span class="macro">trace!</span>(<span class="string">"Unable to create frames in flight!"</span>))<span class="question-mark">?</span>;
 
+        <span class="kw">let </span>fps_limiter = spin_sleep_util::interval(Duration::from_secs_f64(
+            <span class="number">1.0 </span>/ D::FRAMES_PER_SECOND <span class="kw">as </span>f64,
+        ));
+
         <span class="kw">let </span><span class="kw-2">mut </span>graphics = Graphics {
+            fps_limiter,
             vulkan,
             swapchain,
             frames_in_flight,
             args,
+            frame_duration: RollingAverage::new(
+                D::FRAMES_PER_SECOND <span class="kw">as </span>usize,
+                <span class="number">1.0 </span>/ D::FRAMES_PER_SECOND <span class="kw">as </span>f32,
+            ),
+            last_frame: Instant::now(),
             swapchain_needs_rebuild: <span class="bool-val">false</span>,
             paused: <span class="bool-val">false</span>,
         };
@@ -591,12 +653,28 @@
             <span class="self">self</span>.graphics.swapchain_needs_rebuild = <span class="bool-val">false</span>;
         }
 
+        <span class="kw">let </span>now = Instant::now();
+        <span class="kw">let </span>frame_time =
+            now.duration_since(<span class="self">self</span>.graphics.last_frame).as_secs_f32() * <span class="number">1000.0</span>;
+        <span class="self">self</span>.graphics.last_frame = now;
+        <span class="self">self</span>.graphics.frame_duration.push(frame_time);
+
+        <span class="macro">log::info!</span>(
+            <span class="macro">indoc::indoc!</span> {<span class="string">"
+                fps : {:.0}
+                mspf: {:.4}
+            "</span>},
+            <span class="number">1000.0 </span>/ <span class="self">self</span>.graphics.frame_duration.average(),
+            <span class="self">self</span>.graphics.frame_duration,
+        );
+
         <span class="self">self</span>.demo
             .update(window, <span class="kw-2">&amp;mut </span><span class="self">self</span>.graphics)
             .with_context(<span class="macro">trace!</span>(<span class="string">"Unhandled error in Demo::update()!"</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Start the next frame
-        </span><span class="kw">let </span>frame = <span class="kw">match </span><span class="self">self
+        </span><span class="self">self</span>.graphics.fps_limiter.tick();
+        <span class="kw">let </span>frame = <span class="kw">match </span><span class="self">self
             </span>.graphics
             .frames_in_flight
             .start_frame(<span class="kw-2">&amp;</span><span class="self">self</span>.graphics.swapchain)<span class="question-mark">?
