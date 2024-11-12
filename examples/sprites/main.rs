@@ -60,12 +60,15 @@ impl Demo for Sprites {
             .frames_in_flight(&gfx.frames_in_flight)
             .texture_atlas_layout(atlas.descriptor_set_layout())
             .render_pass(color_pass.renderpass())
-            .swapchain(&gfx.swapchain)
             .projection(ortho_projection(w as f32 / h as f32, 10.0))
             .build()?;
 
-        let sprites =
-            StreamingSprites::new(ctx.clone(), &gfx.frames_in_flight)?;
+        let sprites = StreamingSprites::builder()
+            .ctx(ctx.clone())
+            .frames_in_flight(&gfx.frames_in_flight)
+            .viewport(gfx.swapchain.viewport())
+            .scissor(gfx.swapchain.scissor())
+            .build()?;
 
         Ok(Self {
             start_time: Instant::now(),
@@ -123,7 +126,6 @@ impl Demo for Sprites {
             );
         }
 
-        log::info!("{}", gfx.metrics);
         Ok(())
     }
 
@@ -154,14 +156,16 @@ impl Demo for Sprites {
     ) -> Result<()> {
         self.color_pass =
             SwapchainColorPass::new(gfx.vulkan.clone(), &gfx.swapchain)?;
-        self.world_layer.rebuild_swapchain_resources(
-            &gfx.swapchain,
-            self.color_pass.renderpass(),
-            &gfx.frames_in_flight,
-        )?;
+        unsafe {
+            // Safe because all frames are stalled
+            self.world_layer
+                .rebuild_pipeline(self.color_pass.renderpass(), None)?;
+        }
         let (w, h) = window.get_framebuffer_size();
         self.world_layer
             .set_projection(&ortho_projection(w as f32 / h as f32, 10.0));
+        self.sprites.set_viewport(gfx.swapchain.viewport());
+        self.sprites.set_scissor(gfx.swapchain.scissor());
         Ok(())
     }
 }

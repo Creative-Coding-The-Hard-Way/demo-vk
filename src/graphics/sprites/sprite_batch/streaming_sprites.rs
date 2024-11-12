@@ -6,6 +6,7 @@ use {
     },
     anyhow::Result,
     ash::vk,
+    bon::bon,
     std::sync::Arc,
 };
 
@@ -15,11 +16,21 @@ pub struct StreamingSprites {
     current_frame_index: usize,
     sprites: Vec<Sprite>,
     buffers: Vec<CPUBuffer<Sprite>>,
+    viewport: vk::Viewport,
+    scissor: vk::Rect2D,
     sprite_counts: Vec<u32>,
     ctx: Arc<VulkanContext>,
 }
 
 impl SpriteBatch for StreamingSprites {
+    fn scissor(&self) -> vk::Rect2D {
+        self.scissor
+    }
+
+    fn viewport(&self) -> vk::Viewport {
+        self.viewport
+    }
+
     fn buffer(&self) -> vk::Buffer {
         self.buffers[self.current_frame_index].buffer()
     }
@@ -29,10 +40,14 @@ impl SpriteBatch for StreamingSprites {
     }
 }
 
+#[bon]
 impl StreamingSprites {
+    #[builder]
     pub fn new(
         ctx: Arc<VulkanContext>,
         frames_in_flight: &FramesInFlight,
+        viewport: vk::Viewport,
+        scissor: vk::Rect2D,
     ) -> Result<Self> {
         let mut buffers = vec![];
         for _ in 0..frames_in_flight.frame_count() {
@@ -43,12 +58,22 @@ impl StreamingSprites {
             )?);
         }
         Ok(Self {
+            viewport,
+            scissor,
             current_frame_index: 0,
             sprites: vec![],
             buffers,
             sprite_counts: vec![0; frames_in_flight.frame_count()],
             ctx,
         })
+    }
+
+    pub fn set_viewport(&mut self, viewport: vk::Viewport) {
+        self.viewport = viewport
+    }
+
+    pub fn set_scissor(&mut self, scissor: vk::Rect2D) {
+        self.scissor = scissor;
     }
 
     /// Add a sprite to be rendered by the next call to flush().

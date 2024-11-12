@@ -88,6 +88,25 @@ impl Swapchain {
         self.extent
     }
 
+    /// Returns a scissor rect for the full swapchain extent.
+    pub fn scissor(&self) -> vk::Rect2D {
+        vk::Rect2D {
+            offset: vk::Offset2D { x: 0, y: 0 },
+            extent: self.extent,
+        }
+    }
+
+    pub fn viewport(&self) -> vk::Viewport {
+        vk::Viewport {
+            x: 0.0,
+            y: 0.0,
+            width: self.extent.width as f32,
+            height: self.extent.height as f32,
+            min_depth: 0.0,
+            max_depth: 1.0,
+        }
+    }
+
     /// Returns the Swapchain's image format.
     pub fn format(&self) -> vk::Format {
         self.format.format

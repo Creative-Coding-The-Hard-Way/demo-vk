@@ -8,8 +8,8 @@ use {
     self::frame_resources::FrameResources,
     super::vulkan::Frame,
     crate::graphics::vulkan::{
-        raii, DescriptorBumpAllocator, FramesInFlight, Swapchain,
-        UniformBuffer, VulkanContext,
+        raii, DescriptorBumpAllocator, FramesInFlight, UniformBuffer,
+        VulkanContext,
     },
     anyhow::Result,
     ash::vk,
@@ -58,6 +58,7 @@ pub struct SpriteLayer {
     frames: Vec<FrameResources>,
 
     descriptor_allocator: DescriptorBumpAllocator,
+    fragment_shader: Arc<raii::ShaderModule>,
     pipeline_layout: raii::PipelineLayout,
     pipeline: raii::Pipeline,
     layer_data_buffer: UniformBuffer<LayerData>,
@@ -73,9 +74,9 @@ impl SpriteLayer {
         ctx: Arc<VulkanContext>,
         frames_in_flight: &FramesInFlight,
         render_pass: &raii::RenderPass,
-        swapchain: &Swapchain,
         projection: Matrix4<f32>,
         texture_atlas_layout: &raii::DescriptorSetLayout,
+        fragment_shader: Option<Arc<raii::ShaderModule>>,
     ) -> Result<Self> {
         let layer_descriptor_set_layout =
             descriptors::create_layer_descriptor_set_layout(&ctx)?;
@@ -83,6 +84,10 @@ impl SpriteLayer {
             descriptors::create_batch_descriptor_set_layout(&ctx)?;
         let mut descriptor_allocator =
             descriptors::create_descriptor_allocator(ctx.clone())?;
+
+        let default_fragment_shader = pipeline::default_fragment_shader(&ctx)?;
+        let fragment_shader =
+            fragment_shader.unwrap_or(default_fragment_shader);
 
         let pipeline_layout = pipeline::create_pipeline_layout(
             &ctx,
@@ -96,7 +101,7 @@ impl SpriteLayer {
             &ctx,
             &pipeline_layout,
             render_pass,
-            swapchain,
+            &fragment_shader,
         )?;
 
         let layer_data_buffer =
@@ -118,6 +123,7 @@ impl SpriteLayer {
         }
 
         Ok(Self {
+            fragment_shader,
             layer_descriptor_set_layout,
             batch_descriptor_set_layout,
             frames,
@@ -168,24 +174,26 @@ impl SpriteLayer {
         Ok(())
     }
 
-    /// Update any swapchain-dependent internal resources.
+    /// Rebuild the graphics pipeline
     ///
-    /// # Performance
+    /// # Safety
     ///
-    /// Note, this method waits for all pending frames in flight to complete.
-    pub fn rebuild_swapchain_resources(
+    /// Unsafe because this should only be called when the layer is not being
+    /// used by the GPU. For example, after a device wait_idle or after all
+    /// frames in flight have completed.
+    pub unsafe fn rebuild_pipeline(
         &mut self,
-        swapchain: &Swapchain,
         renderpass: &raii::RenderPass,
-        frames_in_flight: &FramesInFlight,
+        fragment_shader: Option<Arc<raii::ShaderModule>>,
     ) -> Result<()> {
-        frames_in_flight.wait_for_all_frames_to_complete()?;
-
+        if let Some(shader) = fragment_shader {
+            self.fragment_shader = shader;
+        }
         self.pipeline = pipeline::create_pipeline(
             &self.ctx,
             &self.pipeline_layout,
             renderpass,
-            swapchain,
+            &self.fragment_shader,
         )?;
         Ok(())
     }
@@ -242,6 +250,16 @@ impl SpriteLayer {
             &self.batch_descriptor_set_layout,
         )?;
         unsafe {
+            self.ctx.cmd_set_viewport(
+                frame.command_buffer(),
+                0,
+                &[batch.viewport()],
+            );
+            self.ctx.cmd_set_scissor(
+                frame.command_buffer(),
+                0,
+                &[batch.scissor()],
+            );
             self.ctx.cmd_bind_descriptor_sets(
                 frame.command_buffer(),
                 vk::PipelineBindPoint::GRAPHICS,

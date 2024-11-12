@@ -29,7 +29,7 @@ use {
 
 /// Automatically recompiles a slang source file any time it changes.
 pub struct Recompiler {
-    shader: raii::ShaderModule,
+    shader: Arc<raii::ShaderModule>,
     compile_thread_join_handle: Option<JoinHandle<()>>,
     shutdown_sender: SyncSender<()>,
     shader_receiver: Receiver<raii::ShaderModule>,
@@ -60,7 +60,7 @@ impl Recompiler {
         .with_context(trace!("Error while spawning the compiler thread!"))?;
 
         Ok(Self {
-            shader,
+            shader: Arc::new(shader),
             compile_thread_join_handle: Some(compile_thread_join_handle),
             shutdown_sender,
             shader_receiver: source_receiver,
@@ -81,7 +81,7 @@ impl Recompiler {
     pub fn check_for_update(&mut self) -> Result<bool> {
         match self.shader_receiver.try_recv() {
             Ok(new_shader) => {
-                self.shader = new_shader;
+                self.shader = Arc::new(new_shader);
                 Ok(true)
             }
             Err(TryRecvError::Empty) => Ok(false),

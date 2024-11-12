@@ -11,24 +11,10 @@ pub trait SpriteBatch {
 
     /// The number of sprites to render.
     fn count(&self) -> u32;
-}
 
-impl SpriteBatch for (u32, vk::Buffer) {
-    fn buffer(&self) -> vk::Buffer {
-        self.1
-    }
+    /// The viewport for this batch of sprites.
+    fn viewport(&self) -> vk::Viewport;
 
-    fn count(&self) -> u32 {
-        self.0
-    }
-}
-
-impl SpriteBatch for (vk::Buffer, u32) {
-    fn buffer(&self) -> vk::Buffer {
-        self.0
-    }
-
-    fn count(&self) -> u32 {
-        self.1
-    }
+    /// The scissor region for this batch of sprites.
+    fn scissor(&self) -> vk::Rect2D;
 }

@@ -1,8 +1,18 @@
 use {
-    crate::graphics::vulkan::{raii, spirv_module, Swapchain, VulkanContext},
+    crate::graphics::vulkan::{raii, spirv_module, VulkanContext},
     anyhow::Result,
     ash::vk,
+    std::sync::Arc,
 };
+
+pub fn default_fragment_shader(
+    cxt: &VulkanContext,
+) -> Result<Arc<raii::ShaderModule>> {
+    Ok(Arc::new(spirv_module(
+        cxt,
+        include_bytes!("./shaders/sprite.frag.spv"),
+    )?))
+}
 
 /// Creates the pipeline layout based on the required descriptor set layouts.
 pub fn create_pipeline_layout(
@@ -28,14 +38,12 @@ pub fn create_pipeline(
     cxt: &VulkanContext,
     pipeline_layout: &raii::PipelineLayout,
     render_pass: &raii::RenderPass,
-    swapchain: &Swapchain,
+    fragment_shader: &raii::ShaderModule,
 ) -> Result<raii::Pipeline> {
     let main = std::ffi::CString::new("main")?;
 
     let vertex_shader =
         spirv_module(cxt, include_bytes!("./shaders/sprite.vert.spv"))?;
-    let fragment_shader =
-        spirv_module(cxt, include_bytes!("./shaders/sprite.frag.spv"))?;
     let stages = [
         vk::PipelineShaderStageCreateInfo {
             stage: vk::ShaderStageFlags::VERTEX,
@@ -100,23 +108,18 @@ pub fn create_pipeline(
         p_vertex_attribute_descriptions: std::ptr::null(),
         ..Default::default()
     };
-    let viewport = vk::Viewport {
-        x: 0.0,
-        y: 0.0,
-        width: swapchain.extent().width as f32,
-        height: swapchain.extent().height as f32,
-        min_depth: 0.0,
-        max_depth: 1.0,
-    };
-    let scissor = vk::Rect2D {
-        offset: vk::Offset2D { x: 0, y: 0 },
-        extent: swapchain.extent(),
-    };
     let viewport_state = vk::PipelineViewportStateCreateInfo {
         viewport_count: 1,
-        p_viewports: &viewport,
+        p_viewports: std::ptr::null(),
         scissor_count: 1,
-        p_scissors: &scissor,
+        p_scissors: std::ptr::null(),
+        ..Default::default()
+    };
+    let dynamic_states =
+        [vk::DynamicState::VIEWPORT, vk::DynamicState::SCISSOR];
+    let dynamic_state = vk::PipelineDynamicStateCreateInfo {
+        dynamic_state_count: dynamic_states.len() as u32,
+        p_dynamic_states: dynamic_states.as_ptr(),
         ..Default::default()
     };
     let create_info = vk::GraphicsPipelineCreateInfo {
@@ -130,7 +133,7 @@ pub fn create_pipeline(
         p_multisample_state: &multisample_state,
         p_depth_stencil_state: &depth_stencil_state,
         p_color_blend_state: &color_blend_state,
-        p_dynamic_state: std::ptr::null(),
+        p_dynamic_state: &dynamic_state,
         render_pass: render_pass.raw,
         layout: pipeline_layout.raw,
         subpass: 0,
