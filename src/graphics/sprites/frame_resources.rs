@@ -18,21 +18,26 @@ pub struct FrameResources {
 
 impl FrameResources {
     /// Create a new instance of the Sprite Layer's per-frame resources.
-    pub fn new(
+    pub fn new<T>(
         ctx: Arc<VulkanContext>,
         descriptor_allocator: &mut DescriptorBumpAllocator,
         layer_descriptor_set_layout: &raii::DescriptorSetLayout,
-        layer_buffer: &UniformBuffer<LayerData>,
+        layer_buffer: &UniformBuffer<LayerData<T>>,
         index: usize,
-    ) -> Result<Self> {
+    ) -> Result<Self>
+    where
+        T: Copy + Clone + Default,
+    {
         let layer_descriptor_set = descriptor_allocator
             .allocate_descriptor_set(layer_descriptor_set_layout)?;
 
+        let range = size_of::<LayerData<T>>() as u64;
+        log::info!("{}", range);
         unsafe {
             let buffer_info = vk::DescriptorBufferInfo {
                 buffer: layer_buffer.buffer(),
                 offset: layer_buffer.offset_for_index(index),
-                range: size_of::<LayerData>() as u64,
+                range: size_of::<LayerData<T>>() as u64,
             };
             ctx.update_descriptor_sets(
                 &[vk::WriteDescriptorSet {

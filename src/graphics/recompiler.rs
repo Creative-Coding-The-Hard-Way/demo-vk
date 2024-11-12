@@ -67,9 +67,9 @@ impl Recompiler {
         })
     }
 
-    /// Returns the most up-to-date copy of the shader's compiled SPIR-V bytes.
-    pub fn shader(&self) -> &raii::ShaderModule {
-        &self.shader
+    /// Clones the current fragment shader instance.
+    pub fn shader(&self) -> Arc<raii::ShaderModule> {
+        self.shader.clone()
     }
 
     /// Checks for an updated copy of the compiled source code.

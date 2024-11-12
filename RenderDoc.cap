@@ -2,10 +2,10 @@
     "rdocCaptureSettings": 1,
     "settings": {
         "autoStart": true,
-        "commandLine": "",
+        "commandLine": "--fragment-shader=./examples/01_00_live_shader/fragment.slang",
         "environment": [
         ],
-        "executable": "C:\\Users\\Bradley\\Documents\\shader-toy-slang\\target\\debug\\examples\\sprites.exe",
+        "executable": "C:\\Users\\Bradley\\Documents\\demo-vk\\target\\debug\\examples\\01_00_live_shader.exe",
         "inject": false,
         "numQueuedFrames": 2,
         "options": {
@@ -23,6 +23,6 @@
             "verifyBufferAccess": true
         },
         "queuedFrameCap": 0,
-        "workingDir": "C:/Users/Bradley/Documents/shader-toy-slang"
+        "workingDir": "C:/Users/Bradley/Documents/demo-vk"
     }
 }

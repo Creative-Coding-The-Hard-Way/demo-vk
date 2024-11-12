@@ -26,13 +26,22 @@ pub use self::{
 /// Layer data provided to the graphics pipeline.
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
-pub struct LayerData {
+pub struct LayerData<UserDataT: Copy + Clone + Default> {
     pub projection: [[f32; 4]; 4],
+    pub user_data: UserDataT,
 }
 
-pub struct SpriteLayerCommands<'a, 'b>(&'a mut SpriteLayer, &'b Frame);
+pub struct SpriteLayerCommands<'a, 'b, UserDataT>(
+    &'a mut SpriteLayer<UserDataT>,
+    &'b Frame,
+)
+where
+    UserDataT: Copy + Clone + Default;
 
-impl SpriteLayerCommands<'_, '_> {
+impl<UserDataT> SpriteLayerCommands<'_, '_, UserDataT>
+where
+    UserDataT: Copy + Clone + Default,
+{
     /// Draw a batch of sprites.
     pub fn draw(self, batch: &impl SpriteBatch) -> Result<Self> {
         let Self(layer, frame) = self;
@@ -51,7 +60,7 @@ impl SpriteLayerCommands<'_, '_> {
 /// Multiple layers can be used for batches of sprites with different
 /// perspective transforms. (a scene layer and a ui layer, for example).
 /// Additionally, layers can be used to employ unique sprite shaders.
-pub struct SpriteLayer {
+pub struct SpriteLayer<UserDataT: Copy + Clone + Default> {
     layer_descriptor_set_layout: raii::DescriptorSetLayout,
     batch_descriptor_set_layout: raii::DescriptorSetLayout,
 
@@ -61,13 +70,13 @@ pub struct SpriteLayer {
     fragment_shader: Arc<raii::ShaderModule>,
     pipeline_layout: raii::PipelineLayout,
     pipeline: raii::Pipeline,
-    layer_data_buffer: UniformBuffer<LayerData>,
-    current_layer_data: LayerData,
+    layer_data_buffer: UniformBuffer<LayerData<UserDataT>>,
+    current_layer_data: LayerData<UserDataT>,
     ctx: Arc<VulkanContext>,
 }
 
 #[bon]
-impl SpriteLayer {
+impl<UserDataT: Copy + Clone + Default> SpriteLayer<UserDataT> {
     /// Creates a new sprite layer for use with the provided render pass.
     #[builder]
     pub fn new(
@@ -107,8 +116,9 @@ impl SpriteLayer {
         let layer_data_buffer =
             UniformBuffer::allocate_per_frame(&ctx, frames_in_flight)?;
 
-        let current_layer_data = LayerData {
+        let current_layer_data = LayerData::<UserDataT> {
             projection: projection.data.0,
+            user_data: UserDataT::default(),
         };
 
         let mut frames = vec![];
@@ -140,7 +150,7 @@ impl SpriteLayer {
     pub fn begin_frame_commands<'a, 'b>(
         &'a mut self,
         frame: &'b Frame,
-    ) -> Result<SpriteLayerCommands<'a, 'b>> {
+    ) -> Result<SpriteLayerCommands<'a, 'b, UserDataT>> {
         self.bind_pipeline(frame)?;
         Ok(SpriteLayerCommands(self, frame))
     }
@@ -198,10 +208,16 @@ impl SpriteLayer {
         Ok(())
     }
 
-    /// Sets the layer's projection matrix. This can be called at any time and
-    /// will take effect in the next draw_batches() call.
+    /// Sets the layer's projection matrix. This will take effect in the next
+    /// [Self::begin_frame_commands] call.
     pub fn set_projection(&mut self, projection: &Matrix4<f32>) {
         self.current_layer_data.projection = projection.data.0;
+    }
+
+    /// Sets the layer's user data for the frame. This will take effect in the
+    /// next [Self::begin_frame_commands] call.
+    pub fn set_user_data(&mut self, user_data: UserDataT) {
+        self.current_layer_data.user_data = user_data;
     }
 
     // Private API ------------------------------------------------------------

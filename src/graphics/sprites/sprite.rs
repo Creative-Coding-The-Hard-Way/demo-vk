@@ -10,8 +10,8 @@ use nalgebra::{Affine2, Similarity2};
 pub struct Sprite {
     transform: [f32; 6],
     uv_pos: [f32; 2],
-    uv_size: [f32; 2],
     tint: [f32; 4],
+    uv_size: [f32; 2],
     texture: i32,
     sampler: u32,
 }
@@ -19,10 +19,7 @@ pub struct Sprite {
 impl Default for Sprite {
     fn default() -> Self {
         Self {
-            transform: [
-                1.0, 0.0, 0.0, // row 1
-                0.0, 1.0, 0.0, // row 2
-            ],
+            transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
             uv_pos: [0.0, 0.0],
             uv_size: [1.0, 1.0],
             tint: [1.0, 1.0, 1.0, 1.0],

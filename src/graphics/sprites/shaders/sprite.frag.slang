@@ -1,8 +1,15 @@
+struct Layer {
+    float4x4 projection;
+}
+
 /// binding = 0, set = 0
 [vk_binding(0, 0)] SamplerState samplers[3];
 
 /// binding = 1, set = 0
 [vk_binding(1, 0)] Texture2D textures[];
+
+/// binding = 0, set = 1
+[vk_binding(0, 1)] ConstantBuffer<Layer> layer;
 
 [shader("fragment")]
 float4 main(
