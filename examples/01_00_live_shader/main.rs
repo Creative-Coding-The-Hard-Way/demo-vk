@@ -146,7 +146,7 @@ impl Demo for Sprites {
         self.atlas.bind_frame_descriptor(frame)?;
 
         self.fullscreen_quad
-            .add(Sprite::default().with_tint(0.1, 0.1, 0.8, 1.0));
+            .add(Sprite::default().with_tint(0.0, 0.0, 0.0, 1.0));
         self.fullscreen_quad.flush(frame)?;
         self.layer
             .begin_frame_commands(frame)?
