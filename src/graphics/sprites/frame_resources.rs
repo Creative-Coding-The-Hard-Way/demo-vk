@@ -31,8 +31,6 @@ impl FrameResources {
         let layer_descriptor_set = descriptor_allocator
             .allocate_descriptor_set(layer_descriptor_set_layout)?;
 
-        let range = size_of::<LayerData<T>>() as u64;
-        log::info!("{}", range);
         unsafe {
             let buffer_info = vk::DescriptorBufferInfo {
                 buffer: layer_buffer.buffer(),
