@@ -93,6 +93,7 @@ where
         .with_context(trace!("Unable to initalize GLFW!"))?;
     glfw.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
     glfw.window_hint(glfw::WindowHint::ScaleToMonitor(true));
+    glfw.window_hint(glfw::WindowHint::Visible(false));
 
     let interrupted = {
         let interrupted = Arc::new(AtomicBool::new(false));
@@ -116,6 +117,7 @@ where
     let mut app = A::new(&mut window, args)
         .with_context(trace!("Error while initializing the app!"))?;
 
+    window.show();
     while !window.should_close() {
         if interrupted.load(std::sync::atomic::Ordering::Relaxed) {
             window.set_should_close(true);
