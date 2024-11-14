@@ -138,11 +138,24 @@
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>{
-    <span class="kw">crate</span>::graphics::vulkan::{raii, spirv_module, Swapchain, VulkanContext},
+    <span class="kw">crate</span>::graphics::vulkan::{raii, spirv_module, VulkanContext},
     anyhow::Result,
     ash::vk,
+    std::sync::Arc,
 };
+
+<span class="kw">pub fn </span>default_fragment_shader(
+    cxt: <span class="kw-2">&amp;</span>VulkanContext,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;raii::ShaderModule&gt;&gt; {
+    <span class="prelude-val">Ok</span>(Arc::new(spirv_module(
+        cxt,
+        <span class="macro">include_bytes!</span>(<span class="string">"./shaders/sprite.frag.spv"</span>),
+    )<span class="question-mark">?</span>))
+}
 
 <span class="doccomment">/// Creates the pipeline layout based on the required descriptor set layouts.
 </span><span class="kw">pub fn </span>create_pipeline_layout(
@@ -168,14 +181,12 @@
     cxt: <span class="kw-2">&amp;</span>VulkanContext,
     pipeline_layout: <span class="kw-2">&amp;</span>raii::PipelineLayout,
     render_pass: <span class="kw-2">&amp;</span>raii::RenderPass,
-    swapchain: <span class="kw-2">&amp;</span>Swapchain,
+    fragment_shader: <span class="kw-2">&amp;</span>raii::ShaderModule,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;raii::Pipeline&gt; {
     <span class="kw">let </span>main = std::ffi::CString::new(<span class="string">"main"</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>vertex_shader =
         spirv_module(cxt, <span class="macro">include_bytes!</span>(<span class="string">"./shaders/sprite.vert.spv"</span>))<span class="question-mark">?</span>;
-    <span class="kw">let </span>fragment_shader =
-        spirv_module(cxt, <span class="macro">include_bytes!</span>(<span class="string">"./shaders/sprite.frag.spv"</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>stages = [
         vk::PipelineShaderStageCreateInfo {
             stage: vk::ShaderStageFlags::VERTEX,
@@ -240,23 +251,18 @@
         p_vertex_attribute_descriptions: std::ptr::null(),
         ..Default::default()
     };
-    <span class="kw">let </span>viewport = vk::Viewport {
-        x: <span class="number">0.0</span>,
-        y: <span class="number">0.0</span>,
-        width: swapchain.extent().width <span class="kw">as </span>f32,
-        height: swapchain.extent().height <span class="kw">as </span>f32,
-        min_depth: <span class="number">0.0</span>,
-        max_depth: <span class="number">1.0</span>,
-    };
-    <span class="kw">let </span>scissor = vk::Rect2D {
-        offset: vk::Offset2D { x: <span class="number">0</span>, y: <span class="number">0 </span>},
-        extent: swapchain.extent(),
-    };
     <span class="kw">let </span>viewport_state = vk::PipelineViewportStateCreateInfo {
         viewport_count: <span class="number">1</span>,
-        p_viewports: <span class="kw-2">&amp;</span>viewport,
+        p_viewports: std::ptr::null(),
         scissor_count: <span class="number">1</span>,
-        p_scissors: <span class="kw-2">&amp;</span>scissor,
+        p_scissors: std::ptr::null(),
+        ..Default::default()
+    };
+    <span class="kw">let </span>dynamic_states =
+        [vk::DynamicState::VIEWPORT, vk::DynamicState::SCISSOR];
+    <span class="kw">let </span>dynamic_state = vk::PipelineDynamicStateCreateInfo {
+        dynamic_state_count: dynamic_states.len() <span class="kw">as </span>u32,
+        p_dynamic_states: dynamic_states.as_ptr(),
         ..Default::default()
     };
     <span class="kw">let </span>create_info = vk::GraphicsPipelineCreateInfo {
@@ -270,7 +276,7 @@
         p_multisample_state: <span class="kw-2">&amp;</span>multisample_state,
         p_depth_stencil_state: <span class="kw-2">&amp;</span>depth_stencil_state,
         p_color_blend_state: <span class="kw-2">&amp;</span>color_blend_state,
-        p_dynamic_state: std::ptr::null(),
+        p_dynamic_state: <span class="kw-2">&amp;</span>dynamic_state,
         render_pass: render_pass.raw,
         layout: pipeline_layout.raw,
         subpass: <span class="number">0</span>,

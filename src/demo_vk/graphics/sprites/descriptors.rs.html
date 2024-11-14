@@ -59,6 +59,7 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::graphics::vulkan::{raii, DescriptorBumpAllocator, VulkanContext},
     anyhow::Result,
@@ -86,7 +87,8 @@
         binding: <span class="number">0</span>,
         descriptor_type: vk::DescriptorType::UNIFORM_BUFFER,
         descriptor_count: <span class="number">1</span>,
-        stage_flags: vk::ShaderStageFlags::VERTEX,
+        stage_flags: vk::ShaderStageFlags::VERTEX
+            | vk::ShaderStageFlags::FRAGMENT,
         p_immutable_samplers: std::ptr::null(),
         ..Default::default()
     }];

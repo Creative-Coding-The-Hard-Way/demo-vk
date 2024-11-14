@@ -71,9 +71,6 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>nalgebra::{Affine2, Similarity2};
 
 <span class="doccomment">/// A sprite is a textured quad that can be rendered with a SpriteLayer.
@@ -86,8 +83,8 @@
 </span><span class="kw">pub struct </span>Sprite {
     transform: [f32; <span class="number">6</span>],
     uv_pos: [f32; <span class="number">2</span>],
-    uv_size: [f32; <span class="number">2</span>],
     tint: [f32; <span class="number">4</span>],
+    uv_size: [f32; <span class="number">2</span>],
     texture: i32,
     sampler: u32,
 }
@@ -95,10 +92,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>Sprite {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            transform: [
-                <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="comment">// row 1
-                </span><span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="comment">// row 2
-            </span>],
+            transform: [<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>],
             uv_pos: [<span class="number">0.0</span>, <span class="number">0.0</span>],
             uv_size: [<span class="number">1.0</span>, <span class="number">1.0</span>],
             tint: [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>],

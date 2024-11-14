@@ -104,6 +104,9 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">super</span>::{LayerData, SpriteBatch},
     <span class="kw">crate</span>::graphics::{
@@ -124,13 +127,16 @@
 
 <span class="kw">impl </span>FrameResources {
     <span class="doccomment">/// Create a new instance of the Sprite Layer's per-frame resources.
-    </span><span class="kw">pub fn </span>new(
+    </span><span class="kw">pub fn </span>new&lt;T&gt;(
         ctx: Arc&lt;VulkanContext&gt;,
         descriptor_allocator: <span class="kw-2">&amp;mut </span>DescriptorBumpAllocator,
         layer_descriptor_set_layout: <span class="kw-2">&amp;</span>raii::DescriptorSetLayout,
-        layer_buffer: <span class="kw-2">&amp;</span>UniformBuffer&lt;LayerData&gt;,
+        layer_buffer: <span class="kw-2">&amp;</span>UniformBuffer&lt;LayerData&lt;T&gt;&gt;,
         index: usize,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span>T: Copy + Clone + Default,
+    {
         <span class="kw">let </span>layer_descriptor_set = descriptor_allocator
             .allocate_descriptor_set(layer_descriptor_set_layout)<span class="question-mark">?</span>;
 
@@ -138,7 +144,7 @@
             <span class="kw">let </span>buffer_info = vk::DescriptorBufferInfo {
                 buffer: layer_buffer.buffer(),
                 offset: layer_buffer.offset_for_index(index),
-                range: size_of::&lt;LayerData&gt;() <span class="kw">as </span>u64,
+                range: size_of::&lt;LayerData&lt;T&gt;&gt;() <span class="kw">as </span>u64,
             };
             ctx.update_descriptor_sets(
                 <span class="kw-2">&amp;</span>[vk::WriteDescriptorSet {

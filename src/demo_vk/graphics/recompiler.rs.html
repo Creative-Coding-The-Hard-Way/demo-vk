@@ -207,7 +207,7 @@
 
 <span class="doccomment">/// Automatically recompiles a slang source file any time it changes.
 </span><span class="kw">pub struct </span>Recompiler {
-    shader: raii::ShaderModule,
+    shader: Arc&lt;raii::ShaderModule&gt;,
     compile_thread_join_handle: <span class="prelude-ty">Option</span>&lt;JoinHandle&lt;()&gt;&gt;,
     shutdown_sender: SyncSender&lt;()&gt;,
     shader_receiver: Receiver&lt;raii::ShaderModule&gt;,
@@ -238,16 +238,16 @@
         .with_context(<span class="macro">trace!</span>(<span class="string">"Error while spawning the compiler thread!"</span>))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            shader,
+            shader: Arc::new(shader),
             compile_thread_join_handle: <span class="prelude-val">Some</span>(compile_thread_join_handle),
             shutdown_sender,
             shader_receiver: source_receiver,
         })
     }
 
-    <span class="doccomment">/// Returns the most up-to-date copy of the shader's compiled SPIR-V bytes.
-    </span><span class="kw">pub fn </span>shader(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>raii::ShaderModule {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.shader
+    <span class="doccomment">/// Clones the current fragment shader instance.
+    </span><span class="kw">pub fn </span>shader(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Arc&lt;raii::ShaderModule&gt; {
+        <span class="self">self</span>.shader.clone()
     }
 
     <span class="doccomment">/// Checks for an updated copy of the compiled source code.
@@ -259,7 +259,7 @@
     </span><span class="kw">pub fn </span>check_for_update(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">match </span><span class="self">self</span>.shader_receiver.try_recv() {
             <span class="prelude-val">Ok</span>(new_shader) =&gt; {
-                <span class="self">self</span>.shader = new_shader;
+                <span class="self">self</span>.shader = Arc::new(new_shader);
                 <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
             }
             <span class="prelude-val">Err</span>(TryRecvError::Empty) =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),

@@ -131,6 +131,8 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The GLFW application implementation.
 //!
 //! This module defines the traits and functions required for managing the
@@ -226,6 +228,7 @@
         .with_context(<span class="macro">trace!</span>(<span class="string">"Unable to initalize GLFW!"</span>))<span class="question-mark">?</span>;
     glfw.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
     glfw.window_hint(glfw::WindowHint::ScaleToMonitor(<span class="bool-val">true</span>));
+    glfw.window_hint(glfw::WindowHint::Visible(<span class="bool-val">false</span>));
 
     <span class="kw">let </span>interrupted = {
         <span class="kw">let </span>interrupted = Arc::new(AtomicBool::new(<span class="bool-val">false</span>));
@@ -249,6 +252,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>app = A::new(<span class="kw-2">&amp;mut </span>window, args)
         .with_context(<span class="macro">trace!</span>(<span class="string">"Error while initializing the app!"</span>))<span class="question-mark">?</span>;
 
+    window.show();
     <span class="kw">while </span>!window.should_close() {
         <span class="kw">if </span>interrupted.load(std::sync::atomic::Ordering::Relaxed) {
             window.set_should_close(<span class="bool-val">true</span>);
