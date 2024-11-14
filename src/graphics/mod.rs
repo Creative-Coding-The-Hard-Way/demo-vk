@@ -1,4 +1,3 @@
-mod fullscreen_quad;
 mod recompiler;
 mod renderpass;
 mod sprites;
@@ -8,7 +7,6 @@ pub mod vulkan;
 use nalgebra::Matrix4;
 
 pub use self::{
-    fullscreen_quad::FullscreenQuad,
     recompiler::Recompiler,
     renderpass::SwapchainColorPass,
     sprites::{Sprite, SpriteLayer, StreamingSprites},

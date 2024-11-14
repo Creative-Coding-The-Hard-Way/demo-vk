@@ -30,7 +30,7 @@ struct Args {
 }
 
 /// A sprites demo.
-struct Sprites {
+struct LiveShader {
     start_time: Instant,
 
     atlas: BindlessTextureAtlas,
@@ -42,7 +42,7 @@ struct Sprites {
     fullscreen_toggle: FullscreenToggle,
 }
 
-impl Demo for Sprites {
+impl Demo for LiveShader {
     type Args = Args;
 
     fn new(
@@ -176,5 +176,5 @@ impl Demo for Sprites {
 }
 
 fn main() {
-    demo_main::<Sprites>();
+    demo_main::<LiveShader>();
 }
