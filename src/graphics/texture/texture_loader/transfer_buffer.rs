@@ -64,7 +64,7 @@ impl TransferBuffer {
             vk::BufferUsageFlags::TRANSFER_SRC,
         )?;
 
-        log::info!("transfer buffer reallocated: {:#?}", self.buffer);
+        log::trace!("transfer buffer reallocated: {:#?}", self.buffer);
 
         Ok(())
     }

@@ -12,9 +12,7 @@ use {
     },
     anyhow::{anyhow, Context, Result},
     notify_debouncer_full::{
-        new_debouncer,
-        notify::{RecursiveMode, Watcher},
-        DebounceEventResult,
+        new_debouncer, notify::RecursiveMode, DebounceEventResult,
     },
     std::{
         path::{Path, PathBuf},
@@ -131,13 +129,11 @@ fn spawn_compiler_thread(
         };
 
         debouncer
-            .watcher()
             .watch(&shader_source_path, RecursiveMode::NonRecursive)
             .unwrap();
 
         for additional_path in additional_watch_paths {
             debouncer
-                .watcher()
                 .watch(&additional_path, RecursiveMode::Recursive)
                 .unwrap();
         }
