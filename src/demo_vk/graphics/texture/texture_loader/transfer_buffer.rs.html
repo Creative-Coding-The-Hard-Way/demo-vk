@@ -135,7 +135,7 @@
             vk::BufferUsageFlags::TRANSFER_SRC,
         )<span class="question-mark">?</span>;
 
-        <span class="macro">log::info!</span>(<span class="string">"transfer buffer reallocated: {:#?}"</span>, <span class="self">self</span>.buffer);
+        <span class="macro">log::trace!</span>(<span class="string">"transfer buffer reallocated: {:#?}"</span>, <span class="self">self</span>.buffer);
 
         <span class="prelude-val">Ok</span>(())
     }
