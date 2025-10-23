@@ -20,10 +20,12 @@ struct Args {}
 /// needed.
 #[derive(Debug)]
 struct VulkanApp {
-    ctx: Arc<VulkanContext>,
-    swapchain: Swapchain,
     frames_in_flight: FramesInFlight,
+
+    swapchain: Swapchain,
     swapchain_needs_rebuild: bool,
+
+    ctx: Arc<VulkanContext>,
 }
 
 impl App for VulkanApp {
