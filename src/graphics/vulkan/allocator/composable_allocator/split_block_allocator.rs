@@ -94,7 +94,7 @@ impl<A: ComposableAllocator, const BLOCK_SIZE: u64> ComposableAllocator
         requirements: AllocationRequirements,
     ) -> Result<Block> {
         if requirements.allocation_size > BLOCK_SIZE
-            || BLOCK_SIZE % requirements.alignment != 0
+            || !BLOCK_SIZE.is_multiple_of(requirements.alignment)
         {
             // Give up immediately if the block size is too small.
             // Note: it's fine to give up if the block doesn't meet the

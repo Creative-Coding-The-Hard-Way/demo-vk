@@ -33,7 +33,7 @@ pub fn spirv_module(
 /// bytes. It is not always safe to simply reinterpret a slice of u8's due to
 /// alignment.
 pub fn spirv_words(shader_bytes: &[u8]) -> Result<Vec<u32>> {
-    if shader_bytes.len() % 4 != 0 {
+    if !shader_bytes.len().is_multiple_of(4) {
         bail!(trace!(
             "Invalid length for compiled SPIRV bytes! {}",
             shader_bytes.len()

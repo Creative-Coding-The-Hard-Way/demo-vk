@@ -45,7 +45,7 @@ impl AllocationRequirements {
     }
 
     /// Constructs a compatible vkMemoryAllocateInfo struct.
-    pub fn as_vk_allocate_info(&self) -> vk::MemoryAllocateInfo {
+    pub fn as_vk_allocate_info(&self) -> vk::MemoryAllocateInfo<'_> {
         vk::MemoryAllocateInfo {
             allocation_size: self.allocation_size,
             memory_type_index: self.memory_type_index,
