@@ -130,6 +130,7 @@ fn create_renderpass(
         },
     ];
     raii::RenderPass::new(
+        "Swapchain ColorPass",
         device,
         &vk::RenderPassCreateInfo {
             attachment_count: attachments.len() as u32,
@@ -153,7 +154,7 @@ fn create_framebuffers(
 ) -> Result<Vec<raii::Framebuffer>> {
     let mut framebuffers = vec![];
     let vk::Extent2D { width, height } = swapchain.extent();
-    for image_view in swapchain.image_views() {
+    for (index, image_view) in swapchain.image_views().iter().enumerate() {
         let create_info = vk::FramebufferCreateInfo {
             render_pass: render_pass.raw,
             attachment_count: 1,
@@ -163,8 +164,11 @@ fn create_framebuffers(
             layers: 1,
             ..Default::default()
         };
-        framebuffers
-            .push(raii::Framebuffer::new(cxt.device.clone(), &create_info)?);
+        framebuffers.push(raii::Framebuffer::new(
+            format!("Swapchain ColorPass [{}]", index),
+            cxt.device.clone(),
+            &create_info,
+        )?);
     }
     Ok(framebuffers)
 }

@@ -93,8 +93,9 @@ impl FramesInFlight {
         // Create one semaphore per swapchain image
         let mut swapchain_image_present_semaphores =
             Vec::with_capacity(swapchain_image_count);
-        for _ in 0..swapchain_image_count {
+        for i in 0..swapchain_image_count {
             swapchain_image_present_semaphores.push(raii::Semaphore::new(
+                format!("Swapchain Image Present [{}]", i),
                 ctx.device.clone(),
                 &vk::SemaphoreCreateInfo::default(),
             )?);
@@ -104,6 +105,7 @@ impl FramesInFlight {
         let mut frames = Vec::with_capacity(frame_count);
         for index in 0..frame_count {
             let command_pool = raii::CommandPool::new(
+                format!("frame [{}]", index),
                 ctx.device.clone(),
                 &vk::CommandPoolCreateInfo {
                     flags: vk::CommandPoolCreateFlags::TRANSIENT,
@@ -125,6 +127,7 @@ impl FramesInFlight {
             };
             frames.push(FrameSync {
                 swapchain_image_acquired: raii::Semaphore::new(
+                    format!("image acquired - frame [{}]", index),
                     ctx.device.clone(),
                     &vk::SemaphoreCreateInfo::default(),
                 )
@@ -133,6 +136,7 @@ impl FramesInFlight {
                     index,
                 ))?,
                 graphics_commands_complete: raii::Fence::new(
+                    format!("graphics commands complete - frame [{}]", index),
                     ctx.device.clone(),
                     &vk::FenceCreateInfo {
                         flags: vk::FenceCreateFlags::SIGNALED,

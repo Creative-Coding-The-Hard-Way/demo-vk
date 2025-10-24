@@ -49,7 +49,7 @@ impl Swapchain {
         let images =
             unsafe { swapchain.ext.get_swapchain_images(swapchain.raw)? };
         let mut image_views = vec![];
-        for image in &images {
+        for (index, image) in images.iter().enumerate() {
             let create_info = vk::ImageViewCreateInfo {
                 image: *image,
                 view_type: vk::ImageViewType::TYPE_2D,
@@ -64,8 +64,12 @@ impl Swapchain {
                 },
                 ..Default::default()
             };
-            image_views
-                .push(raii::ImageView::new(cxt.device.clone(), &create_info)?);
+            let image_view = raii::ImageView::new(
+                format!("Swapchain Image [{}]", index),
+                cxt.device.clone(),
+                &create_info,
+            )?;
+            image_views.push(image_view);
         }
 
         Ok(Self {

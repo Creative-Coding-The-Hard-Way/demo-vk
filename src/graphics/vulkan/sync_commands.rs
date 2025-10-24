@@ -20,6 +20,7 @@ pub struct SyncCommands {
 impl SyncCommands {
     pub fn new(cxt: Arc<VulkanContext>) -> Result<Self> {
         let command_pool = raii::CommandPool::new(
+            "SyncCommands",
             cxt.device.clone(),
             &vk::CommandPoolCreateInfo {
                 flags: vk::CommandPoolCreateFlags::TRANSIENT,
@@ -38,6 +39,7 @@ impl SyncCommands {
             .with_context(trace!("Unable to allocate the command buffer!"))?[0]
         };
         let fence = raii::Fence::new(
+            "SyncCommands",
             cxt.device.clone(),
             &vk::FenceCreateInfo::default(),
         )?;

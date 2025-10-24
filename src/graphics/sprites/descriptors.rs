@@ -31,6 +31,7 @@ pub fn create_layer_descriptor_set_layout(
         ..Default::default()
     }];
     raii::DescriptorSetLayout::new(
+        "Sprites",
         ctx.device.clone(),
         &vk::DescriptorSetLayoutCreateInfo {
             binding_count: bindings.len() as u32,
@@ -52,6 +53,7 @@ pub fn create_batch_descriptor_set_layout(
         ..Default::default()
     }];
     raii::DescriptorSetLayout::new(
+        "Sprites",
         ctx.device.clone(),
         &vk::DescriptorSetLayoutCreateInfo {
             binding_count: bindings.len() as u32,

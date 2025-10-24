@@ -50,6 +50,7 @@ pub fn create_descriptor_layout(
         },
     ];
     raii::DescriptorSetLayout::new(
+        "Bindless",
         ctx.device.clone(),
         &vk::DescriptorSetLayoutCreateInfo {
             binding_count: bindings.len() as u32,
@@ -75,6 +76,7 @@ pub fn create_descriptor_pool(
         },
     ];
     raii::DescriptorPool::new(
+        "Bindless",
         ctx.device.clone(),
         &vk::DescriptorPoolCreateInfo {
             max_sets: count,

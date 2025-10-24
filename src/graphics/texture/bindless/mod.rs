@@ -134,6 +134,7 @@ impl BindlessTextureAtlas {
         descriptor_set_layout: &raii::DescriptorSetLayout,
     ) -> Result<raii::PipelineLayout> {
         raii::PipelineLayout::new(
+            "Bindless",
             ctx.device.clone(),
             &vk::PipelineLayoutCreateInfo {
                 set_layout_count: 1,
@@ -155,6 +156,7 @@ impl BindlessTextureAtlas {
         Ok(vec![
             // Linear Sampler - no anisotropy
             raii::Sampler::new(
+                "Bindless Linear without Aniso",
                 ctx.device.clone(),
                 &vk::SamplerCreateInfo {
                     mag_filter: vk::Filter::LINEAR,
@@ -175,6 +177,7 @@ impl BindlessTextureAtlas {
             )?,
             // Linear Sampler - with anisotropic sampling
             raii::Sampler::new(
+                "Bindless Linear with Aniso",
                 ctx.device.clone(),
                 &vk::SamplerCreateInfo {
                     mag_filter: vk::Filter::LINEAR,
@@ -196,6 +199,7 @@ impl BindlessTextureAtlas {
             )?,
             // Nearest Sampler
             raii::Sampler::new(
+                "Bindless Nearest",
                 ctx.device.clone(),
                 &vk::SamplerCreateInfo {
                     mag_filter: vk::Filter::NEAREST,

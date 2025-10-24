@@ -53,6 +53,7 @@ impl DescriptorBumpAllocator {
             })
             .collect();
         let free_pools = vec![raii::DescriptorPool::new(
+            "DescriptorBumpAllocator [0]",
             ctx.device.clone(),
             &vk::DescriptorPoolCreateInfo {
                 max_sets: max_sets_per_pool,
@@ -152,6 +153,10 @@ impl DescriptorBumpAllocator {
         if self.free_pools.is_empty() {
             self.free_pools.push(
                 raii::DescriptorPool::new(
+                    format!(
+                        "DescriptorBumpAllocatior [{}]",
+                        self.filled_pools.len()
+                    ),
                     self.ctx.device.clone(),
                     &vk::DescriptorPoolCreateInfo {
                         max_sets: self.max_sets_per_pool,

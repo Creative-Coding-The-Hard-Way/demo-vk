@@ -30,7 +30,11 @@ pub fn create_pipeline_layout(
         p_push_constant_ranges: std::ptr::null(),
         ..Default::default()
     };
-    raii::PipelineLayout::new(ctx.device.clone(), &layout_create_info)
+    raii::PipelineLayout::new(
+        "Sprites",
+        ctx.device.clone(),
+        &layout_create_info,
+    )
 }
 
 /// Creates a new pipeline with dynamic viewport and scissor state.

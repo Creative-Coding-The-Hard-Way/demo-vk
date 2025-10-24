@@ -18,6 +18,7 @@ pub fn spirv_module(
 ) -> Result<raii::ShaderModule> {
     let words = spirv_words(shader_bytes)?;
     raii::ShaderModule::new(
+        "ShaderCompiler SPIR-V Module",
         ctx.device.clone(),
         &vk::ShaderModuleCreateInfo {
             code_size: words.len() * 4,

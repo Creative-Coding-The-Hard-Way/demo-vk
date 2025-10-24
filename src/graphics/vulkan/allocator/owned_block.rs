@@ -26,6 +26,7 @@ impl OwnedBlock {
         flags: vk::MemoryPropertyFlags,
     ) -> Result<(Self, raii::Image)> {
         let image = raii::Image::new(
+            "Allocated Image",
             allocator.logical_device.clone(),
             image_create_info,
         )
@@ -78,6 +79,7 @@ impl OwnedBlock {
         flags: vk::MemoryPropertyFlags,
     ) -> Result<(OwnedBlock, raii::Buffer)> {
         let buffer = raii::Buffer::new(
+            "Allocated Buffer",
             allocator.logical_device.clone(),
             buffer_create_info,
         )

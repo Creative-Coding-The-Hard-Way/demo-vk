@@ -69,6 +69,7 @@ impl Texture {
         .with_context(trace!("Error while creating image"))?;
 
         let image_view = raii::ImageView::new(
+            "Texture Image View",
             ctx.device.clone(),
             &vk::ImageViewCreateInfo {
                 flags: vk::ImageViewCreateFlags::empty(),
