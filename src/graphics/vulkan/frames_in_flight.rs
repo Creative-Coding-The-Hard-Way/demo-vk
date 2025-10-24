@@ -265,11 +265,6 @@ impl FramesInFlight {
         swapchain: &Swapchain,
         frame: Frame,
     ) -> Result<PresentImageStatus> {
-        let swapchain_submit_semaphore = self
-            .swapchain_image_present_semaphores
-            [frame.swapchain_image_index as usize]
-            .raw;
-
         let frame_sync = &self.frames[frame.frame_index()];
         unsafe {
             self.cxt
@@ -291,7 +286,10 @@ impl FramesInFlight {
                         command_buffer_count: 1,
                         p_command_buffers: &frame_sync.command_buffer,
                         signal_semaphore_count: 1,
-                        p_signal_semaphores: &swapchain_submit_semaphore,
+                        p_signal_semaphores: &self
+                            .swapchain_image_present_semaphores
+                            [frame.swapchain_image_index as usize]
+                            .raw,
                         ..Default::default()
                     }],
                     frame_sync.graphics_commands_complete.raw,
@@ -303,7 +301,9 @@ impl FramesInFlight {
 
         swapchain
             .present_image(
-                swapchain_submit_semaphore,
+                self.swapchain_image_present_semaphores
+                    [frame.swapchain_image_index as usize]
+                    .raw,
                 frame.swapchain_image_index(),
             )
             .with_context(trace!("Error while presenting swapchain image!"))

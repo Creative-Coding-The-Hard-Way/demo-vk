@@ -33,7 +33,7 @@ impl Demo for ExampleDemo {
         #[allow(unused_variables)] gfx: &mut Gfx,
         #[allow(unused_variables)] frame: &Frame,
     ) -> Result<()> {
-        log::info!("{}", gfx.metrics);
+        //log::info!("{}", gfx.metrics);
 
         let before_color_pass = Instant::now();
         self.color_pass
