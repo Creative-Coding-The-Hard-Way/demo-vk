@@ -231,9 +231,12 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             Swapchain::new(vulkan.clone(), (w as u32, h as u32), None)
                 .with_context(trace!("Unable to create the swapchain!"))?;
 
-        let frames_in_flight =
-            FramesInFlight::new(vulkan.clone(), D::FRAMES_IN_FLIGHT_COUNT)
-                .with_context(trace!("Unable to create frames in flight!"))?;
+        let frames_in_flight = FramesInFlight::new(
+            vulkan.clone(),
+            swapchain.images().len(),
+            D::FRAMES_IN_FLIGHT_COUNT,
+        )
+        .with_context(trace!("Unable to create frames in flight!"))?;
 
         let fps_limiter = spin_sleep_util::interval(Duration::from_secs_f64(
             1.0 / D::FRAMES_PER_SECOND as f64,

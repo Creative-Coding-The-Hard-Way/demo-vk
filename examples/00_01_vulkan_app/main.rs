@@ -44,7 +44,8 @@ impl App for VulkanApp {
         let swapchain =
             Swapchain::new(ctx.clone(), (w as u32, h as u32), None)?;
 
-        let frames_in_flight = FramesInFlight::new(ctx.clone(), 3)?;
+        let frames_in_flight =
+            FramesInFlight::new(ctx.clone(), swapchain.images().len(), 3)?;
 
         log::info!(
             "Setup complete!\n{:#?}\n{:#?}\n{:#?}",

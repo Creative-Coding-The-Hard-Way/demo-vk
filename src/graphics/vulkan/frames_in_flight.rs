@@ -55,7 +55,6 @@ impl Frame {
 #[derive(Debug)]
 struct FrameSync {
     swapchain_image_acquired: raii::Semaphore,
-    color_attachment_written: raii::Semaphore,
     graphics_commands_complete: raii::Fence,
     command_pool: raii::CommandPool,
     command_buffer: vk::CommandBuffer,
@@ -75,6 +74,10 @@ struct FrameSync {
 /// prevent synchronization errors.
 #[derive(Debug)]
 pub struct FramesInFlight {
+    // Used to synchronize the calls to QueueSubmit and Present per swapchain
+    // image.
+    swapchain_image_present_semaphores: Vec<raii::Semaphore>,
+
     frames: Vec<FrameSync>,
     frame_index: usize,
     cxt: Arc<VulkanContext>,
@@ -82,14 +85,29 @@ pub struct FramesInFlight {
 
 impl FramesInFlight {
     /// Creates a new instance with `frame_count` frames.
-    pub fn new(cxt: Arc<VulkanContext>, frame_count: usize) -> Result<Self> {
+    pub fn new(
+        ctx: Arc<VulkanContext>,
+        swapchain_image_count: usize,
+        frame_count: usize,
+    ) -> Result<Self> {
+        // Create one semaphore per swapchain image
+        let mut swapchain_image_present_semaphores =
+            Vec::with_capacity(swapchain_image_count);
+        for _ in 0..swapchain_image_count {
+            swapchain_image_present_semaphores.push(raii::Semaphore::new(
+                ctx.device.clone(),
+                &vk::SemaphoreCreateInfo::default(),
+            )?);
+        }
+
+        // create the per-frame synchronization primitives
         let mut frames = Vec::with_capacity(frame_count);
         for index in 0..frame_count {
             let command_pool = raii::CommandPool::new(
-                cxt.device.clone(),
+                ctx.device.clone(),
                 &vk::CommandPoolCreateInfo {
                     flags: vk::CommandPoolCreateFlags::TRANSIENT,
-                    queue_family_index: cxt.graphics_queue_family_index,
+                    queue_family_index: ctx.graphics_queue_family_index,
                     ..Default::default()
                 },
             )
@@ -98,7 +116,7 @@ impl FramesInFlight {
                 index
             ))?;
             let command_buffer = unsafe {
-                cxt.allocate_command_buffers(&vk::CommandBufferAllocateInfo {
+                ctx.allocate_command_buffers(&vk::CommandBufferAllocateInfo {
                     command_pool: command_pool.raw,
                     level: vk::CommandBufferLevel::PRIMARY,
                     command_buffer_count: 1,
@@ -107,23 +125,15 @@ impl FramesInFlight {
             };
             frames.push(FrameSync {
                 swapchain_image_acquired: raii::Semaphore::new(
-                    cxt.device.clone(),
+                    ctx.device.clone(),
                     &vk::SemaphoreCreateInfo::default(),
                 )
                 .with_context(trace!(
                     "Error while creating semaphore for frame {}",
-                    index
-                ))?,
-                color_attachment_written: raii::Semaphore::new(
-                    cxt.device.clone(),
-                    &vk::SemaphoreCreateInfo::default(),
-                )
-                .with_context(trace!(
-                    "Error while creating semaphore for frame {}",
-                    index
+                    index,
                 ))?,
                 graphics_commands_complete: raii::Fence::new(
-                    cxt.device.clone(),
+                    ctx.device.clone(),
                     &vk::FenceCreateInfo {
                         flags: vk::FenceCreateFlags::SIGNALED,
                         ..Default::default()
@@ -138,9 +148,10 @@ impl FramesInFlight {
             });
         }
         Ok(Self {
+            swapchain_image_present_semaphores,
             frames,
             frame_index: 0,
-            cxt,
+            cxt: ctx,
         })
     }
 
@@ -254,6 +265,11 @@ impl FramesInFlight {
         swapchain: &Swapchain,
         frame: Frame,
     ) -> Result<PresentImageStatus> {
+        let swapchain_submit_semaphore = self
+            .swapchain_image_present_semaphores
+            [frame.swapchain_image_index as usize]
+            .raw;
+
         let frame_sync = &self.frames[frame.frame_index()];
         unsafe {
             self.cxt
@@ -275,9 +291,7 @@ impl FramesInFlight {
                         command_buffer_count: 1,
                         p_command_buffers: &frame_sync.command_buffer,
                         signal_semaphore_count: 1,
-                        p_signal_semaphores: &frame_sync
-                            .color_attachment_written
-                            .raw,
+                        p_signal_semaphores: &swapchain_submit_semaphore,
                         ..Default::default()
                     }],
                     frame_sync.graphics_commands_complete.raw,
@@ -289,7 +303,7 @@ impl FramesInFlight {
 
         swapchain
             .present_image(
-                frame_sync.color_attachment_written.raw,
+                swapchain_submit_semaphore,
                 frame.swapchain_image_index(),
             )
             .with_context(trace!("Error while presenting swapchain image!"))
