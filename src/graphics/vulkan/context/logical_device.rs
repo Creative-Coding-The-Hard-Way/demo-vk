@@ -52,6 +52,7 @@ pub fn create_logical_device(
     let mut vulkan12_features = vk::PhysicalDeviceVulkan12Features {
         runtime_descriptor_array: vk::TRUE,
         shader_sampled_image_array_non_uniform_indexing: vk::TRUE,
+        descriptor_binding_variable_descriptor_count: vk::TRUE,
         descriptor_binding_partially_bound: vk::TRUE,
         ..Default::default()
     };

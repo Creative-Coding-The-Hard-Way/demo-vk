@@ -100,6 +100,7 @@ fn has_required_features(
     check_feature!(sampler_anisotropy);
     check_feature12!(shader_sampled_image_array_non_uniform_indexing);
     check_feature12!(descriptor_binding_partially_bound);
+    check_feature12!(descriptor_binding_variable_descriptor_count);
     check_feature12!(runtime_descriptor_array);
 
     true

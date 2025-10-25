@@ -51,7 +51,7 @@ struct Layer {
 // set = 0 - texture atlas used in fragment shader
 
 /// binding = 0, set = 1
-[vk_binding(0, 1)] ConstantBuffer<Layer> layer;
+[vk_binding(0, 1)] ConstantBuffer<Layer, Std430DataLayout> layer;
 
 /// binding = 0, set = 2
 [vk_binding(0, 2)] StructuredBuffer<Sprite, Std430DataLayout> sprites;
@@ -64,8 +64,12 @@ struct VertexStageOutput {
     int32_t sampler_index: Sprite_Sampler;
 };
 
+// https://shader-slang.org/slang/user-guide/spirv-target-specific.html#system-value-semantics
 [shader("vertex")]
-VertexStageOutput main(int vertex_id: SV_VertexID, int sprite_id: SV_InstanceID) {
+VertexStageOutput main(
+    int vertex_id: SV_VulkanVertexID,
+    int sprite_id: SV_VulkanInstanceID
+) {
     let sprite = sprites[sprite_id];
 
     let pos = mul(
