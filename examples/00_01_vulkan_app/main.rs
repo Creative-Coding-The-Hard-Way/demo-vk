@@ -5,7 +5,8 @@ use {
     demo_vk::{
         app::{app_main, App},
         graphics::vulkan::{
-            FrameStatus, FramesInFlight, Swapchain, VulkanContext,
+            FrameStatus, FramesInFlight, PresentImageStatus, Swapchain,
+            VulkanContext,
         },
     },
     std::sync::Arc,
@@ -45,7 +46,7 @@ impl App for VulkanApp {
             Swapchain::new(ctx.clone(), (w as u32, h as u32), None)?;
 
         let frames_in_flight =
-            FramesInFlight::new(ctx.clone(), swapchain.images().len(), 3)?;
+            FramesInFlight::new(ctx.clone(), swapchain.images().len(), 5)?;
 
         log::info!(
             "Setup complete!\n{:#?}\n{:#?}\n{:#?}",
@@ -85,6 +86,7 @@ impl App for VulkanApp {
     fn update(&mut self, window: &mut glfw::Window) -> Result<()> {
         // Rebuild the swapchain if needed
         if self.swapchain_needs_rebuild {
+            log::info!("Rebuilding Swapchain");
             self.swapchain_needs_rebuild = false;
             self.frames_in_flight.wait_for_all_frames_to_complete()?;
             let (w, h) = window.get_framebuffer_size();
@@ -99,6 +101,7 @@ impl App for VulkanApp {
         let frame = match self.frames_in_flight.start_frame(&self.swapchain)? {
             FrameStatus::FrameStarted(frame) => frame,
             FrameStatus::SwapchainNeedsRebuild => {
+                log::info!("Swapchain Needs Rebuild");
                 self.swapchain_needs_rebuild = true;
                 return Ok(());
             }
@@ -134,8 +137,14 @@ impl App for VulkanApp {
         }
 
         // finish the frame
-        self.frames_in_flight
+        let status = self
+            .frames_in_flight
             .present_frame(&self.swapchain, frame)?;
+
+        if status == PresentImageStatus::SwapchainNeedsRebuild {
+            log::info!("Swapchain Needs Rebuild");
+            self.swapchain_needs_rebuild = true;
+        }
 
         Ok(())
     }

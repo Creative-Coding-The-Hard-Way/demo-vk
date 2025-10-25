@@ -279,13 +279,6 @@ impl<D: Demo + Sized> App for DemoApp<D> {
                 .with_context(trace!(
                     "Error waiting for frames before swapchain rebuild!"
                 ))?;
-            unsafe {
-                // Must wait for all presentation operations to complete, and
-                // without a swapchain extension the only way to ensure all
-                // swapchain present_image operations have finished is to call
-                // device_wait_idle().
-                self.graphics.vulkan.device_wait_idle()?;
-            }
             if self.framebuffer_size_changed(window)? {
                 return Ok(());
             }

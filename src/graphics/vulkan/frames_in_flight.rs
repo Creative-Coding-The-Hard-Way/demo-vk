@@ -7,8 +7,8 @@ use {
         trace,
     },
     anyhow::{Context, Result},
-    ash::vk,
-    std::sync::Arc,
+    ash::vk::{self, Handle},
+    std::{ffi::CString, sync::Arc},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -125,6 +125,15 @@ impl FramesInFlight {
                     ..Default::default()
                 })?[0]
             };
+            let buffer_name =
+                CString::new(format!("Frame [{}] Commands", index)).unwrap();
+            ctx.device
+                .set_debug_name(&vk::DebugUtilsObjectNameInfoEXT {
+                    object_type: vk::ObjectType::COMMAND_BUFFER,
+                    object_handle: command_buffer.as_raw(),
+                    p_object_name: buffer_name.as_ptr(),
+                    ..Default::default()
+                })?;
             frames.push(FrameSync {
                 swapchain_image_acquired: raii::Semaphore::new(
                     format!("image acquired - frame [{}]", index),
