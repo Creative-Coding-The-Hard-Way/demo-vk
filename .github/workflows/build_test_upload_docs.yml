@@ -17,6 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install Vulkan loader
+      run: |
+        sudo apt update
+        sudo apt install -y libxinerama-dev
+
     - name: Prepare Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.1
       with:
