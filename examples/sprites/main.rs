@@ -111,7 +111,7 @@ impl Demo for Sprites {
             (dt, now.duration_since(self.start_time).as_secs_f32())
         };
 
-        let max = 5;
+        let max = 500;
         for i in 0..max {
             let angle = 0.25 * t + f32::consts::TAU * i as f32 / max as f32;
             self.sprites.add(
@@ -135,6 +135,8 @@ impl Demo for Sprites {
         #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
         #[allow(unused_variables)] frame: &demo_vk::graphics::vulkan::Frame,
     ) -> Result<()> {
+        log::info!("{}", gfx.metrics);
+
         self.color_pass
             .begin_render_pass(frame, [0.0, 0.0, 0.0, 0.0]);
 

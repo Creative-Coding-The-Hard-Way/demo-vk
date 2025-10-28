@@ -105,9 +105,9 @@ impl std::fmt::Display for FrameMetrics {
             indoc::indoc! {"
                 Frame Metrics
                 fps : {:.0}
-                mspf: {:.*}
-                mspu: {:.*}
-                mspd: {:.*}
+                update time (ms): {:.*}
+                draw time (ms): {:.*}
+                frame time (~=update time + draw time): {:.*}
             "},
             1000.0 / self.ms_per_frame.average(),
             precision,
