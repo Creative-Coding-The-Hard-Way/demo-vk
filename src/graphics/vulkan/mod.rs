@@ -7,7 +7,6 @@
 mod allocator;
 mod buffers;
 mod context;
-mod descriptors;
 mod frames_in_flight;
 pub mod raii;
 mod shader_compiler;
@@ -18,7 +17,6 @@ pub use self::{
     allocator::{block::Block, owned_block::OwnedBlock, Allocator},
     buffers::{CPUBuffer, UniformBuffer},
     context::{Instance, VulkanContext},
-    descriptors::{DescriptorBumpAllocator, PoolRatio},
     frames_in_flight::{Frame, FrameStatus, FramesInFlight},
     shader_compiler::{compile_slang, spirv_module, spirv_words},
     swapchain::{AcquireImageStatus, PresentImageStatus, Swapchain},

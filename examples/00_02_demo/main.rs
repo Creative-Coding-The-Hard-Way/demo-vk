@@ -1,12 +1,13 @@
 use {
     anyhow::Result,
+    ash::vk,
     clap::Parser,
     demo_vk::{
         demo::{demo_main, Demo, Graphics},
-        graphics::{vulkan::Frame, SwapchainColorPass},
+        graphics::vulkan::Frame,
     },
     glfw::Window,
-    std::time::{Duration, Instant},
+    std::time::Duration,
 };
 
 #[derive(Debug, Parser)]
@@ -14,52 +15,49 @@ struct Args {}
 
 type Gfx = Graphics<Args>;
 
-struct ExampleDemo {
-    tick: Instant,
-    color_pass: SwapchainColorPass,
-}
+struct ExampleDemo {}
 
 impl Demo for ExampleDemo {
     type Args = Args;
+    const FRAMES_PER_SECOND: u32 = 5;
 
-    fn new(_window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
-        let color_pass =
-            SwapchainColorPass::new(gfx.vulkan.clone(), &gfx.swapchain)?;
-        Ok(Self {
-            tick: Instant::now(),
-            color_pass,
-        })
+    fn new(_window: &mut Window, _gfx: &mut Gfx) -> Result<Self> {
+        Ok(Self {})
     }
 
     fn draw(
         &mut self,
-        #[allow(unused_variables)] window: &mut Window,
-        #[allow(unused_variables)] gfx: &mut Gfx,
-        #[allow(unused_variables)] frame: &Frame,
+        _window: &mut Window,
+        gfx: &mut Gfx,
+        frame: &Frame,
     ) -> Result<()> {
-        let start = Instant::now();
-        if start.duration_since(self.tick) >= Duration::from_secs(1) {
-            self.tick = start;
-            log::info!("{}", gfx.metrics);
-        }
-
         std::thread::sleep(Duration::from_millis(10));
 
-        self.color_pass
-            .begin_render_pass(frame, [0.0, 0.0, 0.0, 0.0]);
-        self.color_pass.end_render_pass(frame);
-        gfx.metrics.ms_since("color pass ms", start);
+        let image_memory_barrier = vk::ImageMemoryBarrier {
+            old_layout: vk::ImageLayout::UNDEFINED,
+            new_layout: vk::ImageLayout::PRESENT_SRC_KHR,
+            image: frame.swapchain_image(),
+            subresource_range: vk::ImageSubresourceRange {
+                aspect_mask: vk::ImageAspectFlags::COLOR,
+                base_mip_level: 0,
+                level_count: 1,
+                base_array_layer: 0,
+                layer_count: 1,
+            },
+            ..Default::default()
+        };
+        unsafe {
+            gfx.vulkan.cmd_pipeline_barrier(
+                frame.command_buffer(),
+                vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+                vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+                vk::DependencyFlags::empty(),
+                &[],
+                &[],
+                &[image_memory_barrier],
+            );
+        }
 
-        Ok(())
-    }
-
-    fn rebuild_swapchain_resources(
-        &mut self,
-        #[allow(unused_variables)] window: &mut Window,
-        #[allow(unused_variables)] gfx: &mut Gfx,
-    ) -> Result<()> {
-        self.color_pass =
-            SwapchainColorPass::new(gfx.vulkan.clone(), &gfx.swapchain)?;
         Ok(())
     }
 }

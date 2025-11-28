@@ -1,19 +1,9 @@
 mod recompiler;
-mod renderpass;
-mod sprites;
-mod texture;
 pub mod vulkan;
 
 use nalgebra::Matrix4;
 
-pub use self::{
-    recompiler::Recompiler,
-    renderpass::SwapchainColorPass,
-    sprites::{Sprite, SpriteLayer, StreamingSprites},
-    texture::{
-        bindless::BindlessTextureAtlas, texture_loader::TextureLoader, Texture,
-    },
-};
+pub use self::recompiler::Recompiler;
 
 pub fn ortho_projection(aspect: f32, height: f32) -> Matrix4<f32> {
     let w = height * aspect;
