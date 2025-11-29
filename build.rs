@@ -1,13 +1,19 @@
 use {
     anyhow::{anyhow, Result},
     glob::glob,
-    shader_compiler::compile_slang,
+    shader_compiler::{compile_glsl, compile_slang},
 };
 
 /// Globs all of the shader files in the source tree, based on file extension.
 fn get_shader_file_paths(extension: &str) -> Result<Vec<String>> {
     let mut file_names = vec![];
-    for file in glob(&format!("src/**/*.{}", extension))? {
+    for file in glob(&format!("./src/**/*.{}", extension))? {
+        let file_name = file?.to_str().unwrap().to_string();
+        println!("cargo::warning=source: {:?}", file_name);
+        println!("cargo::rerun-if-changed={}", file_name);
+        file_names.push(file_name);
+    }
+    for file in glob(&format!("./examples/**/*.{}", extension))? {
         let file_name = file?.to_str().unwrap().to_string();
         println!("cargo::warning=source: {:?}", file_name);
         println!("cargo::rerun-if-changed={}", file_name);
@@ -26,8 +32,8 @@ fn compile_shaders(
         let output_path = shader_source_path.replace(extension, "spv");
         if let Err(error) = compiler_command(&shader_source_path, &output_path)
         {
-            eprintln!("Error while compiling slang shader!\n\n{}", error);
-            return Err(anyhow!("Error while compiling shader!"));
+            eprintln!("{}", error);
+            return Err(anyhow!("Could not compile shader."));
         }
     }
     Ok(())
@@ -36,6 +42,9 @@ fn compile_shaders(
 fn main() -> Result<()> {
     compile_shaders("slang", |source_file, output_file| {
         compile_slang(source_file, Some(output_file))
+    })?;
+    compile_shaders("glsl", |source_file, output_file| {
+        compile_glsl(source_file, Some(output_file))
     })?;
     Ok(())
 }
