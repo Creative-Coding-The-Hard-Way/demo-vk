@@ -2,8 +2,8 @@
 
 use {
     crate::{graphics::vulkan::raii, trace},
-    anyhow::{Context, Result},
-    ash::vk,
+    anyhow::{bail, Result},
+    ash::vk::{self, Handle},
     std::sync::Arc,
 };
 
@@ -89,19 +89,18 @@ impl Surface {
         ash: Arc<raii::Instance>,
         window: &glfw::Window,
     ) -> Result<Arc<Self>> {
-        let handle = {
-            let mut surface = ash::vk::SurfaceKHR::null();
-            window
-                .create_window_surface(
-                    ash.raw.handle(),
-                    std::ptr::null(),
-                    &mut surface,
-                )
-                .result()
-                .with_context(trace!(
-                    "Unable to create the Vulkan SurfaceKHR with GLFW!"
-                ))?;
-            surface
+        let handle = unsafe {
+            let mut surface: std::mem::MaybeUninit<vk::SurfaceKHR> =
+                std::mem::MaybeUninit::uninit();
+            let result = window.create_window_surface(
+                ash.raw.handle().as_raw() as _,
+                std::ptr::null(),
+                surface.as_mut_ptr() as _,
+            );
+            if result != vk::Result::SUCCESS.as_raw() {
+                bail!(trace!("Unable to create Vulkan window surface!")());
+            }
+            surface.assume_init()
         };
         Self::new(ash, handle)
     }
