@@ -9,8 +9,10 @@ opt-level = 1
 [build-dependencies]
 anyhow = "1.0.100"
 glob = "0.3.3"
+shader_compiler = { path = "shader_compiler" }
 
 [dependencies]
+shader_compiler = { path = "shader_compiler" }
 anyhow = "1.0.100"
 ash = "0.38.0"
 log = "0.4.28"

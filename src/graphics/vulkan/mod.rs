@@ -18,7 +18,7 @@ pub use self::{
     buffers::{CPUBuffer, UniformBuffer},
     context::{Instance, VulkanContext},
     frames_in_flight::{Frame, FrameStatus, FramesInFlight},
-    shader_compiler::{compile_slang, spirv_module, spirv_words},
+    shader_compiler::{spirv_module, spirv_words},
     swapchain::{AcquireImageStatus, PresentImageStatus, Swapchain},
     sync_commands::SyncCommands,
 };

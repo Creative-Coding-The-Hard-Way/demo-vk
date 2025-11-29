@@ -1,10 +1,7 @@
 use {
     anyhow::{anyhow, Result},
     glob::glob,
-    std::{
-        io,
-        process::{Command, Output},
-    },
+    shader_compiler::compile_slang,
 };
 
 /// Globs all of the shader files in the source tree, based on file extension.
@@ -23,17 +20,13 @@ fn get_shader_file_paths(extension: &str) -> Result<Vec<String>> {
 /// errors.
 fn compile_shaders(
     extension: &str,
-    compiler_command: impl Fn(&str, &str) -> io::Result<Output>,
+    compiler_command: impl Fn(&str, &str) -> Result<Vec<u8>>,
 ) -> Result<()> {
     for shader_source_path in get_shader_file_paths(extension)? {
         let output_path = shader_source_path.replace(extension, "spv");
-        let results = compiler_command(&shader_source_path, &output_path)?;
-        if !results.status.success() {
-            let error_message = String::from_utf8(results.stderr).unwrap();
-            eprintln!(
-                "Error while compiling slang shader!\n\n{}",
-                error_message
-            );
+        if let Err(error) = compiler_command(&shader_source_path, &output_path)
+        {
+            eprintln!("Error while compiling slang shader!\n\n{}", error);
             return Err(anyhow!("Error while compiling shader!"));
         }
     }
@@ -42,14 +35,7 @@ fn compile_shaders(
 
 fn main() -> Result<()> {
     compile_shaders("slang", |source_file, output_file| {
-        Command::new("slangc")
-            .args(["-o", output_file, "--", source_file])
-            .output()
-    })?;
-    compile_shaders("glsl", |source_file, output_file| {
-        Command::new("glslc")
-            .args(["-o", output_file, "--target-spv=spv1.6", source_file])
-            .output()
+        compile_slang(source_file, Some(output_file))
     })?;
     Ok(())
 }

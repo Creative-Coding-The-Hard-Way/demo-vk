@@ -3,9 +3,8 @@ use {
         graphics::vulkan::{raii, VulkanContext},
         trace,
     },
-    anyhow::{bail, Context, Result},
+    anyhow::{bail, Result},
     ash::vk,
-    std::path::Path,
 };
 
 /// Creates a Vulkan shader module from the provided SPIR-V code.
@@ -46,42 +45,4 @@ pub fn spirv_words(shader_bytes: &[u8]) -> Result<Vec<u32>> {
         .collect();
 
     Ok(shader_words)
-}
-
-/// Compiles the shader file into usable SPIRV.
-///
-/// This method invokes `slangc` in a subprocess and therefore expects `slangc`
-/// to be present in the system PATH.
-///
-/// # Params
-///
-/// * [shader] - The filesystem path to the shader's source.
-pub fn compile_slang(
-    ctx: &VulkanContext,
-    shader: impl AsRef<Path>,
-) -> Result<raii::ShaderModule> {
-    let shader = shader.as_ref();
-    let shader_path_str = shader
-        .to_str()
-        .with_context(trace!("Unable to decode {:?} as unicode!", shader))?;
-    let output = std::process::Command::new("slangc")
-        .args([
-            "-matrix-layout-column-major", // compatible with nalgebra
-            "-target",
-            "spirv",
-            "--",
-            shader_path_str,
-        ])
-        .output()
-        .with_context(trace!("Error executing slangc!"))?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!(trace!("Error when compiling shader!\n\n{}", stderr)());
-    }
-
-    spirv_module(ctx, &output.stdout).with_context(trace!(
-        "Error creating shader module for {:?}",
-        shader_path_str
-    ))
 }
