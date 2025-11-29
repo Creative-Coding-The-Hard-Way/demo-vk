@@ -42,6 +42,7 @@ impl VulkanContext {
         window: &glfw::Window,
         physical_device_features: vk::PhysicalDeviceFeatures,
         physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
+        physical_device_dynamic_rendering_features: vk::PhysicalDeviceDynamicRenderingFeatures,
     ) -> Result<Arc<Self>> {
         let instance = Instance::for_window("Shader-Toy-Slang", window)
             .with_context(trace!("Unable to create vulkan instance!"))?;
@@ -57,6 +58,7 @@ impl VulkanContext {
             &surface_khr,
             &physical_device_features,
             &physical_device_vulkan12_features,
+            &physical_device_dynamic_rendering_features,
         )
         .with_context(trace!(
             "Error while picking a suitable physical device!"
@@ -69,6 +71,7 @@ impl VulkanContext {
                 physical_device,
                 physical_device_features,
                 physical_device_vulkan12_features,
+                physical_device_dynamic_rendering_features,
             )
             .with_context(trace!("Error while creating the logical device!"))?;
 

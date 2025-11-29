@@ -43,6 +43,7 @@ impl App for VulkanApp {
             window,
             vk::PhysicalDeviceFeatures::default(),
             vk::PhysicalDeviceVulkan12Features::default(),
+            vk::PhysicalDeviceDynamicRenderingFeatures::default(),
         )?;
 
         let (w, h) = window.get_framebuffer_size();

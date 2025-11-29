@@ -14,6 +14,7 @@ pub fn pick_suitable_device(
     surface_khr: &raii::Surface,
     physical_device_features: &vk::PhysicalDeviceFeatures,
     physical_device_vulkan12_features: &vk::PhysicalDeviceVulkan12Features,
+    physical_device_dynamic_rendering_features: &vk::PhysicalDeviceDynamicRenderingFeatures,
 ) -> Result<vk::PhysicalDevice> {
     let physical_devices = unsafe {
         instance
@@ -38,6 +39,7 @@ pub fn pick_suitable_device(
             physical_device,
             physical_device_features,
             physical_device_vulkan12_features,
+            physical_device_dynamic_rendering_features,
         );
         let has_queues = has_required_queues(instance, physical_device);
         let has_extensions = has_required_extensions(instance, physical_device);
@@ -135,30 +137,45 @@ fn has_required_features(
     physical_device: vk::PhysicalDevice,
     desired_features: &vk::PhysicalDeviceFeatures,
     desired_vulkan12_features: &vk::PhysicalDeviceVulkan12Features,
+    desired_dynamic_rendering_features: &vk::PhysicalDeviceDynamicRenderingFeatures,
 ) -> bool {
     // load supported fetaures from the device
+    let mut actual_dynamic_rendering_features =
+        vk::PhysicalDeviceDynamicRenderingFeatures::default();
     let mut actual_vulkan12_features =
         vk::PhysicalDeviceVulkan12Features::default();
     let actual_features = unsafe {
         let mut features = vk::PhysicalDeviceFeatures2::default()
-            .push_next(&mut actual_vulkan12_features);
+            .push_next(&mut actual_vulkan12_features)
+            .push_next(&mut actual_dynamic_rendering_features);
         instance.get_physical_device_features2(physical_device, &mut features);
         features.features
     };
 
-    macro_rules! check_feature {
-        ($name:ident) => {
-            if desired_features.$name == vk::TRUE
-                && actual_features.$name != vk::TRUE
-            {
+    macro_rules! check {
+        ($desired:ident, $actual:ident, $name:ident) => {
+            if $desired.$name == vk::TRUE && $actual.$name != vk::TRUE {
                 log::warn!(
                     "{} not supported! Wanted {} but was {}",
                     stringify!($name),
-                    desired_features.$name,
-                    actual_features.$name
+                    $desired.$name,
+                    $actual.$name
                 );
                 return false;
             }
+        };
+    }
+
+    // check for dynamic rendering support
+    check!(
+        desired_dynamic_rendering_features,
+        actual_dynamic_rendering_features,
+        dynamic_rendering
+    );
+
+    macro_rules! check_feature {
+        ($name:ident) => {
+            check!(desired_features, actual_features, $name)
         };
     }
     check_feature!(robust_buffer_access);
@@ -219,17 +236,7 @@ fn has_required_features(
 
     macro_rules! check_feature12 {
         ($name:ident) => {
-            if desired_vulkan12_features.$name == vk::TRUE
-                && actual_vulkan12_features.$name != vk::TRUE
-            {
-                log::warn!(
-                    "{} not supported! Wanted {} but was {}",
-                    stringify!($name),
-                    desired_vulkan12_features.$name,
-                    actual_vulkan12_features.$name
-                );
-                return false;
-            }
+            check!(desired_vulkan12_features, actual_vulkan12_features, $name)
         };
     }
     check_feature12!(sampler_mirror_clamp_to_edge);

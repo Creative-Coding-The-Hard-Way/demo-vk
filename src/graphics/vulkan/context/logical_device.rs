@@ -16,6 +16,7 @@ pub fn create_logical_device(
     physical_device: vk::PhysicalDevice,
     physical_device_features: vk::PhysicalDeviceFeatures,
     physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
+    physical_device_dynamic_rendering_features: vk::PhysicalDeviceDynamicRenderingFeatures,
 ) -> Result<(Arc<raii::Device>, u32)> {
     let queue_family_properties = unsafe {
         instance.get_physical_device_queue_family_properties(physical_device)
@@ -52,6 +53,12 @@ pub fn create_logical_device(
     let extensions = [ash::khr::swapchain::NAME.as_ptr()];
 
     let logical_device = {
+        // shadow the dynamic rendering features so we can set the pnext pointer
+        let mut physical_device_dynamic_rendering_features =
+            vk::PhysicalDeviceDynamicRenderingFeatures {
+                ..physical_device_dynamic_rendering_features
+            };
+
         // shadow the requested physical device features so we can set the pnext
         // pointer.
         let mut physical_device_vulkan12_features =
@@ -66,7 +73,8 @@ pub fn create_logical_device(
             },
             ..Default::default()
         }
-        .push_next(&mut physical_device_vulkan12_features);
+        .push_next(&mut physical_device_vulkan12_features)
+        .push_next(&mut physical_device_dynamic_rendering_features);
 
         // create the device using the requested features
         let create_info = vk::DeviceCreateInfo {

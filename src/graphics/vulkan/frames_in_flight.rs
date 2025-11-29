@@ -31,6 +31,7 @@ pub struct Frame {
     swapchain_image_index: u32,
     frame_index: usize,
     swapchain_image: vk::Image,
+    swapchain_image_view: vk::ImageView,
 }
 
 impl Frame {
@@ -48,6 +49,10 @@ impl Frame {
 
     pub fn swapchain_image(&self) -> vk::Image {
         self.swapchain_image
+    }
+
+    pub fn swapchain_image_view(&self) -> vk::ImageView {
+        self.swapchain_image_view
     }
 }
 
@@ -269,6 +274,9 @@ impl FramesInFlight {
             swapchain_image_index,
             frame_index: self.frame_index,
             swapchain_image: swapchain.images()[swapchain_image_index as usize],
+            swapchain_image_view: swapchain.image_views()
+                [swapchain_image_index as usize]
+                .raw,
         }))
     }
 

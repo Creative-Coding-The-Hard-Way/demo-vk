@@ -71,6 +71,12 @@ pub trait Demo {
     where
         Self: Sized;
 
+    /// Returns the dynamic rendering features required by this demo.
+    fn physical_device_dynamic_rendering_features(
+    ) -> vk::PhysicalDeviceDynamicRenderingFeatures<'static> {
+        vk::PhysicalDeviceDynamicRenderingFeatures::default()
+    }
+
     /// Returns the physical device features required by this demo.
     fn physical_device_features() -> vk::PhysicalDeviceFeatures {
         vk::PhysicalDeviceFeatures::default()
@@ -238,6 +244,7 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             window,
             D::physical_device_features(),
             D::physical_device_vulkan12_features(),
+            D::physical_device_dynamic_rendering_features(),
         )
         .with_context(trace!("Unable to create the Vulkan Context!"))?;
 
