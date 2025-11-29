@@ -1,9 +1,6 @@
-mod recompiler;
 pub mod vulkan;
 
 use nalgebra::Matrix4;
-
-pub use self::recompiler::Recompiler;
 
 pub fn ortho_projection(aspect: f32, height: f32) -> Matrix4<f32> {
     let w = height * aspect;
