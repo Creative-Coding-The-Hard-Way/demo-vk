@@ -82,7 +82,7 @@ pub trait Demo {
         vk::PhysicalDeviceFeatures::default()
     }
 
-    /// Returns the Vulkan 1.2 physical device features required by this demow.
+    /// Returns the Vulkan 1.2 physical device features required by this demo.
     fn physical_device_vulkan12_features(
     ) -> vk::PhysicalDeviceVulkan12Features<'static> {
         vk::PhysicalDeviceVulkan12Features::default()
