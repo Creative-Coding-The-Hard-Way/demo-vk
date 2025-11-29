@@ -71,6 +71,17 @@ pub trait Demo {
     where
         Self: Sized;
 
+    /// Returns the physical device features required by this demo.
+    fn physical_device_features() -> vk::PhysicalDeviceFeatures {
+        vk::PhysicalDeviceFeatures::default()
+    }
+
+    /// Returns the Vulkan 1.2 physical device features required by this demow.
+    fn physical_device_vulkan12_features(
+    ) -> vk::PhysicalDeviceVulkan12Features<'static> {
+        vk::PhysicalDeviceVulkan12Features::default()
+    }
+
     /// Handles a single GLFW event.
     ///
     /// This function is called in a loop to consume any pending events before
@@ -223,8 +234,12 @@ impl<D: Demo + Sized> App for DemoApp<D> {
         window.set_size(D::INITIAL_WINDOW_SIZE.0, D::INITIAL_WINDOW_SIZE.1);
         window.set_title(std::any::type_name::<D>());
 
-        let vulkan = VulkanContext::new(window)
-            .with_context(trace!("Unable to create the Vulkan Context!"))?;
+        let vulkan = VulkanContext::new(
+            window,
+            D::physical_device_features(),
+            D::physical_device_vulkan12_features(),
+        )
+        .with_context(trace!("Unable to create the Vulkan Context!"))?;
 
         let (w, h) = window.get_framebuffer_size();
         let swapchain =

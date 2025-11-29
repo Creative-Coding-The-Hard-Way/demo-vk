@@ -14,6 +14,8 @@ pub fn create_logical_device(
     instance: &Instance,
     surface_khr: &raii::Surface,
     physical_device: vk::PhysicalDevice,
+    physical_device_features: vk::PhysicalDeviceFeatures,
+    physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
 ) -> Result<(Arc<raii::Device>, u32)> {
     let queue_family_properties = unsafe {
         instance.get_physical_device_queue_family_properties(physical_device)
@@ -49,32 +51,36 @@ pub fn create_logical_device(
     }];
     let extensions = [ash::khr::swapchain::NAME.as_ptr()];
 
-    let mut vulkan12_features = vk::PhysicalDeviceVulkan12Features {
-        runtime_descriptor_array: vk::TRUE,
-        shader_sampled_image_array_non_uniform_indexing: vk::TRUE,
-        descriptor_binding_variable_descriptor_count: vk::TRUE,
-        descriptor_binding_partially_bound: vk::TRUE,
-        ..Default::default()
-    };
-    let mut features = vk::PhysicalDeviceFeatures2 {
-        features: vk::PhysicalDeviceFeatures {
-            sampler_anisotropy: vk::TRUE,
+    let logical_device = {
+        // shadow the requested physical device features so we can set the pnext
+        // pointer.
+        let mut physical_device_vulkan12_features =
+            vk::PhysicalDeviceVulkan12Features {
+                ..physical_device_vulkan12_features
+            };
+
+        // pack the desired features
+        let mut features = vk::PhysicalDeviceFeatures2 {
+            features: vk::PhysicalDeviceFeatures {
+                ..physical_device_features
+            },
             ..Default::default()
-        },
-        ..Default::default()
-    }
-    .push_next(&mut vulkan12_features);
-    let create_info = vk::DeviceCreateInfo {
-        queue_create_info_count: queue_create_infos.len() as u32,
-        p_queue_create_infos: queue_create_infos.as_ptr(),
-        enabled_extension_count: extensions.len() as u32,
-        pp_enabled_extension_names: extensions.as_ptr(),
-        p_enabled_features: std::ptr::null(), // use physical device features2
-        ..Default::default()
-    }
-    .push_next(&mut features);
-    let logical_device =
-        raii::Device::new(instance.ash.clone(), physical_device, &create_info)?;
+        }
+        .push_next(&mut physical_device_vulkan12_features);
+
+        // create the device using the requested features
+        let create_info = vk::DeviceCreateInfo {
+            queue_create_info_count: queue_create_infos.len() as u32,
+            p_queue_create_infos: queue_create_infos.as_ptr(),
+            enabled_extension_count: extensions.len() as u32,
+            pp_enabled_extension_names: extensions.as_ptr(),
+            p_enabled_features: std::ptr::null(), /* use physical device
+                                                   * features2 */
+            ..Default::default()
+        }
+        .push_next(&mut features);
+        raii::Device::new(instance.ash.clone(), physical_device, &create_info)?
+    };
 
     Ok((logical_device, graphics_queue_index as u32))
 }

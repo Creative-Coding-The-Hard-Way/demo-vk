@@ -19,12 +19,22 @@ struct ExampleDemo {}
 
 impl Demo for ExampleDemo {
     type Args = Args;
-    const FRAMES_PER_SECOND: u32 = 5;
 
+    /// Specify physical device features if anything non-default is requirewd
+    fn physical_device_features() -> vk::PhysicalDeviceFeatures {
+        vk::PhysicalDeviceFeatures::default()
+    }
+    fn physical_device_vulkan12_features(
+    ) -> vk::PhysicalDeviceVulkan12Features<'static> {
+        vk::PhysicalDeviceVulkan12Features::default()
+    }
+
+    /// Initialize the demo
     fn new(_window: &mut Window, _gfx: &mut Gfx) -> Result<Self> {
         Ok(Self {})
     }
 
+    /// Draw a frame
     fn draw(
         &mut self,
         _window: &mut Window,

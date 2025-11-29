@@ -38,7 +38,11 @@ pub struct VulkanContext {
 impl VulkanContext {
     /// Creates a new Vulkan Context for the first suitable device that supports
     /// presenting to the GLFW window surface.
-    pub fn new(window: &glfw::Window) -> Result<Arc<Self>> {
+    pub fn new(
+        window: &glfw::Window,
+        physical_device_features: vk::PhysicalDeviceFeatures,
+        physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
+    ) -> Result<Arc<Self>> {
         let instance = Instance::for_window("Shader-Toy-Slang", window)
             .with_context(trace!("Unable to create vulkan instance!"))?;
 
@@ -48,17 +52,23 @@ impl VulkanContext {
                     "Unable to create Vulkan surface from glfw window!"
                 ))?;
 
-        let physical_device =
-            physical_device::pick_suitable_device(&instance, &surface_khr)
-                .with_context(trace!(
-                    "Error while picking a suitable physical device!"
-                ))?;
+        let physical_device = physical_device::pick_suitable_device(
+            &instance,
+            &surface_khr,
+            &physical_device_features,
+            &physical_device_vulkan12_features,
+        )
+        .with_context(trace!(
+            "Error while picking a suitable physical device!"
+        ))?;
 
         let (device, graphics_queue_family_index) =
             logical_device::create_logical_device(
                 &instance,
                 &surface_khr,
                 physical_device,
+                physical_device_features,
+                physical_device_vulkan12_features,
             )
             .with_context(trace!("Error while creating the logical device!"))?;
 

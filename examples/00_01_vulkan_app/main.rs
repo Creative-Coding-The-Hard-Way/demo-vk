@@ -39,7 +39,11 @@ impl App for VulkanApp {
         window.set_all_polling(true);
         window.set_title(std::any::type_name::<Self>());
 
-        let ctx = VulkanContext::new(window)?;
+        let ctx = VulkanContext::new(
+            window,
+            vk::PhysicalDeviceFeatures::default(),
+            vk::PhysicalDeviceVulkan12Features::default(),
+        )?;
 
         let (w, h) = window.get_framebuffer_size();
         let swapchain =
