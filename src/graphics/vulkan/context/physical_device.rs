@@ -138,13 +138,10 @@ fn has_required_features(
         vk::PhysicalDeviceDynamicRenderingFeatures::default();
     let mut actual_vulkan12_features =
         vk::PhysicalDeviceVulkan12Features::default();
-    let mut actual_buffer_device_address_features =
-        vk::PhysicalDeviceBufferDeviceAddressFeatures::default();
     let actual_features = unsafe {
         let mut features = vk::PhysicalDeviceFeatures2::default()
             .push_next(&mut actual_vulkan12_features)
-            .push_next(&mut actual_dynamic_rendering_features)
-            .push_next(&mut actual_buffer_device_address_features);
+            .push_next(&mut actual_dynamic_rendering_features);
         instance.get_physical_device_features2(physical_device, &mut features);
         features.features
     };
@@ -169,20 +166,6 @@ fn has_required_features(
         actual_dynamic_rendering_features,
         dynamic_rendering
     );
-
-    macro_rules! check_buffer_device_address_feature {
-        ($name:ident) => {
-            check!(
-                required_device_features
-                    .physical_device_buffer_device_address_features,
-                actual_buffer_device_address_features,
-                $name
-            )
-        };
-    }
-    check_buffer_device_address_feature!(buffer_device_address);
-    check_buffer_device_address_feature!(buffer_device_address_multi_device);
-    check_buffer_device_address_feature!(buffer_device_address_capture_replay);
 
     macro_rules! check_feature {
         ($name:ident) => {

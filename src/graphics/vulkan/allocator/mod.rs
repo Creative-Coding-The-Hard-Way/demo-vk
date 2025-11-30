@@ -85,13 +85,15 @@ impl Allocator {
     pub fn allocate_memory(
         &self,
         requirements: &vk::MemoryRequirements,
-        flags: vk::MemoryPropertyFlags,
+        memory_property_flags: vk::MemoryPropertyFlags,
+        memory_allocate_flags: vk::MemoryAllocateFlags,
         dedicated: bool,
     ) -> Result<Block> {
         let requirements = AllocationRequirements::new(
             &self.memory_properties,
             requirements,
-            flags,
+            memory_property_flags,
+            memory_allocate_flags,
             dedicated,
         )?;
 

@@ -27,14 +27,19 @@ impl ComposableAllocator for DeviceAllocator {
     ) -> Result<Block> {
         // Allocate the underlying memory
         let memory = unsafe {
+            let mut memory_allocate_flags_info =
+                requirements.memory_allocate_flags_info();
+            let memory_allocate_info = requirements
+                .memory_allocate_info()
+                .push_next(&mut memory_allocate_flags_info);
             self.logical_device
-                .allocate_memory(&requirements.as_vk_allocate_info(), None)
+                .allocate_memory(&memory_allocate_info, None)
                 .with_context(trace!("Unable to allocate device memory!"))?
         };
 
         // Map the device memory if possible
         let mapped_ptr = if requirements
-            .flags
+            .memory_property_flags
             .contains(vk::MemoryPropertyFlags::HOST_VISIBLE)
         {
             unsafe {

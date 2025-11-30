@@ -27,8 +27,6 @@ pub struct RequiredDeviceFeatures {
         vk::PhysicalDeviceVulkan12Features<'static>,
     pub physical_device_dynamic_rendering_features:
         vk::PhysicalDeviceDynamicRenderingFeatures<'static>,
-    pub physical_device_buffer_device_address_features:
-        vk::PhysicalDeviceBufferDeviceAddressFeatures<'static>,
 }
 
 /// The Vulkan context is the logical handle for all Vulkan operations within

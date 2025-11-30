@@ -23,7 +23,7 @@ impl OwnedBlock {
     pub fn allocate_image(
         allocator: Arc<Allocator>,
         image_create_info: &vk::ImageCreateInfo,
-        flags: vk::MemoryPropertyFlags,
+        memory_property_flags: vk::MemoryPropertyFlags,
     ) -> Result<(Self, raii::Image)> {
         let image = raii::Image::new(
             "Allocated Image",
@@ -56,7 +56,12 @@ impl OwnedBlock {
         };
 
         let block = allocator
-            .allocate_memory(&requirements, flags, dedicated)
+            .allocate_memory(
+                &requirements,
+                memory_property_flags,
+                vk::MemoryAllocateFlags::empty(),
+                dedicated,
+            )
             .with_context(trace!("Unable to allocate memory for image!"))?;
 
         unsafe {
@@ -76,7 +81,7 @@ impl OwnedBlock {
     pub fn allocate_buffer(
         allocator: Arc<Allocator>,
         buffer_create_info: &vk::BufferCreateInfo,
-        flags: vk::MemoryPropertyFlags,
+        memory_property_flags: vk::MemoryPropertyFlags,
     ) -> Result<(OwnedBlock, raii::Buffer)> {
         let buffer = raii::Buffer::new(
             "Allocated Buffer",
@@ -108,8 +113,22 @@ impl OwnedBlock {
             )
         };
 
+        let memory_allocate_flags = if buffer_create_info
+            .usage
+            .contains(vk::BufferUsageFlags::SHADER_DEVICE_ADDRESS)
+        {
+            vk::MemoryAllocateFlags::DEVICE_ADDRESS
+        } else {
+            vk::MemoryAllocateFlags::empty()
+        };
+
         let block = allocator
-            .allocate_memory(&requirements, flags, dedicated)
+            .allocate_memory(
+                &requirements,
+                memory_property_flags,
+                memory_allocate_flags,
+                dedicated,
+            )
             .with_context(trace!("Unable to allocate memory for buffer!"))?;
 
         unsafe {
