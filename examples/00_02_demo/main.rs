@@ -4,7 +4,7 @@ use {
     clap::Parser,
     demo_vk::{
         demo::{demo_main, Demo, Graphics},
-        graphics::vulkan::Frame,
+        graphics::vulkan::{Frame, RequiredDeviceFeatures},
     },
     glfw::Window,
 };
@@ -19,11 +19,13 @@ struct ExampleDemo {}
 impl Demo for ExampleDemo {
     type Args = Args;
 
-    /// Specify physical device features if anything non-default is required
-    fn physical_device_dynamic_rendering_features(
-    ) -> vk::PhysicalDeviceDynamicRenderingFeatures<'static> {
-        vk::PhysicalDeviceDynamicRenderingFeatures {
-            dynamic_rendering: vk::TRUE,
+    fn required_device_features() -> RequiredDeviceFeatures {
+        RequiredDeviceFeatures {
+            physical_device_dynamic_rendering_features:
+                vk::PhysicalDeviceDynamicRenderingFeatures {
+                    dynamic_rendering: vk::TRUE,
+                    ..Default::default()
+                },
             ..Default::default()
         }
     }

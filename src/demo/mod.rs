@@ -71,27 +71,9 @@ pub trait Demo {
     where
         Self: Sized;
 
-    /// Returns the dynamic rendering features required by this demo.
-    fn physical_device_dynamic_rendering_features(
-    ) -> vk::PhysicalDeviceDynamicRenderingFeatures<'static> {
-        vk::PhysicalDeviceDynamicRenderingFeatures::default()
-    }
-
-    /// Returns the physical device features required by this demo.
-    fn physical_device_features() -> vk::PhysicalDeviceFeatures {
-        vk::PhysicalDeviceFeatures::default()
-    }
-
-    /// Returns the Vulkan 1.2 physical device features required by this demo.
-    fn physical_device_vulkan12_features(
-    ) -> vk::PhysicalDeviceVulkan12Features<'static> {
-        vk::PhysicalDeviceVulkan12Features::default()
-    }
-
-    /// Returns the buffer device address features required by this demo.
-    fn physical_device_buffer_device_address_features(
-    ) -> vk::PhysicalDeviceBufferDeviceAddressFeatures<'static> {
-        vk::PhysicalDeviceBufferDeviceAddressFeatures::default()
+    /// Returns the required device features for this demo.
+    fn required_device_features() -> RequiredDeviceFeatures {
+        RequiredDeviceFeatures::default()
     }
 
     /// Handles a single GLFW event.
@@ -246,19 +228,8 @@ impl<D: Demo + Sized> App for DemoApp<D> {
         window.set_size(D::INITIAL_WINDOW_SIZE.0, D::INITIAL_WINDOW_SIZE.1);
         window.set_title(std::any::type_name::<D>());
 
-        let vulkan = VulkanContext::new(
-            window,
-            RequiredDeviceFeatures {
-                physical_device_features: D::physical_device_features(),
-                physical_device_vulkan12_features:
-                    D::physical_device_vulkan12_features(),
-                physical_device_dynamic_rendering_features:
-                    D::physical_device_dynamic_rendering_features(),
-                physical_device_buffer_device_address_features:
-                    D::physical_device_buffer_device_address_features(),
-            },
-        )
-        .with_context(trace!("Unable to create the Vulkan Context!"))?;
+        let vulkan = VulkanContext::new(window, D::required_device_features())
+            .with_context(trace!("Unable to create the Vulkan Context!"))?;
 
         let (w, h) = window.get_framebuffer_size();
         let swapchain =
