@@ -1,6 +1,6 @@
 use {
     crate::{
-        graphics::vulkan::{raii, Instance},
+        graphics::vulkan::{raii, Instance, RequiredDeviceFeatures},
         trace,
     },
     anyhow::{Context, Result},
@@ -12,9 +12,7 @@ use {
 pub fn pick_suitable_device(
     instance: &Instance,
     surface_khr: &raii::Surface,
-    physical_device_features: &vk::PhysicalDeviceFeatures,
-    physical_device_vulkan12_features: &vk::PhysicalDeviceVulkan12Features,
-    physical_device_dynamic_rendering_features: &vk::PhysicalDeviceDynamicRenderingFeatures,
+    required_device_features: &RequiredDeviceFeatures,
 ) -> Result<vk::PhysicalDevice> {
     let physical_devices = unsafe {
         instance
@@ -37,9 +35,7 @@ pub fn pick_suitable_device(
         let has_features = has_required_features(
             instance,
             physical_device,
-            physical_device_features,
-            physical_device_vulkan12_features,
-            physical_device_dynamic_rendering_features,
+            required_device_features,
         );
         let has_queues = has_required_queues(instance, physical_device);
         let has_extensions = has_required_extensions(instance, physical_device);
@@ -135,25 +131,26 @@ fn has_required_surface_formats(
 fn has_required_features(
     instance: &Instance,
     physical_device: vk::PhysicalDevice,
-    desired_features: &vk::PhysicalDeviceFeatures,
-    desired_vulkan12_features: &vk::PhysicalDeviceVulkan12Features,
-    desired_dynamic_rendering_features: &vk::PhysicalDeviceDynamicRenderingFeatures,
+    required_device_features: &RequiredDeviceFeatures,
 ) -> bool {
     // load supported fetaures from the device
     let mut actual_dynamic_rendering_features =
         vk::PhysicalDeviceDynamicRenderingFeatures::default();
     let mut actual_vulkan12_features =
         vk::PhysicalDeviceVulkan12Features::default();
+    let mut actual_buffer_device_address_features =
+        vk::PhysicalDeviceBufferDeviceAddressFeatures::default();
     let actual_features = unsafe {
         let mut features = vk::PhysicalDeviceFeatures2::default()
             .push_next(&mut actual_vulkan12_features)
-            .push_next(&mut actual_dynamic_rendering_features);
+            .push_next(&mut actual_dynamic_rendering_features)
+            .push_next(&mut actual_buffer_device_address_features);
         instance.get_physical_device_features2(physical_device, &mut features);
         features.features
     };
 
     macro_rules! check {
-        ($desired:ident, $actual:ident, $name:ident) => {
+        ($desired:expr, $actual:ident, $name:ident) => {
             if $desired.$name == vk::TRUE && $actual.$name != vk::TRUE {
                 log::warn!(
                     "{} not supported! Wanted {} but was {}",
@@ -168,14 +165,32 @@ fn has_required_features(
 
     // check for dynamic rendering support
     check!(
-        desired_dynamic_rendering_features,
+        required_device_features.physical_device_dynamic_rendering_features,
         actual_dynamic_rendering_features,
         dynamic_rendering
     );
 
+    macro_rules! check_buffer_device_address_feature {
+        ($name:ident) => {
+            check!(
+                required_device_features
+                    .physical_device_buffer_device_address_features,
+                actual_buffer_device_address_features,
+                $name
+            )
+        };
+    }
+    check_buffer_device_address_feature!(buffer_device_address);
+    check_buffer_device_address_feature!(buffer_device_address_multi_device);
+    check_buffer_device_address_feature!(buffer_device_address_capture_replay);
+
     macro_rules! check_feature {
         ($name:ident) => {
-            check!(desired_features, actual_features, $name)
+            check!(
+                required_device_features.physical_device_features,
+                actual_features,
+                $name
+            )
         };
     }
     check_feature!(robust_buffer_access);
@@ -236,7 +251,11 @@ fn has_required_features(
 
     macro_rules! check_feature12 {
         ($name:ident) => {
-            check!(desired_vulkan12_features, actual_vulkan12_features, $name)
+            check!(
+                required_device_features.physical_device_vulkan12_features,
+                actual_vulkan12_features,
+                $name
+            )
         };
     }
     check_feature12!(sampler_mirror_clamp_to_edge);

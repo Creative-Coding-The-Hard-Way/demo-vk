@@ -14,6 +14,23 @@ use {
 
 pub use self::instance::Instance;
 
+/// Holds all of the device features structs which can be used when creating a
+/// VulkanContext.
+///
+/// Note: None of the pnext pointers should be specified in these structures.
+///       The relevant pnext chain will be assembled on-demand when calling
+///       into Vulkan and never before.
+#[derive(Debug, Default)]
+pub struct RequiredDeviceFeatures {
+    pub physical_device_features: vk::PhysicalDeviceFeatures,
+    pub physical_device_vulkan12_features:
+        vk::PhysicalDeviceVulkan12Features<'static>,
+    pub physical_device_dynamic_rendering_features:
+        vk::PhysicalDeviceDynamicRenderingFeatures<'static>,
+    pub physical_device_buffer_device_address_features:
+        vk::PhysicalDeviceBufferDeviceAddressFeatures<'static>,
+}
+
 /// The Vulkan context is the logical handle for all Vulkan operations within
 /// the app.
 ///
@@ -40,9 +57,7 @@ impl VulkanContext {
     /// presenting to the GLFW window surface.
     pub fn new(
         window: &glfw::Window,
-        physical_device_features: vk::PhysicalDeviceFeatures,
-        physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
-        physical_device_dynamic_rendering_features: vk::PhysicalDeviceDynamicRenderingFeatures,
+        required_device_features: RequiredDeviceFeatures,
     ) -> Result<Arc<Self>> {
         let instance = Instance::for_window("Shader-Toy-Slang", window)
             .with_context(trace!("Unable to create vulkan instance!"))?;
@@ -56,9 +71,7 @@ impl VulkanContext {
         let physical_device = physical_device::pick_suitable_device(
             &instance,
             &surface_khr,
-            &physical_device_features,
-            &physical_device_vulkan12_features,
-            &physical_device_dynamic_rendering_features,
+            &required_device_features,
         )
         .with_context(trace!(
             "Error while picking a suitable physical device!"
@@ -69,9 +82,7 @@ impl VulkanContext {
                 &instance,
                 &surface_khr,
                 physical_device,
-                physical_device_features,
-                physical_device_vulkan12_features,
-                physical_device_dynamic_rendering_features,
+                required_device_features,
             )
             .with_context(trace!("Error while creating the logical device!"))?;
 

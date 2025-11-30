@@ -1,6 +1,6 @@
 use {
     crate::{
-        graphics::vulkan::{raii, Instance},
+        graphics::vulkan::{raii, Instance, RequiredDeviceFeatures},
         trace,
     },
     anyhow::{Context, Result},
@@ -14,9 +14,7 @@ pub fn create_logical_device(
     instance: &Instance,
     surface_khr: &raii::Surface,
     physical_device: vk::PhysicalDevice,
-    physical_device_features: vk::PhysicalDeviceFeatures,
-    physical_device_vulkan12_features: vk::PhysicalDeviceVulkan12Features,
-    physical_device_dynamic_rendering_features: vk::PhysicalDeviceDynamicRenderingFeatures,
+    required_device_features: RequiredDeviceFeatures,
 ) -> Result<(Arc<raii::Device>, u32)> {
     let queue_family_properties = unsafe {
         instance.get_physical_device_queue_family_properties(physical_device)
@@ -56,20 +54,21 @@ pub fn create_logical_device(
         // shadow the dynamic rendering features so we can set the pnext pointer
         let mut physical_device_dynamic_rendering_features =
             vk::PhysicalDeviceDynamicRenderingFeatures {
-                ..physical_device_dynamic_rendering_features
+                ..required_device_features
+                    .physical_device_dynamic_rendering_features
             };
 
         // shadow the requested physical device features so we can set the pnext
         // pointer.
         let mut physical_device_vulkan12_features =
             vk::PhysicalDeviceVulkan12Features {
-                ..physical_device_vulkan12_features
+                ..required_device_features.physical_device_vulkan12_features
             };
 
         // pack the desired features
         let mut features = vk::PhysicalDeviceFeatures2 {
             features: vk::PhysicalDeviceFeatures {
-                ..physical_device_features
+                ..required_device_features.physical_device_features
             },
             ..Default::default()
         }

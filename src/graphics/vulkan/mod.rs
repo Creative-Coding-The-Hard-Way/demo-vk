@@ -16,7 +16,7 @@ mod sync_commands;
 pub use self::{
     allocator::{block::Block, owned_block::OwnedBlock, Allocator},
     buffers::{CPUBuffer, UniformBuffer},
-    context::{Instance, VulkanContext},
+    context::{Instance, RequiredDeviceFeatures, VulkanContext},
     frames_in_flight::{Frame, FrameStatus, FramesInFlight},
     spirv::{spirv_module, spirv_words},
     swapchain::{AcquireImageStatus, PresentImageStatus, Swapchain},

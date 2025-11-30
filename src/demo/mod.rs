@@ -6,8 +6,8 @@ use {
     crate::{
         app::{app_main, App},
         graphics::vulkan::{
-            Frame, FrameStatus, FramesInFlight, PresentImageStatus, Swapchain,
-            VulkanContext,
+            Frame, FrameStatus, FramesInFlight, PresentImageStatus,
+            RequiredDeviceFeatures, Swapchain, VulkanContext,
         },
         trace,
     },
@@ -86,6 +86,12 @@ pub trait Demo {
     fn physical_device_vulkan12_features(
     ) -> vk::PhysicalDeviceVulkan12Features<'static> {
         vk::PhysicalDeviceVulkan12Features::default()
+    }
+
+    /// Returns the buffer device address features required by this demo.
+    fn physical_device_buffer_device_address_features(
+    ) -> vk::PhysicalDeviceBufferDeviceAddressFeatures<'static> {
+        vk::PhysicalDeviceBufferDeviceAddressFeatures::default()
     }
 
     /// Handles a single GLFW event.
@@ -242,9 +248,15 @@ impl<D: Demo + Sized> App for DemoApp<D> {
 
         let vulkan = VulkanContext::new(
             window,
-            D::physical_device_features(),
-            D::physical_device_vulkan12_features(),
-            D::physical_device_dynamic_rendering_features(),
+            RequiredDeviceFeatures {
+                physical_device_features: D::physical_device_features(),
+                physical_device_vulkan12_features:
+                    D::physical_device_vulkan12_features(),
+                physical_device_dynamic_rendering_features:
+                    D::physical_device_dynamic_rendering_features(),
+                physical_device_buffer_device_address_features:
+                    D::physical_device_buffer_device_address_features(),
+            },
         )
         .with_context(trace!("Unable to create the Vulkan Context!"))?;
 
