@@ -131,5 +131,5 @@ impl Demo for ExampleDemo {
 }
 
 fn main() {
-    demo_main::<ExampleDemo>();
+    let _ = demo_main::<ExampleDemo>();
 }

@@ -56,12 +56,12 @@ pub trait App {
 ///
 /// Initializes logging and the GLFW library. Any errors that cause the
 /// application to exit are reported with a stacktrace if available.
-pub fn app_main<A>()
+pub fn app_main<A>() -> Result<()>
 where
     A: App + 'static,
 {
     let exit_result = try_app_main::<A>();
-    if let Some(err) = exit_result.err() {
+    if let Some(err) = exit_result.as_ref().err() {
         let result: String = err
             .chain()
             .skip(1)
@@ -76,7 +76,8 @@ where
             result,
             err.backtrace()
         );
-    }
+    };
+    exit_result
 }
 
 fn try_app_main<A>() -> Result<()>

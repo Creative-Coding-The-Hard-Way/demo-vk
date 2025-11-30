@@ -53,5 +53,5 @@ impl App for GLFWApp {
 pub fn main() {
     // app_main creates an instance of the app and starts the GLFW loop to
     // process events, etc...
-    app_main::<GLFWApp>();
+    let _ = app_main::<GLFWApp>();
 }

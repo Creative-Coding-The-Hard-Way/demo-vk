@@ -165,5 +165,5 @@ impl Demo for FirstTriangle {
 }
 
 fn main() {
-    demo_main::<FirstTriangle>();
+    let _ = demo_main::<FirstTriangle>();
 }

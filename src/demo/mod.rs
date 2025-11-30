@@ -369,6 +369,6 @@ impl<D: Demo + Sized> App for DemoApp<D> {
 }
 
 /// The main entrypoint for a demo.
-pub fn demo_main<D: Demo + 'static>() {
-    app_main::<DemoApp<D>>();
+pub fn demo_main<D: Demo + 'static>() -> Result<()> {
+    app_main::<DemoApp<D>>()
 }

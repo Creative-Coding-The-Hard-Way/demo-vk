@@ -158,5 +158,5 @@ impl App for VulkanApp {
 pub fn main() {
     // app_main creates an instance of the app and starts the GLFW loop to
     // process events, etc...
-    app_main::<VulkanApp>();
+    let _ = app_main::<VulkanApp>();
 }
