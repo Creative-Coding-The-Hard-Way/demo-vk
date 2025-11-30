@@ -51,18 +51,19 @@ pub fn create_logical_device(
     let extensions = [ash::khr::swapchain::NAME.as_ptr()];
 
     let logical_device = {
-        // shadow the dynamic rendering features so we can set the pnext pointer
         let mut physical_device_dynamic_rendering_features =
             vk::PhysicalDeviceDynamicRenderingFeatures {
                 ..required_device_features
                     .physical_device_dynamic_rendering_features
             };
-
-        // shadow the requested physical device features so we can set the pnext
-        // pointer.
         let mut physical_device_vulkan12_features =
             vk::PhysicalDeviceVulkan12Features {
                 ..required_device_features.physical_device_vulkan12_features
+            };
+        let mut physical_device_buffer_device_address_features =
+            vk::PhysicalDeviceBufferDeviceAddressFeatures {
+                ..required_device_features
+                    .physical_device_buffer_device_address_features
             };
 
         // pack the desired features
@@ -73,7 +74,8 @@ pub fn create_logical_device(
             ..Default::default()
         }
         .push_next(&mut physical_device_vulkan12_features)
-        .push_next(&mut physical_device_dynamic_rendering_features);
+        .push_next(&mut physical_device_dynamic_rendering_features)
+        .push_next(&mut physical_device_buffer_device_address_features);
 
         // create the device using the requested features
         let create_info = vk::DeviceCreateInfo {
