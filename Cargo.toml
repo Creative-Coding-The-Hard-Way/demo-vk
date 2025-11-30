@@ -30,6 +30,8 @@ bon = "3.8.1"
 image = "0.25.9"
 ctrlc = "3.5.1"
 argfile = "0.2.1"
-glfw = { version="0.60.0", features = ["vulkan"] }
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
+glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
 
+[target.'cfg(linux)'.dependencies]
+glfw = { version="0.60.0", features = ["vulkan", "static-link", "src-build"] }
