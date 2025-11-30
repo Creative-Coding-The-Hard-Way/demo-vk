@@ -56,9 +56,23 @@ impl Frame {
     }
 }
 
+/// Used to track the status of each [FrameSync] instance.
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+enum FrameSyncStatus {
+    /// Indicates that the frame is currently being assembled. e.g. someone
+    /// called start_frame, acquired this frame, and has not yet called
+    /// present_frame.
+    Assembling,
+
+    /// Indicates that present_frame was called and the frame is in use by the
+    /// GPU.
+    Pending,
+}
+
 /// Per-frame synchronization primitives.
 #[derive(Debug)]
 struct FrameSync {
+    status: FrameSyncStatus,
     swapchain_image_acquired: raii::Semaphore,
     graphics_commands_complete: raii::Fence,
     command_pool: raii::CommandPool,
@@ -140,6 +154,7 @@ impl FramesInFlight {
                     ..Default::default()
                 })?;
             frames.push(FrameSync {
+                status: FrameSyncStatus::Pending,
                 swapchain_image_acquired: raii::Semaphore::new(
                     format!("image acquired - frame [{}]", index),
                     ctx.device.clone(),
@@ -179,10 +194,15 @@ impl FramesInFlight {
     }
 
     /// Blocks until all submitted commands for all frames have completed.
+    ///
+    /// NOTE: Only waits on pending frames. If there's a frame mid-assembly,
+    ///       there's nothing to wait on. (and what's more, attempting to wait
+    ///       would never succeed until the frame is submitted)
     pub fn wait_for_all_frames_to_complete(&self) -> Result<()> {
         let fences = self
             .frames
             .iter()
+            .filter(|frame_sync| frame_sync.status == FrameSyncStatus::Pending)
             .map(|frame_sync| frame_sync.graphics_commands_complete.raw)
             .collect::<Vec<vk::Fence>>();
         unsafe {
@@ -213,7 +233,7 @@ impl FramesInFlight {
         self.frame_index = (self.frame_index + 1) % self.frames.len();
 
         // Start the Frame
-        let frame_sync = &self.frames[self.frame_index];
+        let frame_sync = &mut self.frames[self.frame_index];
         unsafe {
             // Wait for the last frame's submission to complete, if its still
             // running.
@@ -231,6 +251,8 @@ impl FramesInFlight {
                 .with_context(trace!(
                     "Error while resetting the frame's fence!"
                 ))?;
+            // mark the frame as pending so nobody gets stuck waiting for it
+            frame_sync.status = FrameSyncStatus::Assembling;
         };
 
         // Acquire the next Swapchain image
@@ -286,7 +308,7 @@ impl FramesInFlight {
         swapchain: &Swapchain,
         frame: Frame,
     ) -> Result<PresentImageStatus> {
-        let frame_sync = &self.frames[frame.frame_index()];
+        let frame_sync = &mut self.frames[frame.frame_index()];
         unsafe {
             self.cxt
                 .end_command_buffer(frame_sync.command_buffer)
@@ -319,6 +341,7 @@ impl FramesInFlight {
                     "Error while submitting frame commands!"
                 ))?;
         }
+        frame_sync.status = FrameSyncStatus::Pending;
 
         swapchain
             .present_image(
