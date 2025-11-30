@@ -7,7 +7,7 @@ use {
     clap::Parser,
     demo_vk::{
         demo::{demo_main, Demo, Graphics},
-        graphics::vulkan::{CPUBuffer, RequiredDeviceFeatures},
+        graphics::vulkan::{CPUBuffer, RequiredDeviceFeatures, UniformBuffer},
     },
     glfw::Window,
 };
@@ -32,13 +32,15 @@ impl Demo for DeviceBufferAddressTest {
     }
 
     fn new(window: &mut Window, gfx: &mut Graphics<Args>) -> Result<Self> {
+        let _ubuf = UniformBuffer::<f32>::allocate(&gfx.vulkan, 1)?;
+
         // This is the heart of the test. Allocate a buffer and fetch the device
         // address. Validation layers will report errors if the
         // underlying memory or device features are incorrectly managed.
         let buffer = CPUBuffer::<f32>::allocate(
             &gfx.vulkan,
             1,
-            vk::BufferUsageFlags::STORAGE_BUFFER
+            vk::BufferUsageFlags::INDEX_BUFFER
                 | vk::BufferUsageFlags::SHADER_DEVICE_ADDRESS,
         )?;
         let address = unsafe {

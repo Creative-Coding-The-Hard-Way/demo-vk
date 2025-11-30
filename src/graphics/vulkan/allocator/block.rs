@@ -12,6 +12,7 @@ pub struct Block {
     memory: vk::DeviceMemory,
     mapped_ptr: *mut std::ffi::c_void,
     memory_type_index: u32,
+    device_addressable: bool,
 }
 
 /// Blocks are not Send by default because they include the mapped_ptr.
@@ -33,6 +34,7 @@ impl Block {
         memory: vk::DeviceMemory,
         mapped_ptr: *mut std::ffi::c_void,
         memory_type_index: u32,
+        device_addressable: bool,
     ) -> Self {
         Self {
             offset,
@@ -40,7 +42,14 @@ impl Block {
             memory,
             mapped_ptr,
             memory_type_index,
+            device_addressable,
         }
+    }
+
+    /// Indicates that this block was allocated with the
+    /// vk::MemoryAllocateFlags::DEVICE_ADDRESS flag.
+    pub(super) fn is_device_addressable(&self) -> bool {
+        self.device_addressable
     }
 
     /// Returns true when self is entirely contained by other, false otherwise.
@@ -95,6 +104,7 @@ impl Block {
             memory: self.memory,
             mapped_ptr,
             memory_type_index: self.memory_type_index,
+            device_addressable: self.device_addressable,
         })
     }
 
@@ -156,6 +166,7 @@ mod test {
             vk::DeviceMemory::null(),
             std::ptr::null_mut(),
             0,
+            false,
         );
         assert!(block.subregion(99, 1)?.is_subregion_of(&block));
         assert!(block.subregion(0, 100)?.is_subregion_of(&block));
@@ -173,6 +184,7 @@ mod test {
             vk::DeviceMemory::null(),
             std::ptr::null_mut(),
             0,
+            false,
         );
         let end_overlap = Block { offset: 75, ..blk };
         assert!(!end_overlap.is_subregion_of(&blk));
@@ -190,6 +202,7 @@ mod test {
             vk::DeviceMemory::null(),
             std::ptr::null_mut(),
             0,
+            false,
         );
         assert!(block.is_subregion_of(&block));
     }
@@ -202,6 +215,7 @@ mod test {
             vk::DeviceMemory::from_raw(1), // INVALID - do not access
             std::ptr::null_mut(),
             0,
+            false,
         );
         let b = Block::new(
             0,
@@ -209,6 +223,7 @@ mod test {
             vk::DeviceMemory::from_raw(2), // INVALID - do not access
             std::ptr::null_mut(),
             0,
+            false,
         );
         assert!(!a.is_subregion_of(&b));
     }
@@ -221,7 +236,8 @@ mod test {
             size: 100,
             memory: vk::DeviceMemory::null(),
             mapped_ptr: std::ptr::null_mut(),
-            memory_type_index: 0
+            memory_type_index: 0,
+            device_addressable: false,
         }
         .subregion(100, 0)
         .is_err());
@@ -232,7 +248,8 @@ mod test {
             size: 100,
             memory: vk::DeviceMemory::null(),
             mapped_ptr: std::ptr::null_mut(),
-            memory_type_index: 0
+            memory_type_index: 0,
+            device_addressable: false,
         }
         .subregion(50, 51)
         .is_err());
@@ -246,6 +263,7 @@ mod test {
             memory: vk::DeviceMemory::null(),
             mapped_ptr: std::ptr::null_mut(),
             memory_type_index: 0,
+            device_addressable: false,
         };
         let sub = block.subregion(3, 80)?;
         assert!(sub.offset == 8);
@@ -263,6 +281,7 @@ mod test {
             memory: vk::DeviceMemory::null(),
             mapped_ptr: buffer.as_ptr() as *mut c_void,
             memory_type_index: 0,
+            device_addressable: false,
         };
         let sub = block.subregion(3, 80)?;
         let ptr_offset =

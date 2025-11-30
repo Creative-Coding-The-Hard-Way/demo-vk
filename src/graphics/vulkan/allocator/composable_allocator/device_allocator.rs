@@ -62,6 +62,9 @@ impl ComposableAllocator for DeviceAllocator {
             memory,
             mapped_ptr,
             requirements.memory_type_index,
+            requirements
+                .memory_allocate_flags
+                .contains(vk::MemoryAllocateFlags::DEVICE_ADDRESS),
         ))
     }
 

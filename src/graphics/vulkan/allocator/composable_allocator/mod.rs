@@ -31,7 +31,7 @@ pub fn create_system_allocator(
 
     FallbackAllocator::new(
         DedicatedAllocator::new(device_allocator.clone()),
-        TypeIndexAllocator::new(move |index| {
+        TypeIndexAllocator::new(move |index, addressable| {
             // This is a silly implementation. By chaining split block
             // allocators, a given allocation will continue to escalate until
             // eventually asking the device for a big block of memory. From
@@ -73,7 +73,15 @@ pub fn create_system_allocator(
                 ))))))))))))))))))))));
 
             allocator.description(
-                format!("IndexedAllocator:{}", index,),
+                format!(
+                    "IndexedAllocator:{} - {}",
+                    index,
+                    if addressable {
+                        "DEVICE_ADDRESS"
+                    } else {
+                        "NOT ADDRESSED"
+                    }
+                ),
                 format!(
                     "This allocator is responsible for allocating blocks \
                     with memory properties, {:?}, and subdividing them for \
