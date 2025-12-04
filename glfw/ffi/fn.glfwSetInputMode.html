@@ -1,5 +1,57 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `glfwSetInputMode` fn in crate `glfw`."><title>glfwSetInputMode in glfw::ffi - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="glfw" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../glfw/index.html">glfw</a><span class="version">0.58.0</span></h2></div><div class="sidebar-elems"><h2><a href="index.html">In glfw::<wbr>ffi</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Function <a href="../index.html">glfw</a>::<wbr><a href="index.html">ffi</a>::<wbr><a class="fn" href="#">glfwSetInputMode</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../../src/glfw/ffi/mod.rs.html#517">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub unsafe extern &quot;C&quot; fn glfwSetInputMode(
-    window: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/std/primitive.pointer.html">*mut </a><a class="enum" href="enum.GLFWwindow.html" title="enum glfw::ffi::GLFWwindow">GLFWwindow</a>,
-    mode: <a class="type" href="https://doc.rust-lang.org/1.82.0/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
-    value: <a class="type" href="https://doc.rust-lang.org/1.82.0/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
-)</code></pre></section></div></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="@brief Sets an input option for the specified window."><title>glfwSetInputMode in glfw::ffi - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="glfw" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">glfwSetInputMode</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../glfw/index.html">glfw</a><span class="version">0.60.0</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"><h2><a href="index.html">In glfw::<wbr>ffi</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">glfw</a>::<wbr><a href="index.html">ffi</a></div><h1>Function <span class="fn">glfw<wbr>SetInput<wbr>Mode</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/glfw_sys/sys/pregenerated.rs.html#970-974">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe extern &quot;C&quot; fn glfwSetInputMode(
+    window: <a class="primitive" href="https://doc.rust-lang.org/1.91.1/std/primitive.pointer.html">*mut </a><a class="struct" href="struct.GLFWwindow.html" title="struct glfw::ffi::GLFWwindow">GLFWwindow</a>,
+    mode: <a class="primitive" href="https://doc.rust-lang.org/1.91.1/std/primitive.i32.html">i32</a>,
+    value: <a class="primitive" href="https://doc.rust-lang.org/1.91.1/std/primitive.i32.html">i32</a>,
+)</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>@brief Sets an input option for the specified window.</p>
+<p>This function sets an input mode option for the specified window.  The mode
+must be one of @ref GLFW_CURSOR, @ref GLFW_STICKY_KEYS,
+@ref GLFW_STICKY_MOUSE_BUTTONS, @ref GLFW_LOCK_KEY_MODS or
+@ref GLFW_RAW_MOUSE_MOTION.</p>
+<p>If the mode is <code>GLFW_CURSOR</code>, the value must be one of the following cursor
+modes:</p>
+<ul>
+<li><code>GLFW_CURSOR_NORMAL</code> makes the cursor visible and behaving normally.</li>
+<li><code>GLFW_CURSOR_HIDDEN</code> makes the cursor invisible when it is over the
+content area of the window but does not restrict the cursor from leaving.</li>
+<li><code>GLFW_CURSOR_DISABLED</code> hides and grabs the cursor, providing virtual
+and unlimited cursor movement.  This is useful for implementing for
+example 3D camera controls.</li>
+<li><code>GLFW_CURSOR_CAPTURED</code> makes the cursor visible and confines it to the
+content area of the window.</li>
+</ul>
+<p>If the mode is <code>GLFW_STICKY_KEYS</code>, the value must be either <code>GLFW_TRUE</code> to
+enable sticky keys, or <code>GLFW_FALSE</code> to disable it.  If sticky keys are
+enabled, a key press will ensure that @ref glfwGetKey returns <code>GLFW_PRESS</code>
+the next time it is called even if the key had been released before the
+call.  This is useful when you are only interested in whether keys have been
+pressed but not when or in which order.</p>
+<p>If the mode is <code>GLFW_STICKY_MOUSE_BUTTONS</code>, the value must be either
+<code>GLFW_TRUE</code> to enable sticky mouse buttons, or <code>GLFW_FALSE</code> to disable it.
+If sticky mouse buttons are enabled, a mouse button press will ensure that
+@ref glfwGetMouseButton returns <code>GLFW_PRESS</code> the next time it is called even
+if the mouse button had been released before the call.  This is useful when
+you are only interested in whether mouse buttons have been pressed but not
+when or in which order.</p>
+<p>If the mode is <code>GLFW_LOCK_KEY_MODS</code>, the value must be either <code>GLFW_TRUE</code> to
+enable lock key modifier bits, or <code>GLFW_FALSE</code> to disable them.  If enabled,
+callbacks that receive modifier bits will also have the @ref
+GLFW_MOD_CAPS_LOCK bit set when the event was generated with Caps Lock on,
+and the @ref GLFW_MOD_NUM_LOCK bit when Num Lock was on.</p>
+<p>If the mode is <code>GLFW_RAW_MOUSE_MOTION</code>, the value must be either <code>GLFW_TRUE</code>
+to enable raw (unscaled and unaccelerated) mouse motion when the cursor is
+disabled, or <code>GLFW_FALSE</code> to disable it.  If raw motion is not supported,
+attempting to set this will emit @ref GLFW_FEATURE_UNAVAILABLE.  Call @ref
+glfwRawMouseMotionSupported to check for support.</p>
+<p>@param[in] window The window whose input mode to set.
+@param[in] mode One of <code>GLFW_CURSOR</code>, <code>GLFW_STICKY_KEYS</code>,
+<code>GLFW_STICKY_MOUSE_BUTTONS</code>, <code>GLFW_LOCK_KEY_MODS</code> or
+<code>GLFW_RAW_MOUSE_MOTION</code>.
+@param[in] value The new value of the specified input mode.</p>
+<p>@errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
+GLFW_INVALID_ENUM, @ref GLFW_PLATFORM_ERROR and @ref
+GLFW_FEATURE_UNAVAILABLE (see above).</p>
+<p>@thread_safety This function must only be called from the main thread.</p>
+<p>@sa @ref glfwGetInputMode</p>
+<p>@since Added in version 3.0.  Replaces <code>glfwEnable</code> and <code>glfwDisable</code>.</p>
+<p>@ingroup input</p>
+</div></details></section></div></main></body></html>

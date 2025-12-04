@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="@brief Sets an attribute of the specified window."><title>glfwSetWindowAttrib in glfw_sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="glfw_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">glfwSetWindowAttrib</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../glfw_sys/index.html">glfw_<wbr>sys</a><span class="version">6.0.0</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">glfw_sys</a></div><h1>Function <span class="fn">glfw<wbr>SetWindow<wbr>Attrib</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/glfw_sys/sys/pregenerated.rs.html#902-906">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe extern &quot;C&quot; fn glfwSetWindowAttrib(
+    window: <a class="primitive" href="https://doc.rust-lang.org/1.91.1/std/primitive.pointer.html">*mut </a><a class="struct" href="struct.GLFWwindow.html" title="struct glfw_sys::GLFWwindow">GLFWwindow</a>,
+    attrib: <a class="type" href="https://doc.rust-lang.org/1.91.1/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    value: <a class="type" href="https://doc.rust-lang.org/1.91.1/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+)</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>@brief Sets an attribute of the specified window.</p>
+<p>This function sets the value of an attribute of the specified window.</p>
+<p>The supported attributes are <a href="constant.GLFW_DECORATED.html" title="constant glfw_sys::GLFW_DECORATED">GLFW_DECORATED</a>(@ref GLFW_DECORATED_attrib),
+<a href="constant.GLFW_RESIZABLE.html" title="constant glfw_sys::GLFW_RESIZABLE">GLFW_RESIZABLE</a>(@ref GLFW_RESIZABLE_attrib),
+<a href="constant.GLFW_FLOATING.html" title="constant glfw_sys::GLFW_FLOATING">GLFW_FLOATING</a>(@ref GLFW_FLOATING_attrib),
+<a href="constant.GLFW_AUTO_ICONIFY.html" title="constant glfw_sys::GLFW_AUTO_ICONIFY">GLFW_AUTO_ICONIFY</a>(@ref GLFW_AUTO_ICONIFY_attrib) and
+<a href="constant.GLFW_FOCUS_ON_SHOW.html" title="constant glfw_sys::GLFW_FOCUS_ON_SHOW">GLFW_FOCUS_ON_SHOW</a>(@ref GLFW_FOCUS_ON_SHOW_attrib).
+<a href="constant.GLFW_MOUSE_PASSTHROUGH.html" title="constant glfw_sys::GLFW_MOUSE_PASSTHROUGH">GLFW_MOUSE_PASSTHROUGH</a>(@ref GLFW_MOUSE_PASSTHROUGH_attrib)</p>
+<p>Some of these attributes are ignored for full screen windows.  The new
+value will take effect if the window is later made windowed.</p>
+<p>Some of these attributes are ignored for windowed mode windows.  The new
+value will take effect if the window is later made full screen.</p>
+<p>@param[in] window The window to set the attribute for.
+@param[in] attrib A supported window attribute.
+@param[in] value <code>GLFW_TRUE</code> or <code>GLFW_FALSE</code>.</p>
+<p>@errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
+GLFW_INVALID_ENUM, @ref GLFW_INVALID_VALUE, @ref GLFW_PLATFORM_ERROR and @ref
+GLFW_FEATURE_UNAVAILABLE (see remarks).</p>
+<p>@remark Calling @ref glfwGetWindowAttrib will always return the latest
+value, even if that value is ignored by the current mode of the window.</p>
+<p>@remark @wayland The <a href="constant.GLFW_FLOATING.html" title="constant glfw_sys::GLFW_FLOATING">GLFW_FLOATING</a>(@ref GLFW_FLOATING_attrib) window attribute is
+not supported.  Setting this will emit @ref GLFW_FEATURE_UNAVAILABLE.</p>
+<p>@thread_safety This function must only be called from the main thread.</p>
+<p>@sa @ref window_attribs
+@sa @ref glfwGetWindowAttrib</p>
+<p>@since Added in version 3.3.</p>
+<p>@ingroup window</p>
+</div></details></section></div></main></body></html>

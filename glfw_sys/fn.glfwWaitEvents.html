@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="@brief Waits until events are queued and processes them."><title>glfwWaitEvents in glfw_sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="glfw_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">glfwWaitEvents</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../glfw_sys/index.html">glfw_<wbr>sys</a><span class="version">6.0.0</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">glfw_sys</a></div><h1>Function <span class="fn">glfw<wbr>Wait<wbr>Events</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/glfw_sys/sys/pregenerated.rs.html#959">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe extern &quot;C&quot; fn glfwWaitEvents()</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>@brief Waits until events are queued and processes them.</p>
+<p>This function puts the calling thread to sleep until at least one event is
+available in the event queue.  Once one or more events are available,
+it behaves exactly like @ref glfwPollEvents, i.e. the events in the queue
+are processed and the function then returns immediately.  Processing events
+will cause the window and input callbacks associated with those events to be
+called.</p>
+<p>Since not all events are associated with callbacks, this function may return
+without a callback having been called even if you are monitoring all
+callbacks.</p>
+<p>On some platforms, a window move, resize or menu operation will cause event
+processing to block.  This is due to how event processing is designed on
+those platforms.  You can use the
+[window refresh callback](@ref window_refresh) to redraw the contents of
+your window when necessary during such operations.</p>
+<p>Do not assume that callbacks you set will <em>only</em> be called in response to
+event processing functions like this one.  While it is necessary to poll for
+events, window systems that require GLFW to register callbacks of its own
+can pass events to GLFW in response to many window system function calls.
+GLFW will pass those events on to the application callbacks before
+returning.</p>
+<p>Event processing is not required for joystick input to work.</p>
+<p>@errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
+GLFW_PLATFORM_ERROR.</p>
+<p>@reentrancy This function must not be called from a callback.</p>
+<p>@thread_safety This function must only be called from the main thread.</p>
+<p>@sa @ref events
+@sa @ref glfwPollEvents
+@sa @ref glfwWaitEventsTimeout</p>
+<p>@since Added in version 2.5.</p>
+<p>@ingroup window</p>
+</div></details></section></div></main></body></html>

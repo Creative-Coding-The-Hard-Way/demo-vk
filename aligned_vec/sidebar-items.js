@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["CACHELINE_ALIGN"],"macro":["avec","avec_rt"],"struct":["ABox","AVec","ConstAlign","RuntimeAlign"],"trait":["Alignment"]};
+window.SIDEBAR_ITEMS = {"constant":["CACHELINE_ALIGN"],"enum":["TryReserveError"],"macro":["avec","avec_rt"],"struct":["ABox","AVec","ConstAlign","RuntimeAlign"],"trait":["Alignment"]};

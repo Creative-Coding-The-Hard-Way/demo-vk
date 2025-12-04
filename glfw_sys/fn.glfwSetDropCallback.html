@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="@brief Sets the path drop callback."><title>glfwSetDropCallback in glfw_sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="glfw_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">glfwSetDropCallback</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../glfw_sys/index.html">glfw_<wbr>sys</a><span class="version">6.0.0</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">glfw_sys</a></div><h1>Function <span class="fn">glfw<wbr>SetDrop<wbr>Callback</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/glfw_sys/sys/pregenerated.rs.html#1036">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe extern &quot;C&quot; fn glfwSetDropCallback(
+    window: <a class="primitive" href="https://doc.rust-lang.org/1.91.1/std/primitive.pointer.html">*mut </a><a class="struct" href="struct.GLFWwindow.html" title="struct glfw_sys::GLFWwindow">GLFWwindow</a>,
+    callback: <a class="type" href="type.GLFWdropfun.html" title="type glfw_sys::GLFWdropfun">GLFWdropfun</a>,
+) -&gt; <a class="type" href="type.GLFWdropfun.html" title="type glfw_sys::GLFWdropfun">GLFWdropfun</a></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>@brief Sets the path drop callback.</p>
+<p>This function sets the path drop callback of the specified window, which is
+called when one or more dragged paths are dropped on the window.</p>
+<p>Because the path array and its strings may have been generated specifically
+for that event, they are not guaranteed to be valid after the callback has
+returned.  If you wish to use them after the callback returns, you need to
+make a deep copy.</p>
+<p>@param[in] window The window whose callback to set.
+@param[in] callback The new file drop callback, or <code>NULL</code> to remove the
+currently set callback.
+@return The previously set callback, or <code>NULL</code> if no callback was set or the
+library had not been [initialized](@ref intro_init).</p>
+<p>@callback_signature
+@code
+void function_name(GLFWwindow* window, int path_count, const char* paths[])
+@endcode
+For more information about the callback parameters, see the
+[function pointer type](@ref GLFWdropfun).</p>
+<p>@errors Possible errors include @ref GLFW_NOT_INITIALIZED.</p>
+<p>@thread_safety This function must only be called from the main thread.</p>
+<p>@sa @ref path_drop</p>
+<p>@since Added in version 3.1.</p>
+<p>@ingroup input</p>
+</div></details></section></div></main></body></html>

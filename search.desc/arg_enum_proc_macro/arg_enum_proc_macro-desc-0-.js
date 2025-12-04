@@ -1,1 +1,0 @@
-searchState.loadedDescShard("arg_enum_proc_macro", 0, "arg_enum_proc_macro\nImplement <code>std::fmt::Display</code>, <code>std::str::FromStr</code> and …")

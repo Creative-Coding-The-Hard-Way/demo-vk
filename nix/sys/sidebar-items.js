@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["memfd","prctl","signal","signalfd","stat","statfs","statvfs","sysinfo","time","wait"]};
+window.SIDEBAR_ITEMS = {"mod":["prctl","signal","signalfd","sysinfo","time","wait"]};
