@@ -45,10 +45,10 @@ jobs:
       run: cargo build --all --verbose --features glfw-src-build
 
     - name: Run tests
-      run: cargo test --lib --verbose
+      run: cargo test --lib --verbose --features glfw-src-build
 
     - name: Build Docs
-      run: cargo doc --verbose
+      run: cargo doc --verbose --features glfw-src-build
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
