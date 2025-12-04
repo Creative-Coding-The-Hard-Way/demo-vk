@@ -27,11 +27,11 @@ jobs:
         sudo apt update
         sudo apt install -y libglfw3-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev libglfw3-dev cmake
 
-    -name: Install Vulkan SDK
-     uses: humbletim/install-vulkan-sdk@v1.2
-     with:
-       version: 1.4.328.1
-       cache: true
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.2
+      with:
+        version: 1.4.328.1
+        cache: true
 
     - uses: actions/cache@v3
       with:
