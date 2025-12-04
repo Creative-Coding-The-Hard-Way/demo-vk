@@ -522,6 +522,7 @@ dependencies = [
  "ctrlc",
  "flexi_logger",
  "glfw",
+ "glfw-sys",
  "glob",
  "image",
  "indoc",

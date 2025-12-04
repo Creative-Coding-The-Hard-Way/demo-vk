@@ -34,4 +34,4 @@ textwrap = { version = "0.16.2", features = ["terminal_size"] }
 glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
 
 [target.'cfg(linux)'.dependencies]
-glfw = { version="0.60.0", features = ["vulkan", "static-link", "src-build"] }
+glfw-sys = { version="6.0.0", features = ["src-build"] }
