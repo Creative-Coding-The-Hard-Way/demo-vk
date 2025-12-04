@@ -73,9 +73,11 @@ pub fn compile_glsl(
     };
     args.extend_from_slice(&["--target-spv=spv1.5", shader_path_str]);
     let output = std::process::Command::new("glslc")
-        .args(args)
+        .args(&args)
         .output()
-        .with_context(|| "Error executing slangc!")?;
+        .with_context(|| {
+            format!("Error executing glslc with args:{:?}", args)
+        })?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
