@@ -32,6 +32,8 @@ ctrlc = "3.5.1"
 argfile = "0.2.1"
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
 glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
+glfw-sys = "6.0.0"
 
-[target.'cfg(linux)'.dependencies]
-glfw-sys = { version="6.0.0", features = ["src-build"] }
+[features]
+# Build glfw from source when requested
+glfw-src-build = ["glfw-sys/src-build"]
