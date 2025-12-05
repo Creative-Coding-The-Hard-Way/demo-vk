@@ -79,18 +79,21 @@ struct FrameSync {
     command_buffer: vk::CommandBuffer,
 }
 
-/// The primary synchronization mechanism for managing multiple in-flight
-/// frames.
+/// The fundamental synchronization mechanism for an application with N "frames
+/// in flight" where frame K's graphics command buffer can be recorded while
+/// frames K+1, K+2, ... K+N are all in-progress rendering on the GPU.
 ///
-/// There can be 1-N frames in flight for the application, decided at the time
-/// of construction. This is independent from the number of swapchain images,
-/// though there is little-to-no benefit to having more frames in flight than
-/// swapchain images.
+/// For example, when there are 3 frames in flight, the sequence can be
+/// visualized like so:
+#[doc = simple_mermaid::mermaid!("./frames_in_flight_diagram.mmd")]
 ///
-/// Synchronization is performed such that when [Self::start_frame] returns, all
-/// commands submitted to that frame are guaranteed to be complete. Thus, the
-/// application can keep N copies of a resource and use the frame_index to
-/// prevent synchronization errors.
+/// The application takes ownership of the Frame object when calling
+/// [Self::start_frame] and returns ownership when calling
+/// [Self::present_frame]. As such, any time a system needs to access a
+/// frame-specific resource, the best option is to accept an [Frame] borrow and
+/// use [Frame::frame_index] to select frame-specific resources. This is certain
+/// to be safe because the only time the application has a [Frame] instance is
+/// when that frame's previous commands have finished executing.
 #[derive(Debug)]
 pub struct FramesInFlight {
     // Used to synchronize the calls to QueueSubmit and Present per swapchain

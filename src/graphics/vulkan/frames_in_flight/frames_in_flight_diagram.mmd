@@ -1,0 +1,95 @@
+---
+config:
+  theme: dark
+---
+sequenceDiagram
+    participant app as App
+    box Frames In Flight
+    participant f0 as Frame[0]
+    participant f1 as Frame[1]
+    participant f2 as Frame[2]
+    end
+    participant swp as Swapchain
+
+    %% ------- %%
+    %% Frame 0 %%
+    %% ------- %%
+    f0 ->> f0: Wait for previous Frame[0]<br/>graphics commands fence
+    activate f0
+    swp ->> f0: acquire swapchain image
+    f0 ->> app: start_frame()-><br> Frame
+    activate app
+    Note left of app: Record commands for<br/>the Frame. Return<br />ownership of Frame<br />instance when complete.
+    app ->> f0: present_frame(Frame)
+    deactivate app
+    f0 ->> f0: Submit Graphics <br /> Command Buffer and<br />Signal Frame[0] Fence<br/>when finished
+
+    %% ------- %%
+    %% Frame 1 %%
+    %% ------- %%
+    f1 ->> f1: Wait for previous Frame[1]<br/>graphics commands fence
+    activate f1
+    swp ->> f1: acquire swapchain image
+    f1 ->> app: start_frame()-><br> Frame
+    activate app
+    Note left of app: Record commands for<br/>the Frame. Return<br />ownership of Frame<br />instance when complete.
+    app ->> f1: present_frame(Frame)
+    deactivate app
+    f1 ->> f1: Submit Graphics <br /> Command Buffer and<br />Signal Frame[1] Fence<br/>when finished
+
+    %% ------- %%
+    %% Frame 2 %%
+    %% ------- %%
+    f2 ->> f2: Wait for previous Frame[2]<br/>graphics commands fence
+    activate f2
+    swp ->> f2: acquire swapchain image
+    f2 ->> app: start_frame()-><br> Frame
+    activate app
+    Note left of app: Record commands for<br/>the Frame. Return<br />ownership of Frame<br />instance when complete.
+    app ->> f2: present_frame(Frame)
+    deactivate app
+    f2 ->> f2: Submit Graphics <br /> Command Buffer and<br />Signal Frame[2] Fence<br/>when finished
+
+    f0 ->> swp: present image when graphics<br />commands for Frame[0] signal<br />the present semaphore.
+    deactivate f0
+
+    %% ------- %%
+    %% Frame 0 %%
+    %% ------- %%
+    f0 ->> f0: Wait for previous Frame[0]<br/>graphics commands fence
+    activate f0
+    swp ->> f0: acquire swapchain image
+    f0 ->> app: start_frame()-><br> Frame
+    activate app
+    Note left of app: Record commands for<br/>the Frame. Return<br />ownership of Frame<br />instance when complete.
+    app ->> f0: present_frame(Frame)
+    deactivate app
+    f0 ->> f0: Submit Graphics <br /> Command Buffer and<br />Signal Frame[0] Fence<br/>when finished
+
+    f1 ->> swp: present image when graphics<br />commands for Frame[1] signal<br />the present semaphore.
+    deactivate f1
+
+    %% ------- %%
+    %% Frame 1 %%
+    %% ------- %%
+    f1 ->> f1: Wait for previous Frame[1]<br/>graphics commands fence
+    activate f1
+    swp ->> f1: acquire swapchain image
+    f1 ->> app: start_frame()-><br> Frame
+    activate app
+    Note left of app: Record commands for<br/>the Frame. Return<br />ownership of Frame<br />instance when complete.
+    app ->> f1: present_frame(Frame)
+    deactivate app
+    f1 ->> f1: Submit Graphics <br /> Command Buffer and<br />Signal Frame[1] Fence<br/>when finished
+
+
+    f2 ->> swp: present image when graphics<br />commands for Frame[2] signal<br />the present semaphore.
+    deactivate f2
+
+
+    f0 ->> swp: present image when graphics<br />commands for Frame[0] signal<br />the present semaphore.
+    deactivate f0
+
+    f1 ->> swp: present image when graphics<br />commands for Frame[1] signal<br />the present semaphore.
+    deactivate f1
+
