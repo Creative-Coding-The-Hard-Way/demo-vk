@@ -25,7 +25,7 @@ impl<DataT> UniformBuffer<DataT>
 where
     DataT: Sized + Copy,
 {
-    /// Allocates a buffer with enough space for count copies of DataT aligned
+    /// Allocates a buffer with enough space for count copies of `DataT` aligned
     /// such that each copy can be bound to a separate descriptor set.
     pub fn allocate(cxt: &VulkanContext, count: usize) -> Result<Self> {
         // compute the aligned size for each element in the buffer

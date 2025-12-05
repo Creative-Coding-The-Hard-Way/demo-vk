@@ -3,6 +3,11 @@
 //!
 //! The primary entrypoint is the [VulkanContext] which can be initialized with
 //! a [glfw::Window].
+//!
+//! Most applications use the [FramesInFlight] to manage double/triple buffered
+//! rendering as it handles the synchronization with the swapchain and provides
+//! the useful [Frame] abstraction for submitting a freshly recorded
+//! CommandBuffer on each frame.
 
 mod allocator;
 mod buffers;

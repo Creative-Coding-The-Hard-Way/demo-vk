@@ -10,8 +10,8 @@ use {
 ///
 /// # Params
 ///
-/// * [shader] - The filesystem path to the shader's source.
-/// * [output_file] - Optionally write the comiled shader to a file, rather than
+/// * `shader` - The filesystem path to the shader's source.
+/// * `output_file` - Optionally write the comiled shader to a file, rather than
 ///   returning the bytes directly.
 ///
 /// # Returns

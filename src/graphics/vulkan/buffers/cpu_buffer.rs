@@ -9,6 +9,9 @@ use {
 };
 
 /// A CPU accessible buffer with some convenience functions for uploading data.
+///
+/// CPU accessible means that the buffer is both HOST_VISIBLE and HOST_COHERENT
+/// and memory mapped for access from the CPU.
 #[derive(Debug)]
 pub struct CPUBuffer<DataT: Sized + Copy> {
     buffer: raii::Buffer,
@@ -23,7 +26,7 @@ where
 {
     /// Allocates a new buffer and GPU memory for holding data.
     ///
-    /// Total size is count * size_of<DataT>()
+    /// Total size is `count * size_of<DataT>()`.
     pub fn allocate(
         cxt: &VulkanContext,
         count: usize,
