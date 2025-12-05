@@ -25,7 +25,7 @@
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">where
 <a href=#26 id=26 data-nosnippet>26</a>    </span>DataT: Sized + Copy,
 <a href=#27 id=27 data-nosnippet>27</a>{
-<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Allocates a buffer with enough space for count copies of DataT aligned
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Allocates a buffer with enough space for count copies of `DataT` aligned
 <a href=#29 id=29 data-nosnippet>29</a>    /// such that each copy can be bound to a separate descriptor set.
 <a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub fn </span>allocate(cxt: <span class="kw-2">&amp;</span>VulkanContext, count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
 <a href=#31 id=31 data-nosnippet>31</a>        <span class="comment">// compute the aligned size for each element in the buffer
