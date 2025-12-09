@@ -67,10 +67,8 @@ pub fn create_system_allocator(
                 SplitBlockAllocator::<_, {1024 * 1024 * 32 }>::new(
                 SplitBlockAllocator::<_, {1024 * 1024 * 64 }>::new(
                 SplitBlockAllocator::<_, {1024 * 1024 * 128}>::new(
-                SplitBlockAllocator::<_, {1024 * 1024 * 256}>::new(
-                SplitBlockAllocator::<_, {1024 * 1024 * 512}>::new(
                     device_allocator.clone(),
-                ))))))))))))))))))))));
+                ))))))))))))))))))));
 
             allocator.description(
                 format!(
