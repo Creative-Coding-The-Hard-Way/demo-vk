@@ -34,7 +34,8 @@ pub fn create_swapchain(
         image_color_space: format.color_space,
         image_extent: extent,
         image_array_layers: 1,
-        image_usage: vk::ImageUsageFlags::COLOR_ATTACHMENT,
+        image_usage: vk::ImageUsageFlags::COLOR_ATTACHMENT
+            | vk::ImageUsageFlags::TRANSFER_DST,
         image_sharing_mode: vk::SharingMode::EXCLUSIVE,
         queue_family_index_count: 1,
         p_queue_family_indices: queue_families.as_ptr(),
