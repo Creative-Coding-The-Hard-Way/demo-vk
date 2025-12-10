@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["ortho_projection"],"mod":["vulkan"]};
+window.SIDEBAR_ITEMS = {"fn":["image_memory_barrier","ortho_projection"],"mod":["streaming_renderer","vulkan"],"struct":["ImageMemoryBarrierBuilder"]};
