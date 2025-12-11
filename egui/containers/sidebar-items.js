@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PopupAnchor","PopupCloseBehavior","PopupKind","SetOpenCommand"],"mod":["collapsing_header","frame","menu","modal","old_popup","panel","scroll_area"],"struct":["Area","AreaState","ClosableTag","ComboBox","DragPanButtons","Popup","Resize","Scene","Sides","Tooltip","Window"],"type":["IconPainter"]};
