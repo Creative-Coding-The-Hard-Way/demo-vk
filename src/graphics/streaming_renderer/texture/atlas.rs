@@ -217,4 +217,9 @@ impl TextureAtlas {
 
         texture_index
     }
+
+    /// Fetchs a texture by the id returned by [Self::add_texture].
+    pub fn get_texture(&self, texture_id: i32) -> &Arc<Texture> {
+        &self.textures[texture_id as usize]
+    }
 }

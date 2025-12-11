@@ -109,6 +109,16 @@ impl TrianglesMesh {
         self.indices.clear();
     }
 
+    pub fn indexed_triangles<V, I>(&mut self, vertices: V, indices: I)
+    where
+        V: Iterator<Item = Vertex>,
+        I: Iterator<Item = u32>,
+    {
+        let base_index = self.vertices.len() as u32;
+        self.vertices.extend(vertices);
+        self.indices.extend(indices.map(|index| base_index + index));
+    }
+
     /// Adds a triangle to the mesh.
     ///
     /// Note: triangles must be in clockwise winding order, else they will be

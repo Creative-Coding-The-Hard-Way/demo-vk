@@ -67,18 +67,125 @@ impl TextureLoader {
                 &path
             ))?;
 
-        self.copy_data_to_transfer_buffer(&mipmaps)
+        self.copy_mipmaps_to_transfer_buffer(&mipmaps)
             .context("Unable to upload texture data!")?;
 
-        self.copy_transfer_buffer_to_device_memory(&texture, &mipmaps)
+        self.copy_transfer_buffer_mipmaps_to_device_memory(&texture, &mipmaps)
             .context("Unable to copy transfer buffer to texture memory!")?;
 
         Ok(texture)
+    }
+
+    pub fn tex_sub_image(
+        &mut self,
+        ctx: &VulkanContext,
+        texture: &Texture,
+        rgba_data: &[u8],
+        offset: [u32; 2],
+        size: [u32; 2],
+    ) -> Result<()> {
+        debug_assert!(
+            (size[0] * size[1] * 4) as usize == rgba_data.len(),
+            "RGBA data and image size do not match!"
+        );
+
+        self.maybe_resize_transfer_buffer(rgba_data.len())?;
+        unsafe {
+            self.transfer_buffer.write_data(0, rgba_data).context(
+                "Unable to write tex_sub_image data to transfer buffer",
+            )?;
+        }
+
+        self.sync_commands.submit_and_wait(|cmd| {
+            texture
+                .pipeline_barrier()
+                .ctx(ctx)
+                .command_buffer(cmd)
+                .old_layout(vk::ImageLayout::UNDEFINED)
+                .new_layout(vk::ImageLayout::TRANSFER_DST_OPTIMAL)
+                .src_access_mask(vk::AccessFlags::SHADER_READ)
+                .src_stage_mask(vk::PipelineStageFlags::ALL_COMMANDS)
+                .dst_access_mask(vk::AccessFlags::TRANSFER_WRITE)
+                .dst_stage_mask(vk::PipelineStageFlags::ALL_COMMANDS)
+                .call();
+            unsafe {
+                ctx.cmd_copy_buffer_to_image(
+                    cmd,
+                    self.transfer_buffer.buffer(),
+                    texture.image().raw,
+                    vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                    &[vk::BufferImageCopy {
+                        buffer_offset: 0,
+                        buffer_row_length: 0,
+                        buffer_image_height: 0,
+                        image_subresource: vk::ImageSubresourceLayers {
+                            aspect_mask: vk::ImageAspectFlags::COLOR,
+                            mip_level: 0,
+                            base_array_layer: 0,
+                            layer_count: 1,
+                        },
+                        image_offset: vk::Offset3D {
+                            x: offset[0] as i32,
+                            y: offset[1] as i32,
+                            z: 0,
+                        },
+                        image_extent: vk::Extent3D {
+                            width: size[0],
+                            height: size[1],
+                            depth: 1,
+                        },
+                    }],
+                );
+            }
+            texture
+                .pipeline_barrier()
+                .ctx(ctx)
+                .command_buffer(cmd)
+                .old_layout(vk::ImageLayout::TRANSFER_DST_OPTIMAL)
+                .new_layout(vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL)
+                .src_access_mask(vk::AccessFlags::TRANSFER_WRITE)
+                .src_stage_mask(vk::PipelineStageFlags::TRANSFER)
+                .dst_access_mask(vk::AccessFlags::SHADER_READ)
+                .dst_stage_mask(vk::PipelineStageFlags::ALL_COMMANDS)
+                .call();
+            Ok(())
+        })?;
+        Ok(())
     }
 }
 
 // Private Functions
 impl TextureLoader {
+    /// Rezizes the transfer buffer if needed to hold `total_size` bytes. No-op
+    /// if the transfer buffer is big enough to hold `total_size` bytes
+    /// already.
+    fn maybe_resize_transfer_buffer(
+        &mut self,
+        total_size_in_bytes: usize,
+    ) -> Result<()> {
+        if self.transfer_buffer.size_in_bytes() as usize >= total_size_in_bytes
+        {
+            return Ok(());
+        }
+
+        log::trace!(
+            "Existing transfer buffer {:?} needs reallocated",
+            self.transfer_buffer
+        );
+
+        self.transfer_buffer = CPUBuffer::allocate(
+            &self.ctx,
+            round_to_power_of_two(total_size_in_bytes),
+            vk::BufferUsageFlags::TRANSFER_SRC,
+        )
+        .context("Unable to reallocate transfer buffer")?;
+        log::trace!(
+            "New transfer buffer allocated: {:?}",
+            self.transfer_buffer
+        );
+        Ok(())
+    }
+
     /// Generates mipmaps for the image.
     fn compute_generated_mipmaps(
         &self,
@@ -100,27 +207,14 @@ impl TextureLoader {
     ///
     /// This function may reallocate a new transfer buffer if the existing one
     /// is too small for the data.
-    fn copy_data_to_transfer_buffer(
+    fn copy_mipmaps_to_transfer_buffer(
         &mut self,
         mipmaps: &[RgbaImage],
     ) -> Result<()> {
-        let total_size = mipmaps.iter().map(|image| image.as_raw().len()).sum();
-        if (self.transfer_buffer.size_in_bytes() as usize) < total_size {
-            log::trace!(
-                "Existing transfer buffer {:?} needs reallocated",
-                self.transfer_buffer
-            );
-            self.transfer_buffer = CPUBuffer::allocate(
-                &self.ctx,
-                round_to_power_of_two(total_size),
-                vk::BufferUsageFlags::TRANSFER_SRC,
-            )
-            .context("Unable to reallocate transfer buffer")?;
-            log::trace!(
-                "New transfer buffer allocated: {:?}",
-                self.transfer_buffer
-            );
-        }
+        self.maybe_resize_transfer_buffer(
+            mipmaps.iter().map(|image| image.as_raw().len()).sum(),
+        )?;
+
         let mut offset = 0;
         for mipmap in mipmaps {
             // # Safety
@@ -141,7 +235,7 @@ impl TextureLoader {
 
     /// Copies the contents of the transfer buffer into the texture's device
     /// memory.
-    fn copy_transfer_buffer_to_device_memory(
+    fn copy_transfer_buffer_mipmaps_to_device_memory(
         &self,
         texture: &Texture,
         mipmaps: &[RgbaImage],

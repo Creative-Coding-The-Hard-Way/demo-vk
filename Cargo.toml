@@ -34,6 +34,7 @@ textwrap = { version = "0.16.2", features = ["terminal_size"] }
 glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
 glfw-sys = "6.0.0"
 simple-mermaid = "0.2.0"
+egui = "0.33.2"
 
 [features]
 # Build glfw from source when requested
