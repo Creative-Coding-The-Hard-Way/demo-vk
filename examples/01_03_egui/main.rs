@@ -13,7 +13,7 @@ use {
             vulkan::{Frame, RequiredDeviceFeatures},
         },
     },
-    egui::{FontId, ImageData, RichText},
+    egui::{epaint::Primitive, FontId, ImageData, RichText},
     glfw::{Action, Key, Modifiers, Window, WindowEvent},
     nalgebra::Matrix4,
     std::{collections::HashMap, f32, sync::Arc},
@@ -43,7 +43,6 @@ struct Example {
     mesh: TrianglesMesh,
     g2: StreamingRenderer,
     input: egui::RawInput,
-    full_output: egui::FullOutput,
     egui_ctx: egui::Context,
     egui_textures: HashMap<egui::TextureId, i32>,
     slider_value: f32,
@@ -85,8 +84,7 @@ impl Demo for Example {
         window.set_mouse_button_polling(true);
         window.set_key_polling(true);
         window.set_framebuffer_size_polling(true);
-        window.set_size(1024, 768);
-        window.set_aspect_ratio(4, 3);
+        window.set_size(1920, 1080);
 
         let texture_atlas = TextureAtlas::new(&gfx.vulkan)
             .context("Unable to create texture atlas")?;
@@ -113,6 +111,10 @@ impl Demo for Example {
 
         let texture_loader = TextureLoader::new(gfx.vulkan.clone())?;
 
+        let egui_ctx = egui::Context::default();
+        egui_ctx.set_pixels_per_point(window.get_content_scale().0);
+        log::info!("pixels per point: {}", egui_ctx.pixels_per_point());
+
         Ok(Self {
             texture_loader,
             texture_atlas,
@@ -128,17 +130,15 @@ impl Demo for Example {
                 }),
                 ..egui::RawInput::default()
             },
-            full_output: egui::FullOutput::default(),
-            egui_ctx: egui::Context::default(),
+            egui_ctx,
             egui_textures: HashMap::new(),
             slider_value: 0.0,
         })
     }
 
     fn update(&mut self, _window: &mut Window, gfx: &mut Gfx) -> Result<()> {
-        self.full_output = self.egui_ctx.run(self.input.take(), |ctx| {
+        let full_output = self.egui_ctx.run(self.input.take(), |ctx| {
             egui::SidePanel::left("settings").show(ctx, |ui| {
-                ctx.set_pixels_per_point(1.5);
                 ui.label(
                     RichText::new("Hello World")
                         .font(FontId::proportional(24.0))
@@ -156,12 +156,27 @@ impl Demo for Example {
         });
 
         // create new textures if needed
-        for (egui_texture_id, delta) in &self.full_output.textures_delta.set {
-            // Make sure any new textures are set correctly.
-            if !self.egui_textures.contains_key(egui_texture_id) {
+        for (egui_texture_id, delta) in &full_output.textures_delta.set {
+            let needs_replaced = if let Some(existing_texture_id) =
+                self.egui_textures.get(egui_texture_id)
+            {
+                // a texture exists, check to see if it needs to be reallocated
+                // based on the delta size
+                let existing_texture =
+                    self.texture_atlas.get_texture(*existing_texture_id);
+
+                (existing_texture.width() as usize) < delta.image.width()
+                    || (existing_texture.height() as usize)
+                        < delta.image.height()
+            } else {
+                true // texture doesn't exist, so it always "needs replaced"
+            };
+
+            // create a new texture and update the texture map
+            if needs_replaced {
+                // no existing texture, so create a new one
                 log::info!("Creating egui texture: {:?}", egui_texture_id);
 
-                delta.image.size();
                 let texture = Texture::builder()
                     .ctx(&gfx.vulkan)
                     .dimensions((
@@ -192,77 +207,9 @@ impl Demo for Example {
             }
         }
 
-        // Fill mesh with geometry
-        self.mesh.clear();
-        for clipped_shape in self.full_output.shapes.drain(0..) {
-            match clipped_shape.shape {
-                egui::Shape::Rect(shape) => {
-                    let rect = shape.rect;
-                    let texture_id = if shape.fill_texture_id()
-                        == egui::TextureId::Managed(0)
-                    {
-                        -1
-                    } else {
-                        *self
-                            .egui_textures
-                            .get(&shape.fill_texture_id())
-                            .unwrap_or(&-1)
-                    };
-                    self.mesh.quad(
-                        shape.fill.to_normalized_gamma_f32(),
-                        texture_id,
-                        nalgebra::vector![rect.left(), rect.top(), 0.0],
-                        nalgebra::vector![rect.right(), rect.top(), 0.0],
-                        nalgebra::vector![rect.right(), rect.bottom(), 0.0],
-                        nalgebra::vector![rect.left(), rect.bottom(), 0.0],
-                    );
-                }
-                egui::Shape::Text(text) => {
-                    let x = text.pos.x;
-                    let y = text.pos.y;
-                    for row in &text.galley.rows {
-                        let egui_texture_id = row.visuals.mesh.texture_id;
-                        let texture_id = *self
-                            .egui_textures
-                            .get(&egui_texture_id)
-                            .unwrap_or(&-1);
-                        let texture =
-                            self.texture_atlas.get_texture(texture_id);
-                        self.mesh.indexed_triangles(
-                            row.visuals.mesh.vertices.iter().map(|vertex| {
-                                Vertex::new(
-                                    [x + vertex.pos.x, y + vertex.pos.y, 0.0],
-                                    [
-                                        vertex.uv.x / texture.width() as f32,
-                                        vertex.uv.y / texture.height() as f32,
-                                    ],
-                                    vertex.color.to_normalized_gamma_f32(),
-                                    texture_id,
-                                )
-                            }),
-                            row.visuals.mesh.indices.iter().copied(),
-                        );
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Draw a frame
-    fn draw(
-        &mut self,
-        _window: &mut Window,
-        gfx: &mut Gfx,
-        frame: &Frame,
-    ) -> Result<()> {
         // Update created any new textures that might be needed, so here we just
         // need to write texture data.
-        for (egui_texture_id, delta) in
-            self.full_output.textures_delta.set.drain(0..)
-        {
+        for (egui_texture_id, delta) in full_output.textures_delta.set {
             let texture_id = if let Some(texture_id) =
                 self.egui_textures.get(&egui_texture_id)
             {
@@ -295,6 +242,100 @@ impl Demo for Example {
             )?;
         }
 
+        // Fill mesh with geometry
+        self.mesh.clear();
+        let clipped_primitives = self
+            .egui_ctx
+            .tessellate(full_output.shapes, self.egui_ctx.pixels_per_point());
+        for clipped_primitive in clipped_primitives {
+            match clipped_primitive.primitive {
+                Primitive::Mesh(mesh) => {
+                    let texture_id = *self
+                        .egui_textures
+                        .get(&mesh.texture_id)
+                        .unwrap_or(&-1);
+
+                    self.mesh.indexed_triangles(
+                        mesh.vertices.iter().map(|vertex| {
+                            Vertex::new(
+                                [vertex.pos.x, vertex.pos.y, 0.0],
+                                [vertex.uv.x, vertex.uv.y],
+                                vertex.color.to_normalized_gamma_f32(),
+                                texture_id,
+                            )
+                        }),
+                        mesh.indices.iter().copied(),
+                    );
+                }
+                Primitive::Callback(_) => {
+                    // do a different thing
+                }
+            }
+        }
+        // for clipped_shape in self.full_output.shapes.drain(0..) {
+        //     match clipped_shape.shape {
+        //         egui::Shape::Rect(shape) => {
+        //             let rect = shape.rect;
+        //             let texture_id = if shape.fill_texture_id()
+        //                 == egui::TextureId::Managed(0)
+        //             {
+        //                 -1
+        //             } else {
+        //                 *self
+        //                     .egui_textures
+        //                     .get(&shape.fill_texture_id())
+        //                     .unwrap_or(&-1)
+        //             };
+        //             self.mesh.quad(
+        //                 shape.fill.to_normalized_gamma_f32(),
+        //                 texture_id,
+        //                 nalgebra::vector![rect.left(), rect.top(), 0.0],
+        //                 nalgebra::vector![rect.right(), rect.top(), 0.0],
+        //                 nalgebra::vector![rect.right(), rect.bottom(), 0.0],
+        //                 nalgebra::vector![rect.left(), rect.bottom(), 0.0],
+        //             );
+        //         }
+        //         egui::Shape::Text(text) => {
+        //             let x = text.pos.x;
+        //             let y = text.pos.y;
+        //             for row in &text.galley.rows {
+        //                 let egui_texture_id = row.visuals.mesh.texture_id;
+        //                 let texture_id = *self
+        //                     .egui_textures
+        //                     .get(&egui_texture_id)
+        //                     .unwrap_or(&-1);
+        //                 let texture =
+        //                     self.texture_atlas.get_texture(texture_id);
+        //                 self.mesh.indexed_triangles(
+        //                     row.visuals.mesh.vertices.iter().map(|vertex| {
+        //                         Vertex::new(
+        //                             [x + vertex.pos.x, y + vertex.pos.y,
+        // 0.0],                             [
+        //                                 vertex.uv.x / texture.width() as f32,
+        //                                 vertex.uv.y / texture.height() as
+        // f32,                             ],
+        //                             vertex.color.to_normalized_gamma_f32(),
+        //                             texture_id,
+        //                         )
+        //                     }),
+        //                     row.visuals.mesh.indices.iter().copied(),
+        //                 );
+        //             }
+        //         }
+        //         _ => {}
+        //     }
+        // }
+
+        Ok(())
+    }
+
+    /// Draw a frame
+    fn draw(
+        &mut self,
+        _window: &mut Window,
+        gfx: &mut Gfx,
+        frame: &Frame,
+    ) -> Result<()> {
         image_memory_barrier()
             .ctx(&gfx.vulkan)
             .command_buffer(frame.command_buffer())
@@ -435,6 +476,13 @@ impl Demo for Example {
                 framebuffer_height,
             ) => {
                 let (screen_width, screen_height) = window.get_size();
+                log::info!(
+                    "FramebufferSize: {}x{}, ScreenSize: {}x{}",
+                    framebuffer_width,
+                    framebuffer_height,
+                    screen_width,
+                    screen_height,
+                );
                 self.mesh.set_transform(ortho_projection(
                     screen_width as f32,
                     screen_height as f32,
