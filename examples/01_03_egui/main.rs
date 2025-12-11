@@ -84,6 +84,7 @@ impl Demo for Example {
         window.set_mouse_button_polling(true);
         window.set_key_polling(true);
         window.set_framebuffer_size_polling(true);
+        window.set_char_polling(true);
         window.set_size(1920, 1080);
 
         let texture_atlas = TextureAtlas::new(&gfx.vulkan)
@@ -150,7 +151,11 @@ impl Demo for Example {
                         0.0..=10.0,
                     )
                     .step_by(2.5)
-                    .text_color(egui::Color32::from_rgb(0, 0, 0)),
+                    .text(
+                        RichText::new("Whatt??")
+                            .font(FontId::proportional(16.0))
+                            .color(egui::Color32::from_rgb(0, 0, 0)),
+                    ),
                 );
             });
         });
@@ -254,7 +259,6 @@ impl Demo for Example {
                         .egui_textures
                         .get(&mesh.texture_id)
                         .unwrap_or(&-1);
-
                     self.mesh.indexed_triangles(
                         mesh.vertices.iter().map(|vertex| {
                             Vertex::new(
@@ -268,63 +272,12 @@ impl Demo for Example {
                     );
                 }
                 Primitive::Callback(_) => {
-                    // do a different thing
+                    log::warn!(
+                        "Callbacks unsupported by this backend (currently)"
+                    );
                 }
             }
         }
-        // for clipped_shape in self.full_output.shapes.drain(0..) {
-        //     match clipped_shape.shape {
-        //         egui::Shape::Rect(shape) => {
-        //             let rect = shape.rect;
-        //             let texture_id = if shape.fill_texture_id()
-        //                 == egui::TextureId::Managed(0)
-        //             {
-        //                 -1
-        //             } else {
-        //                 *self
-        //                     .egui_textures
-        //                     .get(&shape.fill_texture_id())
-        //                     .unwrap_or(&-1)
-        //             };
-        //             self.mesh.quad(
-        //                 shape.fill.to_normalized_gamma_f32(),
-        //                 texture_id,
-        //                 nalgebra::vector![rect.left(), rect.top(), 0.0],
-        //                 nalgebra::vector![rect.right(), rect.top(), 0.0],
-        //                 nalgebra::vector![rect.right(), rect.bottom(), 0.0],
-        //                 nalgebra::vector![rect.left(), rect.bottom(), 0.0],
-        //             );
-        //         }
-        //         egui::Shape::Text(text) => {
-        //             let x = text.pos.x;
-        //             let y = text.pos.y;
-        //             for row in &text.galley.rows {
-        //                 let egui_texture_id = row.visuals.mesh.texture_id;
-        //                 let texture_id = *self
-        //                     .egui_textures
-        //                     .get(&egui_texture_id)
-        //                     .unwrap_or(&-1);
-        //                 let texture =
-        //                     self.texture_atlas.get_texture(texture_id);
-        //                 self.mesh.indexed_triangles(
-        //                     row.visuals.mesh.vertices.iter().map(|vertex| {
-        //                         Vertex::new(
-        //                             [x + vertex.pos.x, y + vertex.pos.y,
-        // 0.0],                             [
-        //                                 vertex.uv.x / texture.width() as f32,
-        //                                 vertex.uv.y / texture.height() as
-        // f32,                             ],
-        //                             vertex.color.to_normalized_gamma_f32(),
-        //                             texture_id,
-        //                         )
-        //                     }),
-        //                     row.visuals.mesh.indices.iter().copied(),
-        //                 );
-        //             }
-        //         }
-        //         _ => {}
-        //     }
-        // }
 
         Ok(())
     }
@@ -441,26 +394,34 @@ impl Demo for Example {
                     },
                 })
             }
-            WindowEvent::Key(key, _, action, modifiers) => key
-                .get_name()
-                .and_then(|key| egui::Key::from_name(&key))
-                .map(|key| egui::Event::Key {
-                    key,
-                    physical_key: None,
-                    pressed: match action {
-                        Action::Press => true,
-                        Action::Repeat => true,
-                        Action::Release => false,
-                    },
-                    repeat: action == Action::Repeat,
-                    modifiers: egui::Modifiers {
-                        alt: modifiers.contains(Modifiers::Alt),
-                        ctrl: modifiers.contains(Modifiers::Control),
-                        shift: modifiers.contains(Modifiers::Shift),
-                        mac_cmd: modifiers.contains(Modifiers::Super),
-                        command: modifiers.contains(Modifiers::Super),
-                    },
-                }),
+            WindowEvent::Key(key, _, action, modifiers) => {
+                log::info!("original key {:?}", key);
+                key.get_name()
+                    .and_then(|key| egui::Key::from_name(&key))
+                    .map(|key| {
+                        log::info!("Key event {:?}", key);
+                        egui::Event::Key {
+                            key,
+                            physical_key: None,
+                            pressed: match action {
+                                Action::Press => true,
+                                Action::Repeat => true,
+                                Action::Release => false,
+                            },
+                            repeat: action == Action::Repeat,
+                            modifiers: egui::Modifiers {
+                                alt: modifiers.contains(Modifiers::Alt),
+                                ctrl: modifiers.contains(Modifiers::Control),
+                                shift: modifiers.contains(Modifiers::Shift),
+                                mac_cmd: modifiers.contains(Modifiers::Super),
+                                command: modifiers.contains(Modifiers::Super),
+                            },
+                        }
+                    })
+            }
+            WindowEvent::Char(char) => {
+                Some(egui::Event::Text(char.to_string()))
+            }
             _ => None,
         };
         if let Some(egui_event) = egui_event {
