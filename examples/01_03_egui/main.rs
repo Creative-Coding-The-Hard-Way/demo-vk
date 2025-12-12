@@ -3,7 +3,7 @@ use {
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
-        demo::{demo_main, Demo, Graphics},
+        demo::{demo_main, glfw_event_to_egui_event, Demo, Graphics},
         graphics::{
             image_memory_barrier,
             streaming_renderer::{
@@ -14,7 +14,7 @@ use {
         },
     },
     egui::{epaint::Primitive, FontId, ImageData, RichText},
-    glfw::{Action, Key, Modifiers, Window, WindowEvent},
+    glfw::{Action, Key, Window, WindowEvent},
     nalgebra::Matrix4,
     std::{collections::HashMap, f32, sync::Arc, time::Instant},
 };
@@ -379,68 +379,8 @@ impl Demo for Example {
         _gfx: &mut Gfx,
         event: WindowEvent,
     ) -> Result<()> {
-        let egui_event = match event {
-            WindowEvent::CursorPos(x, y) => {
-                Some(egui::Event::PointerMoved(egui::pos2(x as f32, y as f32)))
-            }
-            WindowEvent::MouseButton(button, action, modifiers) => {
-                let (x, y) = window.get_cursor_pos();
-                Some(egui::Event::PointerButton {
-                    pos: egui::pos2(x as f32, y as f32),
-                    button: match button {
-                        glfw::MouseButtonLeft => egui::PointerButton::Primary,
-                        glfw::MouseButtonRight => {
-                            egui::PointerButton::Secondary
-                        }
-                        glfw::MouseButtonMiddle => egui::PointerButton::Middle,
-                        _ => egui::PointerButton::Primary,
-                    },
-                    pressed: match action {
-                        Action::Press => true,
-                        Action::Release => false,
-                        Action::Repeat => true,
-                    },
-                    modifiers: egui::Modifiers {
-                        alt: modifiers.contains(Modifiers::Alt),
-                        ctrl: modifiers.contains(Modifiers::Control),
-                        shift: modifiers.contains(Modifiers::Shift),
-                        mac_cmd: modifiers.contains(Modifiers::Super),
-                        command: modifiers.contains(Modifiers::Super),
-                    },
-                })
-            }
-            WindowEvent::Key(key, _, action, modifiers) => {
-                log::info!("original key {:?}", key);
-                key.get_name()
-                    .and_then(|key| egui::Key::from_name(&key))
-                    .map(|key| {
-                        log::info!("Key event {:?}", key);
-                        egui::Event::Key {
-                            key,
-                            physical_key: None,
-                            pressed: match action {
-                                Action::Press => true,
-                                Action::Repeat => true,
-                                Action::Release => false,
-                            },
-                            repeat: action == Action::Repeat,
-                            modifiers: egui::Modifiers {
-                                alt: modifiers.contains(Modifiers::Alt),
-                                ctrl: modifiers.contains(Modifiers::Control),
-                                shift: modifiers.contains(Modifiers::Shift),
-                                mac_cmd: modifiers.contains(Modifiers::Super),
-                                command: modifiers.contains(Modifiers::Super),
-                            },
-                        }
-                    })
-            }
-            WindowEvent::Char(char) => {
-                Some(egui::Event::Text(char.to_string()))
-            }
-            _ => None,
-        };
-        if let Some(egui_event) = egui_event {
-            self.input.events.push(egui_event);
+        if let Some(event) = glfw_event_to_egui_event(window, &event) {
+            self.input.events.push(event)
         }
 
         match event {

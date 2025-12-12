@@ -1,3 +1,4 @@
+mod egui_integration;
 mod frame_metrics;
 mod rolling_average;
 
@@ -20,6 +21,8 @@ use {
         time::{Duration, Instant},
     },
 };
+
+pub use self::egui_integration::glfw_event_to_egui_event;
 
 /// Standard graphics resources provided by the Demo.
 pub struct Graphics<A> {
