@@ -16,7 +16,7 @@ use {
     egui::{epaint::Primitive, FontId, ImageData, RichText},
     glfw::{Action, Key, Modifiers, Window, WindowEvent},
     nalgebra::Matrix4,
-    std::{collections::HashMap, f32, sync::Arc},
+    std::{collections::HashMap, f32, sync::Arc, time::Instant},
 };
 
 #[derive(Debug, Parser)]
@@ -45,7 +45,7 @@ struct Example {
     input: egui::RawInput,
     egui_ctx: egui::Context,
     egui_textures: HashMap<egui::TextureId, i32>,
-    slider_value: f32,
+    show_fps: bool,
 }
 
 impl Demo for Example {
@@ -116,48 +116,62 @@ impl Demo for Example {
         egui_ctx.set_pixels_per_point(window.get_content_scale().0);
         log::info!("pixels per point: {}", egui_ctx.pixels_per_point());
 
+        let input = egui::RawInput::default();
+
         Ok(Self {
             texture_loader,
             texture_atlas,
             mesh,
             g2,
-            input: egui::RawInput {
-                screen_rect: Some(egui::Rect {
-                    min: egui::pos2(0.0, 0.0),
-                    max: egui::pos2(
-                        gfx.swapchain.extent().width as f32,
-                        gfx.swapchain.extent().height as f32,
-                    ),
-                }),
-                ..egui::RawInput::default()
-            },
+            input,
             egui_ctx,
             egui_textures: HashMap::new(),
-            slider_value: 0.0,
+            show_fps: false,
         })
     }
 
-    fn update(&mut self, _window: &mut Window, gfx: &mut Gfx) -> Result<()> {
-        let full_output = self.egui_ctx.run(self.input.take(), |ctx| {
-            egui::SidePanel::left("settings").show(ctx, |ui| {
-                ui.label(
-                    RichText::new("Hello World")
-                        .font(FontId::proportional(24.0))
-                        .color(egui::Color32::from_rgb(0, 0, 0)),
-                );
-                ui.add(
-                    egui::widgets::Slider::new(
-                        &mut self.slider_value,
-                        0.0..=10.0,
-                    )
-                    .step_by(2.5)
-                    .text(
-                        RichText::new("Whatt??")
-                            .font(FontId::proportional(16.0))
-                            .color(egui::Color32::from_rgb(0, 0, 0)),
-                    ),
-                );
+    fn update(&mut self, window: &mut Window, gfx: &mut Gfx) -> Result<()> {
+        {
+            let (w, h) = window.get_size();
+            self.input.screen_rect = Some(egui::Rect {
+                min: egui::pos2(0.0, 0.0),
+                max: egui::pos2(w as f32, h as f32),
             });
+        }
+        let before_egui = Instant::now();
+        let full_output = self.egui_ctx.run(self.input.take(), |ctx| {
+            egui::SidePanel::right("fps")
+                .show_separator_line(false)
+                .resizable(false)
+                .frame(egui::Frame::NONE.inner_margin(10.0))
+                .default_width(600.0)
+                .show(ctx, |ui| {
+                    ui.with_layout(
+                        egui::Layout::top_down(egui::Align::RIGHT),
+                        |ui| {
+                            ui.toggle_value(
+                                &mut self.show_fps,
+                                RichText::new("Frame Metrics")
+                                    .font(FontId::proportional(16.0)),
+                            );
+                            if self.show_fps {
+                                ui.add(
+                                    egui::Label::new(
+                                        RichText::new(format!(
+                                            "{}",
+                                            gfx.metrics
+                                        ))
+                                        .font(FontId::monospace(20.0))
+                                        .color(egui::Color32::from_rgb(
+                                            255, 255, 255,
+                                        )),
+                                    )
+                                    .extend(),
+                                );
+                            }
+                        },
+                    );
+                });
         });
 
         // create new textures if needed
@@ -278,6 +292,7 @@ impl Demo for Example {
                 }
             }
         }
+        gfx.metrics.ms_since("EGUI", before_egui);
 
         Ok(())
     }
@@ -454,10 +469,6 @@ impl Demo for Example {
                         width: framebuffer_width as u32,
                         height: framebuffer_height as u32,
                     },
-                });
-                self.input.screen_rect = Some(egui::Rect {
-                    min: egui::pos2(0.0, 0.0),
-                    max: egui::pos2(screen_width as f32, screen_height as f32),
                 });
             }
             _ => {}

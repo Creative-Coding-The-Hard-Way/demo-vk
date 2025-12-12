@@ -103,23 +103,28 @@ impl std::fmt::Display for FrameMetrics {
         let precision = f.precision().unwrap_or(2);
         f.write_fmt(format_args!(
             indoc::indoc! {"
-                Frame Metrics
-                fps : {:.0}
-                update time (ms): {:.*}
-                draw time (ms): {:.*}
-                frame time (~=update time + draw time): {:.*}
+                FPS: {:.0}
+
+                [Frame Metrics]
+                ---------------
+                {:.*}ms : update time
+                {:.*}ms :   draw time
+                {:.*}ms :  frame time
+
+                [User Metrics]
+                --------------
             "},
             1000.0 / self.ms_per_frame.average(),
-            precision,
-            self.ms_per_frame,
             precision,
             self.ms_per_update,
             precision,
             self.ms_per_draw,
+            precision,
+            self.ms_per_frame,
         ))?;
 
         for (name, metric) in self.metrics.iter() {
-            f.write_fmt(format_args!("{}: {:.*}\n", name, precision, metric))?;
+            f.write_fmt(format_args!("{:.*} : {}\n", precision, metric, name))?;
         }
 
         Ok(())
