@@ -2,9 +2,9 @@
 <a href=#2 id=2 data-nosnippet>2</a>    <span class="kw">super</span>::ComposableAllocator,
 <a href=#3 id=3 data-nosnippet>3</a>    <span class="kw">crate</span>::{
 <a href=#4 id=4 data-nosnippet>4</a>        graphics::vulkan::{allocator::AllocationRequirements, raii, Block},
-<a href=#5 id=5 data-nosnippet>5</a>        trace,
+<a href=#5 id=5 data-nosnippet>5</a>        unwrap_here,
 <a href=#6 id=6 data-nosnippet>6</a>    },
-<a href=#7 id=7 data-nosnippet>7</a>    anyhow::{Context, <span class="prelude-ty">Result</span>},
+<a href=#7 id=7 data-nosnippet>7</a>    anyhow::Result,
 <a href=#8 id=8 data-nosnippet>8</a>    ash::vk,
 <a href=#9 id=9 data-nosnippet>9</a>    std::sync::Arc,
 <a href=#10 id=10 data-nosnippet>10</a>};
@@ -26,55 +26,54 @@
 <a href=#26 id=26 data-nosnippet>26</a>        requirements: AllocationRequirements,
 <a href=#27 id=27 data-nosnippet>27</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Block&gt; {
 <a href=#28 id=28 data-nosnippet>28</a>        <span class="comment">// Allocate the underlying memory
-<a href=#29 id=29 data-nosnippet>29</a>        </span><span class="kw">let </span>memory = <span class="kw">unsafe </span>{
+<a href=#29 id=29 data-nosnippet>29</a>        </span><span class="kw">let </span>memory = {
 <a href=#30 id=30 data-nosnippet>30</a>            <span class="kw">let </span><span class="kw-2">mut </span>memory_allocate_flags_info =
 <a href=#31 id=31 data-nosnippet>31</a>                requirements.memory_allocate_flags_info();
 <a href=#32 id=32 data-nosnippet>32</a>            <span class="kw">let </span>memory_allocate_info = requirements
 <a href=#33 id=33 data-nosnippet>33</a>                .memory_allocate_info()
 <a href=#34 id=34 data-nosnippet>34</a>                .push_next(<span class="kw-2">&amp;mut </span>memory_allocate_flags_info);
-<a href=#35 id=35 data-nosnippet>35</a>            <span class="self">self</span>.logical_device
-<a href=#36 id=36 data-nosnippet>36</a>                .allocate_memory(<span class="kw-2">&amp;</span>memory_allocate_info, <span class="prelude-val">None</span>)
-<a href=#37 id=37 data-nosnippet>37</a>                .with_context(<span class="macro">trace!</span>(<span class="string">"Unable to allocate device memory!"</span>))<span class="question-mark">?
-<a href=#38 id=38 data-nosnippet>38</a>        </span>};
-<a href=#39 id=39 data-nosnippet>39</a>
-<a href=#40 id=40 data-nosnippet>40</a>        <span class="comment">// Map the device memory if possible
-<a href=#41 id=41 data-nosnippet>41</a>        </span><span class="kw">let </span>mapped_ptr = <span class="kw">if </span>requirements
-<a href=#42 id=42 data-nosnippet>42</a>            .memory_property_flags
-<a href=#43 id=43 data-nosnippet>43</a>            .contains(vk::MemoryPropertyFlags::HOST_VISIBLE)
-<a href=#44 id=44 data-nosnippet>44</a>        {
-<a href=#45 id=45 data-nosnippet>45</a>            <span class="kw">unsafe </span>{
-<a href=#46 id=46 data-nosnippet>46</a>                <span class="self">self</span>.logical_device
-<a href=#47 id=47 data-nosnippet>47</a>                    .map_memory(
-<a href=#48 id=48 data-nosnippet>48</a>                        memory,
-<a href=#49 id=49 data-nosnippet>49</a>                        <span class="number">0</span>,
-<a href=#50 id=50 data-nosnippet>50</a>                        vk::WHOLE_SIZE,
-<a href=#51 id=51 data-nosnippet>51</a>                        vk::MemoryMapFlags::empty(),
-<a href=#52 id=52 data-nosnippet>52</a>                    )
-<a href=#53 id=53 data-nosnippet>53</a>                    .with_context(<span class="macro">trace!</span>(<span class="string">"Unable to map memory!"</span>))<span class="question-mark">?
-<a href=#54 id=54 data-nosnippet>54</a>            </span>}
-<a href=#55 id=55 data-nosnippet>55</a>        } <span class="kw">else </span>{
-<a href=#56 id=56 data-nosnippet>56</a>            std::ptr::null_mut()
-<a href=#57 id=57 data-nosnippet>57</a>        };
-<a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a>        <span class="prelude-val">Ok</span>(Block::new(
-<a href=#60 id=60 data-nosnippet>60</a>            <span class="number">0</span>,
-<a href=#61 id=61 data-nosnippet>61</a>            requirements.allocation_size,
-<a href=#62 id=62 data-nosnippet>62</a>            memory,
-<a href=#63 id=63 data-nosnippet>63</a>            mapped_ptr,
-<a href=#64 id=64 data-nosnippet>64</a>            requirements.memory_type_index,
-<a href=#65 id=65 data-nosnippet>65</a>            requirements
-<a href=#66 id=66 data-nosnippet>66</a>                .memory_allocate_flags
-<a href=#67 id=67 data-nosnippet>67</a>                .contains(vk::MemoryAllocateFlags::DEVICE_ADDRESS),
-<a href=#68 id=68 data-nosnippet>68</a>        ))
-<a href=#69 id=69 data-nosnippet>69</a>    }
-<a href=#70 id=70 data-nosnippet>70</a>
-<a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">fn </span>free_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>Block) {
-<a href=#72 id=72 data-nosnippet>72</a>        <span class="kw">unsafe </span>{
-<a href=#73 id=73 data-nosnippet>73</a>            <span class="self">self</span>.logical_device.free_memory(block.memory(), <span class="prelude-val">None</span>);
-<a href=#74 id=74 data-nosnippet>74</a>        }
-<a href=#75 id=75 data-nosnippet>75</a>    }
-<a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">fn </span>owns(<span class="kw-2">&amp;</span><span class="self">self</span>, _block: <span class="kw-2">&amp;</span>Block) -&gt; bool {
-<a href=#78 id=78 data-nosnippet>78</a>        <span class="bool-val">true
-<a href=#79 id=79 data-nosnippet>79</a>    </span>}
-<a href=#80 id=80 data-nosnippet>80</a>}</code></pre></div></section></main></body></html>
+<a href=#35 id=35 data-nosnippet>35</a>            <span class="macro">unwrap_here!</span>(<span class="string">"Allocate device memory"</span>, <span class="kw">unsafe </span>{
+<a href=#36 id=36 data-nosnippet>36</a>                <span class="self">self</span>.logical_device
+<a href=#37 id=37 data-nosnippet>37</a>                    .allocate_memory(<span class="kw-2">&amp;</span>memory_allocate_info, <span class="prelude-val">None</span>)
+<a href=#38 id=38 data-nosnippet>38</a>            })
+<a href=#39 id=39 data-nosnippet>39</a>        };
+<a href=#40 id=40 data-nosnippet>40</a>
+<a href=#41 id=41 data-nosnippet>41</a>        <span class="comment">// Map the device memory if possible
+<a href=#42 id=42 data-nosnippet>42</a>        </span><span class="kw">let </span>mapped_ptr = <span class="kw">if </span>requirements
+<a href=#43 id=43 data-nosnippet>43</a>            .memory_property_flags
+<a href=#44 id=44 data-nosnippet>44</a>            .contains(vk::MemoryPropertyFlags::HOST_VISIBLE)
+<a href=#45 id=45 data-nosnippet>45</a>        {
+<a href=#46 id=46 data-nosnippet>46</a>            <span class="macro">unwrap_here!</span>(<span class="string">"Map device memory"</span>, <span class="kw">unsafe </span>{
+<a href=#47 id=47 data-nosnippet>47</a>                <span class="self">self</span>.logical_device.map_memory(
+<a href=#48 id=48 data-nosnippet>48</a>                    memory,
+<a href=#49 id=49 data-nosnippet>49</a>                    <span class="number">0</span>,
+<a href=#50 id=50 data-nosnippet>50</a>                    vk::WHOLE_SIZE,
+<a href=#51 id=51 data-nosnippet>51</a>                    vk::MemoryMapFlags::empty(),
+<a href=#52 id=52 data-nosnippet>52</a>                )
+<a href=#53 id=53 data-nosnippet>53</a>            })
+<a href=#54 id=54 data-nosnippet>54</a>        } <span class="kw">else </span>{
+<a href=#55 id=55 data-nosnippet>55</a>            std::ptr::null_mut()
+<a href=#56 id=56 data-nosnippet>56</a>        };
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>        <span class="prelude-val">Ok</span>(Block::new(
+<a href=#59 id=59 data-nosnippet>59</a>            <span class="number">0</span>,
+<a href=#60 id=60 data-nosnippet>60</a>            requirements.allocation_size,
+<a href=#61 id=61 data-nosnippet>61</a>            memory,
+<a href=#62 id=62 data-nosnippet>62</a>            mapped_ptr,
+<a href=#63 id=63 data-nosnippet>63</a>            requirements.memory_type_index,
+<a href=#64 id=64 data-nosnippet>64</a>            requirements
+<a href=#65 id=65 data-nosnippet>65</a>                .memory_allocate_flags
+<a href=#66 id=66 data-nosnippet>66</a>                .contains(vk::MemoryAllocateFlags::DEVICE_ADDRESS),
+<a href=#67 id=67 data-nosnippet>67</a>        ))
+<a href=#68 id=68 data-nosnippet>68</a>    }
+<a href=#69 id=69 data-nosnippet>69</a>
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">fn </span>free_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>Block) {
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">unsafe </span>{
+<a href=#72 id=72 data-nosnippet>72</a>            <span class="self">self</span>.logical_device.free_memory(block.memory(), <span class="prelude-val">None</span>);
+<a href=#73 id=73 data-nosnippet>73</a>        }
+<a href=#74 id=74 data-nosnippet>74</a>    }
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">fn </span>owns(<span class="kw-2">&amp;</span><span class="self">self</span>, _block: <span class="kw-2">&amp;</span>Block) -&gt; bool {
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="bool-val">true
+<a href=#78 id=78 data-nosnippet>78</a>    </span>}
+<a href=#79 id=79 data-nosnippet>79</a>}</code></pre></div></section></main></body></html>

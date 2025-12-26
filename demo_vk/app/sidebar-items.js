@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["app_main"],"struct":["FullscreenToggle"],"trait":["App"]};
+window.SIDEBAR_ITEMS = {"enum":["AppState"],"fn":["app_main"],"struct":["Location"],"trait":["App","ErrorLocationMessage"]};
