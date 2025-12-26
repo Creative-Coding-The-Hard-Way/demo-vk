@@ -1,11 +1,14 @@
 mod debug;
 
 use {
-    crate::{graphics::vulkan::raii, trace},
-    anyhow::{bail, Context, Result},
+    crate::{graphics::vulkan::raii, unwrap_here},
+    anyhow::{Context, Result},
     ash::vk,
-    std::sync::Arc,
+    std::{ffi::CStr, sync::Arc},
+    winit::{raw_window_handle::HasDisplayHandle, window::Window},
 };
+
+const VK_EXT_DEBUG_UTILS: &CStr = c"VK_EXT_debug_utils";
 
 /// The logical Vulkan instance.
 ///
@@ -23,18 +26,14 @@ impl Instance {
     /// Create a new Vulkan instance for the given GLFW window.
     pub fn for_window(
         app_name: impl AsRef<str>,
-        window: &glfw::Window,
+        window: &Window,
     ) -> Result<Self> {
-        if !window.glfw.vulkan_supported() {
-            bail!(trace!("Vulkan not supported on this platform!")());
-        }
-
-        let extensions = window
-            .glfw
-            .get_required_instance_extensions()
-            .with_context(trace!(
-                "Unable to get required extensions for Vulkan instance!"
-            ))?;
+        let extensions = ash_window::enumerate_required_extensions(
+            window
+                .display_handle()
+                .with_context(|| "Unable to fetch display handle!")?
+                .as_raw(),
+        )?;
 
         Self::new(app_name, &extensions)
     }
@@ -42,22 +41,15 @@ impl Instance {
     /// Create a new Vulkan instance.
     pub fn new(
         app_name: impl AsRef<str>,
-        extensions: &[String],
+        extensions: &[*const i8],
     ) -> Result<Self> {
-        let mut cstrs = extensions
-            .iter()
-            .cloned()
-            .map(|str| std::ffi::CString::new(str).unwrap())
-            .collect::<Vec<std::ffi::CString>>();
-
-        if cfg!(debug_assertions) {
-            cstrs.push(std::ffi::CString::new("VK_EXT_debug_utils").unwrap());
-        }
-
-        let ptrs = cstrs
-            .iter()
-            .map(|cstr| cstr.as_ptr())
-            .collect::<Vec<*const i8>>();
+        let ptrs = {
+            let mut ptrs = extensions.to_vec();
+            if cfg!(debug_assertions) {
+                ptrs.push(VK_EXT_DEBUG_UTILS.as_ptr());
+            }
+            ptrs
+        };
 
         let app_name_c = std::ffi::CString::new(app_name.as_ref()).unwrap();
         let engine_name = std::ffi::CString::new("N/A").unwrap();
@@ -76,15 +68,22 @@ impl Instance {
             ..Default::default()
         };
 
-        let ash = raii::Instance::new(&create_info)
-            .with_context(trace!("Unable to create instance!"))?;
+        let ash = unwrap_here!(
+            "Create Vulkan instance",
+            raii::Instance::new(&create_info)
+        );
 
-        let debug_utils = debug::setup_debug_logging(ash.clone())
-            .with_context(trace!("Unable to setup debug logging!"))?;
+        let debug_utils = unwrap_here!(
+            "Setup debug logging.",
+            debug::setup_debug_logging(ash.clone())
+        );
 
         Ok(Self {
             ash,
-            extensions: extensions.to_vec(),
+            extensions:
+        ptrs.iter().map(|&ptr| {
+            unsafe { CStr::from_ptr(ptr) }.to_string_lossy().to_string()
+        }).collect(),
             _debug_utils: debug_utils,
         })
     }

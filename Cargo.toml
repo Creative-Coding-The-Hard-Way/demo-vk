@@ -35,6 +35,8 @@ glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
 glfw-sys = "6.0.0"
 simple-mermaid = "0.2.0"
 egui = "0.33.2"
+winit = "0.30.12"
+ash-window = "0.13.0"
 
 [features]
 # Build glfw from source when requested

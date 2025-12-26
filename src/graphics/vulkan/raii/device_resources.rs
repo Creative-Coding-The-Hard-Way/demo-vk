@@ -1,5 +1,5 @@
 use {
-    crate::{graphics::vulkan::raii, trace},
+    crate::graphics::vulkan::raii,
     anyhow::{Context, Result},
     ash::vk::{self, Handle},
     std::{ffi::CString, sync::Arc},
@@ -256,9 +256,8 @@ impl Pipeline {
         let raw = match result {
             Ok(pipelines) => pipelines[0],
             Err((_, result)) => {
-                return Err(result).with_context(trace!(
-                    "Error while creating graphics pipeline!"
-                ));
+                return Err(result)
+                    .context("Error while creating graphics pipeline!");
             }
         };
         Ok(Self { device, raw })
@@ -278,9 +277,8 @@ impl Pipeline {
         let raw = match result {
             Ok(pipelines) => pipelines[0],
             Err((_, result)) => {
-                return Err(result).with_context(trace!(
-                    "Error while creating compute pipeline!"
-                ));
+                return Err(result)
+                    .context("Error while creating compute pipeline!");
             }
         };
         Ok(Self { device, raw })

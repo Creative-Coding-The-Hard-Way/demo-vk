@@ -1,9 +1,4 @@
-use {
-    crate::trace,
-    anyhow::{Context, Result},
-    ash::vk,
-    std::sync::Arc,
-};
+use {crate::unwrap_here, anyhow::Result, ash::vk, std::sync::Arc};
 
 /// A RAII wrapper for the ash library entry and instance that destroys itself
 /// when dropped.
@@ -14,16 +9,12 @@ pub struct Instance {
 
 impl Instance {
     pub fn new(create_info: &vk::InstanceCreateInfo) -> Result<Arc<Self>> {
-        let entry = unsafe {
-            ash::Entry::load().with_context(trace!(
-                "Unable to load the default Vulkan library!"
-            ))?
-        };
-        let raw = unsafe {
-            entry
-                .create_instance(create_info, None)
-                .with_context(trace!("Unable to create the Vulkan instance!"))?
-        };
+        let entry = unwrap_here!("Create the Vulkan loader", unsafe {
+            ash::Entry::load()
+        });
+        let raw = unwrap_here!("Create the Vulkan library instance", unsafe {
+            entry.create_instance(create_info, None)
+        });
         Ok(Arc::new(Self { entry, raw }))
     }
 }

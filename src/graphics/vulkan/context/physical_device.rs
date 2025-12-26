@@ -1,7 +1,7 @@
 use {
     crate::{
         graphics::vulkan::{raii, Instance, RequiredDeviceFeatures},
-        trace,
+        unwrap_here,
     },
     anyhow::{Context, Result},
     ash::vk,
@@ -14,11 +14,9 @@ pub fn pick_suitable_device(
     surface_khr: &raii::Surface,
     required_device_features: &RequiredDeviceFeatures,
 ) -> Result<vk::PhysicalDevice> {
-    let physical_devices = unsafe {
-        instance
-            .enumerate_physical_devices()
-            .with_context(trace!("Unable to enumerate physical devices!"))?
-    };
+    let physical_devices = unwrap_here!("Enumerate physical devices", unsafe {
+        instance.enumerate_physical_devices()
+    });
 
     log::trace!("Searching for suitable physical device...");
 
@@ -39,8 +37,10 @@ pub fn pick_suitable_device(
         );
         let has_queues = has_required_queues(instance, physical_device);
         let has_extensions = has_required_extensions(instance, physical_device);
-        let has_surface_formats =
-            has_required_surface_formats(surface_khr, physical_device)?;
+        let has_surface_formats = unwrap_here!(
+            "Check physical device surface formats",
+            has_required_surface_formats(surface_khr, physical_device)
+        );
 
         log::trace!(
             indoc::indoc! {"
@@ -69,7 +69,7 @@ pub fn pick_suitable_device(
         }
     }
 
-    preferred_device.with_context(trace!("No suitable device could be found!"))
+    preferred_device.context("No suitable physical device could be found!")
 }
 
 fn has_required_queues(

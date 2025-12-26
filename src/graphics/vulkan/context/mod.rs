@@ -5,11 +5,12 @@ mod physical_device;
 use {
     crate::{
         graphics::vulkan::{raii, Allocator},
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk::{self},
     std::sync::Arc,
+    winit::window::Window,
 };
 
 pub use self::instance::Instance;
@@ -54,43 +55,45 @@ impl VulkanContext {
     /// Creates a new Vulkan Context for the first suitable device that supports
     /// presenting to the GLFW window surface.
     pub fn new(
-        window: &glfw::Window,
+        window: &Window,
         required_device_features: RequiredDeviceFeatures,
     ) -> Result<Arc<Self>> {
-        let instance = Instance::for_window("Shader-Toy-Slang", window)
-            .with_context(trace!("Unable to create vulkan instance!"))?;
+        let instance = unwrap_here!(
+            "Create Vulkan instance for the application window",
+            Instance::for_window("demo-vk", window)
+        );
 
-        let surface_khr =
+        let surface_khr = unwrap_here!(
+            "Create Vulkan surface for the application window",
             raii::Surface::for_window(instance.ash.clone(), window)
-                .with_context(trace!(
-                    "Unable to create Vulkan surface from glfw window!"
-                ))?;
+        );
 
-        let physical_device = physical_device::pick_suitable_device(
-            &instance,
-            &surface_khr,
-            &required_device_features,
-        )
-        .with_context(trace!(
-            "Error while picking a suitable physical device!"
-        ))?;
+        let physical_device = unwrap_here!(
+            "Pick a suitable device for the application",
+            physical_device::pick_suitable_device(
+                &instance,
+                &surface_khr,
+                &required_device_features,
+            )
+        );
 
-        let (device, graphics_queue_family_index) =
+        let (device, graphics_queue_family_index) = unwrap_here!(
+            "Create a logical device for the chosen physical device",
             logical_device::create_logical_device(
                 &instance,
                 &surface_khr,
                 physical_device,
                 required_device_features,
             )
-            .with_context(trace!("Error while creating the logical device!"))?;
+        );
 
         let graphics_queue =
             unsafe { device.get_device_queue(graphics_queue_family_index, 0) };
 
-        let allocator = Allocator::new(device.clone(), physical_device)
-            .with_context(trace!(
-                "Error while creating device memory allocator!"
-            ))?;
+        let allocator = unwrap_here!(
+            "Create the Vulkan GPU memory allocator",
+            Allocator::new(device.clone(), physical_device)
+        );
 
         Ok(Arc::new(Self {
             instance,

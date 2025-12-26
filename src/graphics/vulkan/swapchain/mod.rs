@@ -3,7 +3,7 @@ mod settings;
 use {
     crate::{
         graphics::vulkan::{raii, VulkanContext},
-        trace,
+        unwrap_here,
     },
     anyhow::{anyhow, Context, Result},
     ash::vk,
@@ -39,15 +39,18 @@ impl Swapchain {
         framebuffer_size: (u32, u32),
         previous_swapchain: Option<vk::SwapchainKHR>,
     ) -> Result<Self> {
-        let (swapchain, extent, format) = settings::create_swapchain(
-            &cxt,
-            framebuffer_size,
-            previous_swapchain,
-        )
-        .with_context(trace!("Unable to initialize swapchain!"))?;
+        let (swapchain, extent, format) = unwrap_here!(
+            "Create swapchain",
+            settings::create_swapchain(
+                &cxt,
+                framebuffer_size,
+                previous_swapchain,
+            )
+        );
 
-        let images =
-            unsafe { swapchain.ext.get_swapchain_images(swapchain.raw)? };
+        let images = unwrap_here!("Get swapchain images", unsafe {
+            swapchain.ext.get_swapchain_images(swapchain.raw)
+        });
         let mut image_views = vec![];
         for (index, image) in images.iter().enumerate() {
             let create_info = vk::ImageViewCreateInfo {
@@ -64,11 +67,14 @@ impl Swapchain {
                 },
                 ..Default::default()
             };
-            let image_view = raii::ImageView::new(
-                format!("Swapchain Image [{}]", index),
-                cxt.device.clone(),
-                &create_info,
-            )?;
+            let image_view = unwrap_here!(
+                format!("Create swapchain image view [{}]", index),
+                raii::ImageView::new(
+                    format!("Swapchain Image [{}]", index),
+                    cxt.device.clone(),
+                    &create_info,
+                )
+            );
             image_views.push(image_view);
         }
 
@@ -154,8 +160,9 @@ impl Swapchain {
             Err(vk::Result::ERROR_OUT_OF_DATE_KHR) => {
                 Ok(AcquireImageStatus::SwapchainNeedsRebuild)
             }
-            Err(err) => Err(anyhow!(err))
-                .with_context(trace!("Unable to acquire swapchain image!")),
+            Err(err) => {
+                Err(anyhow!(err)).context("Unable to acquire swapchain image!")
+            }
         }
     }
 
@@ -189,8 +196,7 @@ impl Swapchain {
             Err(vk::Result::ERROR_OUT_OF_DATE_KHR) => {
                 Ok(PresentImageStatus::SwapchainNeedsRebuild)
             }
-            Err(err) => Err(err)
-                .with_context(trace!("Unable to present swapchain image!")),
+            Err(err) => Err(err).context("Unable to present swapchain image!"),
         }
     }
 }

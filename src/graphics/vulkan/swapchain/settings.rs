@@ -1,7 +1,7 @@
 use {
     crate::{
         graphics::vulkan::{raii, VulkanContext},
-        trace,
+        unwrap_here,
     },
     anyhow::{Context, Result},
     ash::vk,
@@ -13,18 +13,19 @@ pub fn create_swapchain(
     framebuffer_size: (u32, u32),
     previous_swapchain: Option<vk::SwapchainKHR>,
 ) -> Result<(Arc<raii::Swapchain>, vk::Extent2D, vk::SurfaceFormatKHR)> {
-    let capabilities = unsafe {
-        cxt.surface_khr
-            .ext
-            .get_physical_device_surface_capabilities(
-                cxt.physical_device,
-                cxt.surface_khr.raw,
-            )
-            .with_context(trace!("Unable to get surface capabilities!"))?
-    };
+    let capabilities =
+        unwrap_here!("Get device surface capabilities", unsafe {
+            cxt.surface_khr
+                .ext
+                .get_physical_device_surface_capabilities(
+                    cxt.physical_device,
+                    cxt.surface_khr.raw,
+                )
+        });
     log::trace!("Device capabilities:\n{:#?}", capabilities);
 
-    let format = select_image_format(cxt)?;
+    let format =
+        unwrap_here!("Select surface image format", select_image_format(cxt));
     let extent = select_image_extent(&capabilities, framebuffer_size);
     let queue_families = [cxt.graphics_queue_family_index];
     let create_info = vk::SwapchainCreateInfoKHR {
@@ -41,12 +42,18 @@ pub fn create_swapchain(
         p_queue_family_indices: queue_families.as_ptr(),
         pre_transform: capabilities.current_transform,
         composite_alpha: vk::CompositeAlphaFlagsKHR::OPAQUE,
-        present_mode: select_present_mode(cxt)?,
+        present_mode: unwrap_here!(
+            "Select surface present mode",
+            select_present_mode(cxt)
+        ),
         clipped: vk::TRUE,
         old_swapchain: previous_swapchain.unwrap_or(vk::SwapchainKHR::null()),
         ..Default::default()
     };
-    let swapchain = raii::Swapchain::new(cxt.device.clone(), &create_info)?;
+    let swapchain = unwrap_here!(
+        "Create new swapchain",
+        raii::Swapchain::new(cxt.device.clone(), &create_info)
+    );
     log::trace!(
         indoc::indoc!(
             "
@@ -65,17 +72,13 @@ pub fn create_swapchain(
 
 /// Pick the desired image format for the swapchain.
 fn select_image_format(cxt: &VulkanContext) -> Result<vk::SurfaceFormatKHR> {
-    let surface_formats = unsafe {
-        cxt.surface_khr
-            .ext
-            .get_physical_device_surface_formats(
+    let surface_formats =
+        unwrap_here!("List avialable surface formats", unsafe {
+            cxt.surface_khr.ext.get_physical_device_surface_formats(
                 cxt.physical_device,
                 cxt.surface_khr.raw,
             )
-            .with_context(trace!(
-                "Error while listing available surface formats!"
-            ))?
-    };
+        });
     log::trace!("Formats supported by device\n{:#?}", surface_formats);
 
     let preferred = surface_formats.iter().find(|surface_format| {
@@ -85,9 +88,9 @@ fn select_image_format(cxt: &VulkanContext) -> Result<vk::SurfaceFormatKHR> {
         has_color_space && has_format
     });
 
-    let format = preferred.or(surface_formats.first()).with_context(trace!(
-        "Unable to find a suitable surface format for the swapchain!"
-    ))?;
+    let format = preferred.or(surface_formats.first()).context(
+        "Unable to find a suitable surface format for the swapchain!",
+    )?;
 
     Ok(*format)
 }

@@ -1,9 +1,9 @@
 use {
     crate::{
         graphics::vulkan::{raii, VulkanContext},
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk,
     std::sync::Arc,
 };
@@ -19,30 +19,38 @@ pub struct SyncCommands {
 
 impl SyncCommands {
     pub fn new(cxt: Arc<VulkanContext>) -> Result<Self> {
-        let command_pool = raii::CommandPool::new(
-            "SyncCommands",
-            cxt.device.clone(),
-            &vk::CommandPoolCreateInfo {
-                flags: vk::CommandPoolCreateFlags::TRANSIENT,
-                queue_family_index: cxt.graphics_queue_family_index,
-                ..Default::default()
-            },
-        )
-        .with_context(trace!("Unable to create command pool!"))?;
-        let command_buffer = unsafe {
-            cxt.allocate_command_buffers(&vk::CommandBufferAllocateInfo {
-                command_pool: command_pool.raw,
-                level: vk::CommandBufferLevel::PRIMARY,
-                command_buffer_count: 1,
-                ..Default::default()
-            })
-            .with_context(trace!("Unable to allocate the command buffer!"))?[0]
-        };
-        let fence = raii::Fence::new(
-            "SyncCommands",
-            cxt.device.clone(),
-            &vk::FenceCreateInfo::default(),
-        )?;
+        let command_pool = unwrap_here!(
+            "Create command pool",
+            raii::CommandPool::new(
+                "SyncCommands",
+                cxt.device.clone(),
+                &vk::CommandPoolCreateInfo {
+                    flags: vk::CommandPoolCreateFlags::TRANSIENT,
+                    queue_family_index: cxt.graphics_queue_family_index,
+                    ..Default::default()
+                },
+            )
+        );
+        let command_buffer =
+            unwrap_here!("Allocate primary command buffer", unsafe {
+                cxt.allocate_command_buffers(&vk::CommandBufferAllocateInfo {
+                    command_pool: command_pool.raw,
+                    level: vk::CommandBufferLevel::PRIMARY,
+                    command_buffer_count: 1,
+                    ..Default::default()
+                })?
+                .first()
+                .copied()
+                .context("Expected exactly one command buffer to be returned!")
+            });
+        let fence = unwrap_here!(
+            "Create command fence",
+            raii::Fence::new(
+                "SyncCommands",
+                cxt.device.clone(),
+                &vk::FenceCreateInfo::default(),
+            )
+        );
         Ok(Self {
             command_pool,
             command_buffer,
@@ -55,58 +63,56 @@ impl SyncCommands {
         &self,
         build_commands: impl FnOnce(vk::CommandBuffer) -> Result<()>,
     ) -> Result<()> {
-        unsafe {
-            self.cxt
-                .reset_command_pool(
-                    self.command_pool.raw,
-                    vk::CommandPoolResetFlags::empty(),
-                )
-                .with_context(trace!("Error while resetting command pool!"))?;
+        unwrap_here!("Reset command pool", unsafe {
+            self.cxt.reset_command_pool(
+                self.command_pool.raw,
+                vk::CommandPoolResetFlags::empty(),
+            )
+        });
 
+        unwrap_here!("Begin command buffer one time submit", unsafe {
             self.cxt.begin_command_buffer(
                 self.command_buffer,
                 &vk::CommandBufferBeginInfo {
                     flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
                     ..Default::default()
                 },
-            )?;
-        }
+            )
+        });
 
-        build_commands(self.command_buffer).with_context(trace!(
-            "Error while adding commands to the buffer!"
-        ))?;
+        unwrap_here!(
+            "Add commands to the buffer",
+            build_commands(self.command_buffer)
+        );
 
-        unsafe {
-            self.cxt
-                .end_command_buffer(self.command_buffer)
-                .with_context(trace!("Error while ending command buffer!"))?;
+        unwrap_here!("End command buffer", unsafe {
+            self.cxt.end_command_buffer(self.command_buffer)
+        });
 
-            self.cxt
-                .queue_submit(
-                    self.cxt.graphics_queue,
-                    &[vk::SubmitInfo {
-                        wait_semaphore_count: 0,
-                        p_wait_semaphores: std::ptr::null(),
-                        p_wait_dst_stage_mask: std::ptr::null(),
-                        command_buffer_count: 1,
-                        p_command_buffers: &self.command_buffer,
-                        signal_semaphore_count: 0,
-                        p_signal_semaphores: std::ptr::null(),
-                        ..Default::default()
-                    }],
-                    self.fence.raw,
-                )
-                .with_context(trace!("Error while submitting commands!"))?;
+        unwrap_here!("Submit commands and signal fence", unsafe {
+            self.cxt.queue_submit(
+                self.cxt.graphics_queue,
+                &[vk::SubmitInfo {
+                    wait_semaphore_count: 0,
+                    p_wait_semaphores: std::ptr::null(),
+                    p_wait_dst_stage_mask: std::ptr::null(),
+                    command_buffer_count: 1,
+                    p_command_buffers: &self.command_buffer,
+                    signal_semaphore_count: 0,
+                    p_signal_semaphores: std::ptr::null(),
+                    ..Default::default()
+                }],
+                self.fence.raw,
+            )
+        });
 
-            self.cxt
-                .wait_for_fences(&[self.fence.raw], true, u64::MAX)
-                .with_context(trace!(
-                    "Error while waiting for commands to finish!"
-                ))?;
-            self.cxt
-                .reset_fences(&[self.fence.raw])
-                .with_context(trace!("Error while resetting fences!"))?;
-        }
+        unwrap_here!("Wait for submission fence", unsafe {
+            self.cxt.wait_for_fences(&[self.fence.raw], true, u64::MAX)
+        });
+
+        unwrap_here!("Reset fence after commands complete", unsafe {
+            self.cxt.reset_fences(&[self.fence.raw])
+        });
 
         Ok(())
     }

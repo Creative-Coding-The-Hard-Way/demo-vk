@@ -3,13 +3,20 @@ use {
     ash::vk,
     clap::Parser,
     demo_vk::{
-        app::{app_main, App},
+        app::{app_main, App, AppState},
         graphics::vulkan::{
             FrameStatus, FramesInFlight, PresentImageStatus,
             RequiredDeviceFeatures, Swapchain, VulkanContext,
         },
+        unwrap_here,
     },
     std::sync::Arc,
+    winit::{
+        dpi::PhysicalSize,
+        event::WindowEvent,
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
 /// All apps accept arguments from the CLI via a type that implements the clap
@@ -33,28 +40,27 @@ impl App for VulkanApp {
     type Args = Args;
 
     /// Create a new instance of the app.
-    /// The glfw window is mutable and can be modified to suit the application's
-    /// needs.
-    fn new(window: &mut glfw::Window, _args: Self::Args) -> Result<Self> {
-        window.set_all_polling(true);
-        window.set_title(std::any::type_name::<Self>());
-
-        let ctx =
-            VulkanContext::new(window, RequiredDeviceFeatures::default())?;
-
-        let (w, h) = window.get_framebuffer_size();
-        let swapchain =
-            Swapchain::new(ctx.clone(), (w as u32, h as u32), None)?;
-
-        let frames_in_flight =
-            FramesInFlight::new(ctx.clone(), swapchain.images().len(), 5)?;
-
-        log::info!(
-            "Setup complete!\n{:#?}\n{:#?}\n{:#?}",
-            ctx,
-            swapchain,
-            frames_in_flight
+    fn new(window: &mut Window, _args: &Self::Args) -> Result<Self> {
+        let ctx = unwrap_here!(
+            "Create the Vulkan Context",
+            VulkanContext::new(window, RequiredDeviceFeatures::default())
         );
+
+        let PhysicalSize {
+            width: w,
+            height: h,
+        } = window.inner_size();
+        let swapchain = unwrap_here!(
+            "Create the application swapchain",
+            Swapchain::new(ctx.clone(), (w as u32, h as u32), None)
+        );
+
+        let frames_in_flight = unwrap_here!(
+            "Create frames-in-flight synchronization",
+            FramesInFlight::new(ctx.clone(), swapchain.images().len(), 2)
+        );
+
+        log::info!("Setup complete!");
 
         Ok(Self {
             ctx,
@@ -64,47 +70,56 @@ impl App for VulkanApp {
         })
     }
 
-    /// Handle a GLFW event.
-    ///
-    /// This is called every frame in a loop to process all events before the
-    /// next update().
-    fn handle_event(
+    /// Handle an event.
+    fn handle_window_event(
         &mut self,
-        window: &mut glfw::Window,
-        event: glfw::WindowEvent,
-    ) -> Result<()> {
+        _window: &mut Window,
+        event: WindowEvent,
+    ) -> Result<AppState> {
         // Pattern match the event and tell the window to close if any key is
         // pressed.
-        if let glfw::WindowEvent::Key(_, _, glfw::Action::Release, _) = event {
-            window.set_should_close(true);
+        if let WindowEvent::KeyboardInput {
+            device_id: _,
+            event,
+            is_synthetic: _,
+        } = &event
+        {
+            if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                println!("request close");
+                return Ok(AppState::Exit);
+            }
         }
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     /// Update the application.
-    ///
-    /// This is called once a frame after all events are processed.
-    fn update(&mut self, window: &mut glfw::Window) -> Result<()> {
+    fn update(&mut self, window: &mut Window) -> Result<AppState> {
         // Rebuild the swapchain if needed
         if self.swapchain_needs_rebuild {
-            log::info!("Rebuilding Swapchain");
+            log::info!("rebuilding swapchain");
+
             self.swapchain_needs_rebuild = false;
-            self.frames_in_flight.wait_for_all_frames_to_complete()?;
-            let (w, h) = window.get_framebuffer_size();
-            self.swapchain = Swapchain::new(
-                self.ctx.clone(),
-                (w as u32, h as u32),
-                Some(self.swapchain.raw()),
-            )?;
+            unwrap_here!(
+                "wait for all frames to finish before rebuilding the swapchain",
+                self.frames_in_flight.wait_for_all_frames_to_complete()
+            );
+            let PhysicalSize {
+                width: w,
+                height: h,
+            } = window.inner_size();
+            self.swapchain = unwrap_here!(
+                "rebuild the swapchain",
+                Swapchain::new(self.ctx.clone(), (w as u32, h as u32), None,)
+            );
         }
 
         // Start the next frame
         let frame = match self.frames_in_flight.start_frame(&self.swapchain)? {
             FrameStatus::FrameStarted(frame) => frame,
             FrameStatus::SwapchainNeedsRebuild => {
-                log::info!("Swapchain Needs Rebuild");
+                log::info!("start frame - swapchain needs rebuild");
                 self.swapchain_needs_rebuild = true;
-                return Ok(());
+                return Ok(AppState::Continue);
             }
         };
 
@@ -143,11 +158,11 @@ impl App for VulkanApp {
             .present_frame(&self.swapchain, frame)?;
 
         if status == PresentImageStatus::SwapchainNeedsRebuild {
-            log::info!("Swapchain Needs Rebuild");
+            log::info!("Present frame - swapchain needs rebuild");
             self.swapchain_needs_rebuild = true;
         }
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 

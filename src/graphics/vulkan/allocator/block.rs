@@ -1,5 +1,5 @@
 use {
-    crate::{graphics::vulkan::allocator::HumanizedSize, trace},
+    crate::graphics::vulkan::allocator::HumanizedSize,
     anyhow::{bail, Result},
     ash::vk,
 };
@@ -84,12 +84,12 @@ impl Block {
     /// - size: the size of the subregion to return
     pub fn subregion(&self, offset: u64, size: u64) -> Result<Self> {
         if offset >= self.size || offset + size > self.size {
-            bail!(trace!(
+            bail!(
                 "Subregion at {} with size {:?} is out of bounds! {:#?}",
                 offset,
                 HumanizedSize(size),
                 self,
-            )());
+            );
         }
 
         let mapped_ptr: *mut std::ffi::c_void = if self.mapped_ptr.is_null() {

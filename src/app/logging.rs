@@ -1,5 +1,5 @@
 use {
-    anyhow::Result,
+    anyhow::{Context, Result},
     flexi_logger::{
         Criterion, DeferredNow, Duplicate, FileSpec, Logger, LoggerHandle,
         Naming, Record, WriteMode,
@@ -12,6 +12,29 @@ use {
     },
     textwrap::{termwidth, Options},
 };
+
+#[derive(Debug)]
+pub struct Location {
+    pub file: &'static str,
+    pub line: u32,
+    pub col: u32,
+}
+
+impl std::fmt::Display for Location {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{}:{}:[{}]", self.file, self.line, self.col))
+    }
+}
+
+pub trait ErrorLocationMessage {
+    fn location(self, location: Location, msg: impl AsRef<str>) -> Self;
+}
+
+impl<T> ErrorLocationMessage for Result<T> {
+    fn location(self, location: Location, msg: impl AsRef<str>) -> Self {
+        self.with_context(|| format!("{} - {}", location, msg.as_ref()))
+    }
+}
 
 // Used to remove verbose base dir prefix from log messages with file
 // information.

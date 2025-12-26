@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Mul, Range, Sub};
 
 pub mod app;
-pub mod demo;
+// pub mod demo;
 pub mod graphics;
 
 pub fn map<T>(x: T, input_range: Range<T>, output_range: Range<T>) -> T
@@ -19,21 +19,27 @@ where
     x * m + b
 }
 
-/// Add context to an anyhow error which includes a formatted error message, the
-/// file path, and the line number.
-///
-/// # Usage
-///
-/// Given a method which returns an anyhow result:
-///
-/// my_method()
-///     .with_context(!trace("some error message {}", some_variable))?;
+/// Creates a "Location" type that displays the current location in code when
+/// printed.
 #[macro_export]
-macro_rules! trace {
-    ($($arg:tt)*) => {{
-        || {
-            let res = format!("{}:{} - {}", file!(), line!(), format!($($arg)*));
-            res
+macro_rules! here {
+    () => {
+        $crate::app::Location {
+            file: file!(),
+            line: line!(),
+            col: column!(),
         }
-    }}
+    };
+}
+
+/// Tries to resolve a result into a successful output (much like the `?`
+/// operator). Unlike the `?` operator, this macro adds context about the
+/// current line to the error message if something goes wrongw.
+#[macro_export]
+macro_rules! unwrap_here {
+    ($description:expr, $operation:expr) => {{
+        use {anyhow::Context, $crate::here};
+        { $operation }
+            .with_context(|| format!("{} - {}", here!(), $description))?
+    }};
 }

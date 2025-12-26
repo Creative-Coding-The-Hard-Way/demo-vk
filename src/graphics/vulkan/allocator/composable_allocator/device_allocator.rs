@@ -2,9 +2,9 @@ use {
     super::ComposableAllocator,
     crate::{
         graphics::vulkan::{allocator::AllocationRequirements, raii, Block},
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk,
     std::sync::Arc,
 };
@@ -26,15 +26,16 @@ impl ComposableAllocator for DeviceAllocator {
         requirements: AllocationRequirements,
     ) -> Result<Block> {
         // Allocate the underlying memory
-        let memory = unsafe {
+        let memory = {
             let mut memory_allocate_flags_info =
                 requirements.memory_allocate_flags_info();
             let memory_allocate_info = requirements
                 .memory_allocate_info()
                 .push_next(&mut memory_allocate_flags_info);
-            self.logical_device
-                .allocate_memory(&memory_allocate_info, None)
-                .with_context(trace!("Unable to allocate device memory!"))?
+            unwrap_here!("Allocate device memory", unsafe {
+                self.logical_device
+                    .allocate_memory(&memory_allocate_info, None)
+            })
         };
 
         // Map the device memory if possible
@@ -42,16 +43,14 @@ impl ComposableAllocator for DeviceAllocator {
             .memory_property_flags
             .contains(vk::MemoryPropertyFlags::HOST_VISIBLE)
         {
-            unsafe {
-                self.logical_device
-                    .map_memory(
-                        memory,
-                        0,
-                        vk::WHOLE_SIZE,
-                        vk::MemoryMapFlags::empty(),
-                    )
-                    .with_context(trace!("Unable to map memory!"))?
-            }
+            unwrap_here!("Map device memory", unsafe {
+                self.logical_device.map_memory(
+                    memory,
+                    0,
+                    vk::WHOLE_SIZE,
+                    vk::MemoryMapFlags::empty(),
+                )
+            })
         } else {
             std::ptr::null_mut()
         };

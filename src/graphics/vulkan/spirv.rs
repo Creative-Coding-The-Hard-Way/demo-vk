@@ -1,7 +1,7 @@
 use {
     crate::{
         graphics::vulkan::{raii, VulkanContext},
-        trace,
+        unwrap_here,
     },
     anyhow::{bail, Result},
     ash::vk,
@@ -15,7 +15,10 @@ pub fn spirv_module(
     ctx: &VulkanContext,
     shader_bytes: &[u8],
 ) -> Result<raii::ShaderModule> {
-    let words = spirv_words(shader_bytes)?;
+    let words = unwrap_here!(
+        "Repack SPIR-V bytes into words",
+        spirv_words(shader_bytes)
+    );
     raii::ShaderModule::new(
         "ShaderCompiler SPIR-V Module",
         ctx.device.clone(),
@@ -34,10 +37,10 @@ pub fn spirv_module(
 /// alignment.
 pub fn spirv_words(shader_bytes: &[u8]) -> Result<Vec<u32>> {
     if !shader_bytes.len().is_multiple_of(4) {
-        bail!(trace!(
-            "Invalid length for compiled SPIRV bytes! {}",
+        bail!(
+            "Expected shader_bytes.len() to be a multiple of 4, but was: {}",
             shader_bytes.len()
-        )());
+        );
     }
     let shader_words: Vec<u32> = shader_bytes
         .chunks(4)

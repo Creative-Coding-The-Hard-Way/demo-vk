@@ -1,6 +1,6 @@
 use {
-    crate::{graphics::vulkan::raii, trace},
-    anyhow::{Context, Result},
+    crate::{graphics::vulkan::raii, unwrap_here},
+    anyhow::Result,
     ash::{
         ext::debug_utils,
         vk::{self, Handle},
@@ -61,13 +61,12 @@ impl Device {
         &self,
         name_info: &vk::DebugUtilsObjectNameInfoEXT,
     ) -> Result<()> {
-        unsafe {
+        unwrap_here!(format!("Set debug name: {:#?}", name_info), unsafe {
             self.debug_utils
                 .as_ref()
                 .unwrap()
                 .set_debug_utils_object_name(name_info)
-                .with_context(trace!("Unable to set object debug name"))?
-        }
+        });
         Ok(())
     }
 

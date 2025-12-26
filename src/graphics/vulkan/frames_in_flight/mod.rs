@@ -4,7 +4,7 @@ use {
             raii, AcquireImageStatus, PresentImageStatus, Swapchain,
             VulkanContext,
         },
-        trace,
+        unwrap_here,
     },
     anyhow::{Context, Result},
     ash::vk::{self, Handle},
@@ -116,37 +116,47 @@ impl FramesInFlight {
         let mut swapchain_image_present_semaphores =
             Vec::with_capacity(swapchain_image_count);
         for i in 0..swapchain_image_count {
-            swapchain_image_present_semaphores.push(raii::Semaphore::new(
-                format!("Swapchain Image Present [{}]", i),
-                ctx.device.clone(),
-                &vk::SemaphoreCreateInfo::default(),
-            )?);
+            swapchain_image_present_semaphores.push(unwrap_here!(
+                format!("Create present semaphore for swapchain image [{}]", i),
+                raii::Semaphore::new(
+                    format!("Swapchain Image Present [{}]", i),
+                    ctx.device.clone(),
+                    &vk::SemaphoreCreateInfo::default(),
+                )
+            ));
         }
 
         // create the per-frame synchronization primitives
         let mut frames = Vec::with_capacity(frame_count);
         for index in 0..frame_count {
-            let command_pool = raii::CommandPool::new(
-                format!("frame [{}]", index),
-                ctx.device.clone(),
-                &vk::CommandPoolCreateInfo {
-                    flags: vk::CommandPoolCreateFlags::TRANSIENT,
-                    queue_family_index: ctx.graphics_queue_family_index,
-                    ..Default::default()
-                },
-            )
-            .with_context(trace!(
-                "Error while creating command pool for frame {}",
-                index
-            ))?;
-            let command_buffer = unsafe {
-                ctx.allocate_command_buffers(&vk::CommandBufferAllocateInfo {
-                    command_pool: command_pool.raw,
-                    level: vk::CommandBufferLevel::PRIMARY,
-                    command_buffer_count: 1,
-                    ..Default::default()
-                })?[0]
-            };
+            let command_pool = unwrap_here!(
+                format!("Create command pool for frame {}", index),
+                raii::CommandPool::new(
+                    format!("frame [{}]", index),
+                    ctx.device.clone(),
+                    &vk::CommandPoolCreateInfo {
+                        flags: vk::CommandPoolCreateFlags::TRANSIENT,
+                        queue_family_index: ctx.graphics_queue_family_index,
+                        ..Default::default()
+                    },
+                )
+            );
+            let command_buffer = unwrap_here!(
+                format!("Create command buffer for frame {}", index),
+                unsafe {
+                    ctx.allocate_command_buffers(
+                        &vk::CommandBufferAllocateInfo {
+                            command_pool: command_pool.raw,
+                            level: vk::CommandBufferLevel::PRIMARY,
+                            command_buffer_count: 1,
+                            ..Default::default()
+                        },
+                    )?
+                    .first()
+                    .copied()
+                    .context("Expected exactly one command buffer")
+                }
+            );
             let buffer_name =
                 CString::new(format!("Frame [{}] Commands", index)).unwrap();
             ctx.device
@@ -158,27 +168,30 @@ impl FramesInFlight {
                 })?;
             frames.push(FrameSync {
                 status: FrameSyncStatus::Pending,
-                swapchain_image_acquired: raii::Semaphore::new(
-                    format!("image acquired - frame [{}]", index),
-                    ctx.device.clone(),
-                    &vk::SemaphoreCreateInfo::default(),
-                )
-                .with_context(trace!(
-                    "Error while creating semaphore for frame {}",
-                    index,
-                ))?,
-                graphics_commands_complete: raii::Fence::new(
-                    format!("graphics commands complete - frame [{}]", index),
-                    ctx.device.clone(),
-                    &vk::FenceCreateInfo {
-                        flags: vk::FenceCreateFlags::SIGNALED,
-                        ..Default::default()
-                    },
-                )
-                .with_context(trace!(
-                    "Error creating fence for frame {}",
-                    index
-                ))?,
+                swapchain_image_acquired: unwrap_here!(
+                    format!(
+                        "Create image acquired semaphore for frame {index}"
+                    ),
+                    raii::Semaphore::new(
+                        format!("image acquired - frame [{}]", index),
+                        ctx.device.clone(),
+                        &vk::SemaphoreCreateInfo::default(),
+                    )
+                ),
+                graphics_commands_complete: unwrap_here!(
+                    format!("Create graphics cmd fence for frame {index}"),
+                    raii::Fence::new(
+                        format!(
+                            "graphics commands complete - frame [{}]",
+                            index
+                        ),
+                        ctx.device.clone(),
+                        &vk::FenceCreateInfo {
+                            flags: vk::FenceCreateFlags::SIGNALED,
+                            ..Default::default()
+                        },
+                    )
+                ),
                 command_pool,
                 command_buffer,
             });
@@ -211,11 +224,8 @@ impl FramesInFlight {
         unsafe {
             self.cxt
                 .wait_for_fences(&fences, true, u64::MAX)
-                .with_context(trace!(
-                    "Error while waiting for all frames to finish rendering!"
-                ))?;
+                .context("wait for all pending frames to complete")
         }
-        Ok(())
     }
 
     /// Starts the next frame in flight.
@@ -235,35 +245,23 @@ impl FramesInFlight {
     ) -> Result<FrameStatus> {
         self.frame_index = (self.frame_index + 1) % self.frames.len();
 
-        // Start the Frame
         let frame_sync = &mut self.frames[self.frame_index];
-        unsafe {
-            // Wait for the last frame's submission to complete, if its still
-            // running.
-            self.cxt
-                .wait_for_fences(
-                    &[frame_sync.graphics_commands_complete.raw],
-                    true,
-                    u64::MAX,
-                )
-                .with_context(trace!(
-                    "Error while waiting for frame's commands to complete!"
-                ))?;
-            self.cxt
-                .reset_fences(&[frame_sync.graphics_commands_complete.raw])
-                .with_context(trace!(
-                    "Error while resetting the frame's fence!"
-                ))?;
-            // mark the frame as pending so nobody gets stuck waiting for it
-            frame_sync.status = FrameSyncStatus::Assembling;
-        };
+
+        // Wait for the last frame's submission to complete, if its still
+        // running.
+        unwrap_here!("Wait for the previous submission to complete", unsafe {
+            self.cxt.wait_for_fences(
+                &[frame_sync.graphics_commands_complete.raw],
+                true,
+                u64::MAX,
+            )
+        });
 
         // Acquire the next Swapchain image
-        let status = swapchain
-            .acquire_image(frame_sync.swapchain_image_acquired.raw)
-            .with_context(trace!(
-                "Error while acquiring swapchain image for frame!"
-            ))?;
+        let status = unwrap_here!(
+            "Acquire the next swapchain image",
+            swapchain.acquire_image(frame_sync.swapchain_image_acquired.raw)
+        );
         let swapchain_image_index = match status {
             AcquireImageStatus::ImageAcquired(index) => index,
             _ => {
@@ -271,28 +269,35 @@ impl FramesInFlight {
             }
         };
 
+        // NOTE: only reset the frame's fence and command buffer _after_
+        // acquiring a swapchain image. The order matters because the frame
+        // will not be processed if the swapchain is out-of-date and needs
+        // to be reconstructed.
+
+        // Swapchain image is available, so reset the commands fence.
+        unwrap_here!("Reset the frame's fence", unsafe {
+            self.cxt
+                .reset_fences(&[frame_sync.graphics_commands_complete.raw])
+        });
+        // mark the frame as pending so nobody gets stuck waiting for it
+        frame_sync.status = FrameSyncStatus::Assembling;
+
         // Start the Frame's command buffer.
-        unsafe {
-            self.cxt
-                .reset_command_pool(
-                    frame_sync.command_pool.raw,
-                    vk::CommandPoolResetFlags::empty(),
-                )
-                .with_context(trace!(
-                    "Error while resetting command buffer for frame!"
-                ))?;
-            self.cxt
-                .begin_command_buffer(
-                    frame_sync.command_buffer,
-                    &vk::CommandBufferBeginInfo {
-                        flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
-                        ..Default::default()
-                    },
-                )
-                .with_context(trace!(
-                    "Error while beginning the frame's command buffer!"
-                ))?;
-        };
+        unwrap_here!("Reset the frame's command pool", unsafe {
+            self.cxt.reset_command_pool(
+                frame_sync.command_pool.raw,
+                vk::CommandPoolResetFlags::empty(),
+            )
+        });
+        unwrap_here!("Begin the frame's command buffer", unsafe {
+            self.cxt.begin_command_buffer(
+                frame_sync.command_buffer,
+                &vk::CommandBufferBeginInfo {
+                    flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
+                    ..Default::default()
+                },
+            )
+        });
 
         Ok(FrameStatus::FrameStarted(Frame {
             command_buffer: frame_sync.command_buffer,
@@ -312,48 +317,38 @@ impl FramesInFlight {
         frame: Frame,
     ) -> Result<PresentImageStatus> {
         let frame_sync = &mut self.frames[frame.frame_index()];
-        unsafe {
-            self.cxt
-                .end_command_buffer(frame_sync.command_buffer)
-                .with_context(trace!(
-                    "Error while ending the command buffer!"
-                ))?;
+        unwrap_here!("End the frame's command buffer", unsafe {
+            self.cxt.end_command_buffer(frame_sync.command_buffer)
+        });
 
-            let wait_stage = vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
-            self.cxt
-                .queue_submit(
-                    self.cxt.graphics_queue,
-                    &[vk::SubmitInfo {
-                        wait_semaphore_count: 1,
-                        p_wait_semaphores: &frame_sync
-                            .swapchain_image_acquired
-                            .raw,
-                        p_wait_dst_stage_mask: &wait_stage,
-                        command_buffer_count: 1,
-                        p_command_buffers: &frame_sync.command_buffer,
-                        signal_semaphore_count: 1,
-                        p_signal_semaphores: &self
-                            .swapchain_image_present_semaphores
-                            [frame.swapchain_image_index as usize]
-                            .raw,
-                        ..Default::default()
-                    }],
-                    frame_sync.graphics_commands_complete.raw,
-                )
-                .with_context(trace!(
-                    "Error while submitting frame commands!"
-                ))?;
-        }
+        let wait_stage = vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
+        unwrap_here!("Submit the frame's primary command buffer", unsafe {
+            self.cxt.queue_submit(
+                self.cxt.graphics_queue,
+                &[vk::SubmitInfo {
+                    wait_semaphore_count: 1,
+                    p_wait_semaphores: &frame_sync.swapchain_image_acquired.raw,
+                    p_wait_dst_stage_mask: &wait_stage,
+                    command_buffer_count: 1,
+                    p_command_buffers: &frame_sync.command_buffer,
+                    signal_semaphore_count: 1,
+                    p_signal_semaphores: &self
+                        .swapchain_image_present_semaphores
+                        [frame.swapchain_image_index as usize]
+                        .raw,
+                    ..Default::default()
+                }],
+                frame_sync.graphics_commands_complete.raw,
+            )
+        });
         frame_sync.status = FrameSyncStatus::Pending;
 
-        swapchain
-            .present_image(
-                self.swapchain_image_present_semaphores
-                    [frame.swapchain_image_index as usize]
-                    .raw,
-                frame.swapchain_image_index(),
-            )
-            .with_context(trace!("Error while presenting swapchain image!"))
+        swapchain.present_image(
+            self.swapchain_image_present_semaphores
+                [frame.swapchain_image_index as usize]
+                .raw,
+            frame.swapchain_image_index(),
+        )
     }
 }
 

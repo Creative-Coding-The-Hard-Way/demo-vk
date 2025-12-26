@@ -2,9 +2,9 @@ use {
     super::ComposableAllocator,
     crate::{
         graphics::vulkan::{allocator::AllocationRequirements, Block},
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
+    anyhow::Result,
 };
 
 /// Represents a Block of memory that has been split in half.
@@ -120,14 +120,16 @@ impl<A: ComposableAllocator, const BLOCK_SIZE: u64> ComposableAllocator
             allocation_size: BLOCK_SIZE * 2,
             ..requirements
         };
-        let mut new_split_block = SplitBlock::new(
-            self.allocator
-                .allocate_memory(block_requirements)
-                .with_context(trace!(
-                    "Unable to allocate a new block with requirements: {:#?}",
+        let mut new_split_block = {
+            let block = unwrap_here!(
+                format!(
+                    "Allocate a new block with requirements: {:#?}",
                     block_requirements
-                ))?,
-        )?;
+                ),
+                self.allocator.allocate_memory(block_requirements)
+            );
+            unwrap_here!("Split block", SplitBlock::new(block))
+        };
 
         let block = new_split_block.take_free_block().unwrap();
         self.split_blocks.push(new_split_block);

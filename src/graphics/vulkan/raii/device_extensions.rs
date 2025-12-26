@@ -1,11 +1,6 @@
 //! RAII wrappers for Vulkan objects that extend the Vulkan device.
 
-use {
-    crate::{graphics::vulkan::raii, trace},
-    anyhow::{Context, Result},
-    ash::vk,
-    std::sync::Arc,
-};
+use {crate::graphics::vulkan::raii, anyhow::Result, ash::vk, std::sync::Arc};
 
 macro_rules! device_extension {
     (
@@ -63,10 +58,7 @@ impl Swapchain {
         create_info: &vk::SwapchainCreateInfoKHR,
     ) -> Result<Arc<Self>> {
         let ext = ash::khr::swapchain::Device::new(&device.ash, &device);
-        let raw = unsafe {
-            ext.create_swapchain(create_info, None)
-                .with_context(trace!("Error while creating swapchain!"))?
-        };
+        let raw = unsafe { ext.create_swapchain(create_info, None)? };
         Ok(Arc::new(Self { ext, raw, device }))
     }
 }

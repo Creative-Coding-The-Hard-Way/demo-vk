@@ -1,8 +1,5 @@
 use {
-    crate::{
-        graphics::vulkan::{raii, Instance, RequiredDeviceFeatures},
-        trace,
-    },
+    crate::graphics::vulkan::{raii, Instance, RequiredDeviceFeatures},
     anyhow::{Context, Result},
     ash::vk::{self, QueueFlags},
     std::sync::Arc,
@@ -37,9 +34,7 @@ pub fn create_logical_device(
             supports_present
                 && properties.queue_flags.contains(QueueFlags::GRAPHICS)
         })
-        .with_context(trace!(
-            "Unable to find a queue that supports GRAPHICS."
-        ))?;
+        .context("Unable to find a GRAPHICS device queue.")?;
 
     let queue_priorities = [1.0f32];
     let queue_create_infos = [vk::DeviceQueueCreateInfo {

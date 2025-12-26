@@ -1,9 +1,9 @@
 use {
     crate::{
         graphics::vulkan::{raii, Allocator, Block},
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk,
     std::sync::Arc,
 };
@@ -25,12 +25,14 @@ impl OwnedBlock {
         image_create_info: &vk::ImageCreateInfo,
         memory_property_flags: vk::MemoryPropertyFlags,
     ) -> Result<(Self, raii::Image)> {
-        let image = raii::Image::new(
-            "Allocated Image",
-            allocator.logical_device.clone(),
-            image_create_info,
-        )
-        .with_context(trace!("Unable to create image!"))?;
+        let image = unwrap_here!(
+            "Create Vulkan image",
+            raii::Image::new(
+                "Allocated Image",
+                allocator.logical_device.clone(),
+                image_create_info,
+            )
+        );
 
         let (requirements, dedicated) = {
             let mut dedicated = vk::MemoryDedicatedRequirements::default();
@@ -55,21 +57,23 @@ impl OwnedBlock {
             )
         };
 
-        let block = allocator
-            .allocate_memory(
+        let block = unwrap_here!(
+            "Allocate memory for Vulkan image",
+            allocator.allocate_memory(
                 &requirements,
                 memory_property_flags,
                 vk::MemoryAllocateFlags::empty(),
                 dedicated,
             )
-            .with_context(trace!("Unable to allocate memory for image!"))?;
+        );
 
-        unsafe {
-            allocator
-                .logical_device
-                .bind_image_memory(image.raw, block.memory(), block.offset())
-                .with_context(trace!("Unable to bind image memory!"))?;
-        };
+        unwrap_here!("Bind memory to Vulkan image", unsafe {
+            allocator.logical_device.bind_image_memory(
+                image.raw,
+                block.memory(),
+                block.offset(),
+            )
+        });
 
         Ok((Self { block, allocator }, image))
     }
@@ -83,12 +87,14 @@ impl OwnedBlock {
         buffer_create_info: &vk::BufferCreateInfo,
         memory_property_flags: vk::MemoryPropertyFlags,
     ) -> Result<(OwnedBlock, raii::Buffer)> {
-        let buffer = raii::Buffer::new(
-            "Allocated Buffer",
-            allocator.logical_device.clone(),
-            buffer_create_info,
-        )
-        .with_context(trace!("Unable to create buffer!"))?;
+        let buffer = unwrap_here!(
+            "Create Vulkan buffer",
+            raii::Buffer::new(
+                "Allocated Buffer",
+                allocator.logical_device.clone(),
+                buffer_create_info,
+            )
+        );
 
         let (requirements, dedicated) = {
             let mut dedicated = vk::MemoryDedicatedRequirements::default();
@@ -122,21 +128,23 @@ impl OwnedBlock {
             vk::MemoryAllocateFlags::empty()
         };
 
-        let block = allocator
-            .allocate_memory(
+        let block = unwrap_here!(
+            "Allocate memory for Vulkan buffer",
+            allocator.allocate_memory(
                 &requirements,
                 memory_property_flags,
                 memory_allocate_flags,
                 dedicated,
             )
-            .with_context(trace!("Unable to allocate memory for buffer!"))?;
+        );
 
-        unsafe {
-            allocator
-                .logical_device
-                .bind_buffer_memory(buffer.raw, block.memory(), block.offset())
-                .with_context(trace!("Unable to bind buffer to memory!"))?;
-        };
+        unwrap_here!("Bind memory to Vulkan buffer", unsafe {
+            allocator.logical_device.bind_buffer_memory(
+                buffer.raw,
+                block.memory(),
+                block.offset(),
+            )
+        });
 
         Ok((Self { block, allocator }, buffer))
     }

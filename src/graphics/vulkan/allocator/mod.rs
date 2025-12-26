@@ -12,9 +12,9 @@ use {
     },
     crate::{
         graphics::vulkan::{raii, Block},
-        trace,
+        unwrap_here,
     },
-    anyhow::{bail, Context, Result},
+    anyhow::Result,
     ash::vk,
     std::{
         sync::{
@@ -89,29 +89,25 @@ impl Allocator {
         memory_allocate_flags: vk::MemoryAllocateFlags,
         dedicated: bool,
     ) -> Result<Block> {
-        let requirements = AllocationRequirements::new(
-            &self.memory_properties,
-            requirements,
-            memory_property_flags,
-            memory_allocate_flags,
-            dedicated,
-        )?;
+        let requirements = unwrap_here!(
+            "Identify allocation requirements",
+            AllocationRequirements::new(
+                &self.memory_properties,
+                requirements,
+                memory_property_flags,
+                memory_allocate_flags,
+                dedicated,
+            )
+        );
 
-        // Send the memory allocation request to the allocator thread
         let (response_sender, response) =
             std::sync::mpsc::sync_channel::<Result<Block>>(1);
-        if self
-            .client
-            .send(Request::Allocate(requirements, response_sender))
-            .is_err()
-        {
-            bail!(trace!("Unable to send allocation request!")());
-        }
-
-        // wait for the response
-        response
-            .recv()
-            .with_context(trace!("Error while receiving response!"))?
+        unwrap_here!(
+            "Send allocation request",
+            self.client
+                .send(Request::Allocate(requirements, response_sender))
+        );
+        unwrap_here!("Wait for allocation response", response.recv())
     }
 
     /// Free the allocated block.

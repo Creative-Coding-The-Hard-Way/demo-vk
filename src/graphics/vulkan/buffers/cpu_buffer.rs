@@ -1,7 +1,7 @@
 use {
     crate::{
         graphics::vulkan::{raii, OwnedBlock, VulkanContext},
-        trace,
+        unwrap_here,
     },
     anyhow::{bail, Result},
     ash::vk,
@@ -34,19 +34,22 @@ where
     ) -> Result<Self> {
         let buffer_size_in_bytes = (count * size_of::<DataT>()) as u64;
 
-        let (block, buffer) = OwnedBlock::allocate_buffer(
-            cxt.allocator.clone(),
-            &vk::BufferCreateInfo {
-                size: buffer_size_in_bytes,
-                usage,
-                sharing_mode: vk::SharingMode::EXCLUSIVE,
-                queue_family_index_count: 1,
-                p_queue_family_indices: &cxt.graphics_queue_family_index,
-                ..Default::default()
-            },
-            vk::MemoryPropertyFlags::HOST_VISIBLE
-                | vk::MemoryPropertyFlags::HOST_COHERENT,
-        )?;
+        let (block, buffer) = unwrap_here!(
+            "Allocate host visible and coherent memory",
+            OwnedBlock::allocate_buffer(
+                cxt.allocator.clone(),
+                &vk::BufferCreateInfo {
+                    size: buffer_size_in_bytes,
+                    usage,
+                    sharing_mode: vk::SharingMode::EXCLUSIVE,
+                    queue_family_index_count: 1,
+                    p_queue_family_indices: &cxt.graphics_queue_family_index,
+                    ..Default::default()
+                },
+                vk::MemoryPropertyFlags::HOST_VISIBLE
+                    | vk::MemoryPropertyFlags::HOST_COHERENT,
+            )
+        );
 
         Ok(Self {
             buffer,
@@ -83,11 +86,11 @@ where
         data: &[DataT],
     ) -> Result<()> {
         if start_index + data.len() > self.count {
-            bail!(trace!(
+            bail!(
                 "Out of bounds write attempted! {}/{}",
                 start_index + data.len(),
                 self.count
-            )());
+            );
         }
 
         std::ptr::copy_nonoverlapping(

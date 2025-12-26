@@ -1,5 +1,5 @@
 use {
-    crate::{graphics::vulkan::allocator::HumanizedSize, trace},
+    crate::graphics::vulkan::allocator::HumanizedSize,
     anyhow::{Context, Result},
     ash::vk,
 };
@@ -36,7 +36,7 @@ impl AllocationRequirements {
                     memory_type.property_flags.contains(memory_property_flags);
                 is_supported_type && is_visible_and_coherent
             })
-            .with_context(trace!("Unable to find compatible memory type!"))?;
+            .context("Unable to find compatible memory type!")?;
         Ok(Self {
             alignment: requirements.alignment,
             allocation_size: requirements.size,

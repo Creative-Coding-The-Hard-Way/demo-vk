@@ -1,10 +1,14 @@
 //! RAII wrappers for Vulkan objects that extend the Vulkan instance.
 
 use {
-    crate::{graphics::vulkan::raii, trace},
-    anyhow::{bail, Result},
-    ash::vk::{self, Handle},
+    crate::graphics::vulkan::raii,
+    anyhow::{Context, Result},
+    ash::vk::{self},
     std::sync::Arc,
+    winit::{
+        raw_window_handle::{HasDisplayHandle, HasWindowHandle},
+        window::Window,
+    },
 };
 
 macro_rules! instance_extension {
@@ -87,21 +91,24 @@ impl Surface {
 
     pub fn for_window(
         ash: Arc<raii::Instance>,
-        window: &glfw::Window,
+        window: &Window,
     ) -> Result<Arc<Self>> {
         let handle = unsafe {
-            let mut surface: std::mem::MaybeUninit<vk::SurfaceKHR> =
-                std::mem::MaybeUninit::uninit();
-            let result = window.create_window_surface(
-                ash.raw.handle().as_raw() as _,
-                std::ptr::null(),
-                surface.as_mut_ptr() as _,
-            );
-            if result != vk::Result::SUCCESS.as_raw() {
-                bail!(trace!("Unable to create Vulkan window surface!")());
-            }
-            surface.assume_init()
-        };
+            ash_window::create_surface(
+                &ash.entry,
+                &ash.raw,
+                window
+                    .display_handle()
+                    .context("Unable to get display handle")?
+                    .as_raw(),
+                window
+                    .window_handle()
+                    .context("Unable to get window handle")?
+                    .as_raw(),
+                None,
+            )
+        }
+        .context("Unable to create ash window surface!")?;
         Self::new(ash, handle)
     }
 }
