@@ -34,8 +34,7 @@ impl Instance {
                 .with_context(|| "Unable to fetch display handle!")?
                 .as_raw(),
         )?;
-
-        Self::new(app_name, &extensions)
+        Self::new(app_name, extensions)
     }
 
     /// Create a new Vulkan instance.

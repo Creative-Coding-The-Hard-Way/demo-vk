@@ -65,9 +65,13 @@ impl Allocator {
         physical_device: vk::PhysicalDevice,
     ) -> Result<Self> {
         let memory_properties = unsafe {
-            logical_device
-                .ash
-                .get_physical_device_memory_properties(physical_device)
+            let mut physical_device_memory_properties =
+                vk::PhysicalDeviceMemoryProperties2::default();
+            logical_device.ash.get_physical_device_memory_properties2(
+                physical_device,
+                &mut physical_device_memory_properties,
+            );
+            physical_device_memory_properties.memory_properties
         };
         let (handle, client) = Self::spawn_allocator_thread(
             logical_device.clone(),

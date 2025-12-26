@@ -23,8 +23,17 @@ pub fn pick_suitable_device(
     let mut preferred_device = None;
 
     for physical_device in physical_devices {
-        let properties =
-            unsafe { instance.get_physical_device_properties(physical_device) };
+        let properties = {
+            let mut physical_device_properties =
+                vk::PhysicalDeviceProperties2::default();
+            unsafe {
+                instance.get_physical_device_properties2(
+                    physical_device,
+                    &mut physical_device_properties,
+                );
+            }
+            physical_device_properties.properties
+        };
         let name = properties.device_name_as_c_str().unwrap_or_default();
 
         log::trace!("Check device {:?}", name);
@@ -76,8 +85,24 @@ fn has_required_queues(
     instance: &Instance,
     physical_device: vk::PhysicalDevice,
 ) -> bool {
-    let queue_propertes = unsafe {
-        instance.get_physical_device_queue_family_properties(physical_device)
+    let queue_propertes: Vec<vk::QueueFamilyProperties> = {
+        let len = unsafe {
+            instance.get_physical_device_queue_family_properties2_len(
+                physical_device,
+            )
+        };
+        let mut physical_device_queue_properties =
+            vec![vk::QueueFamilyProperties2::default(); len];
+        unsafe {
+            instance.get_physical_device_queue_family_properties2(
+                physical_device,
+                &mut physical_device_queue_properties,
+            );
+        }
+        physical_device_queue_properties
+            .iter()
+            .map(|properties| properties.queue_family_properties)
+            .collect()
     };
     log::trace!("{:#?}", queue_propertes);
 

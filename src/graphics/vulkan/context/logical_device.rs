@@ -13,8 +13,23 @@ pub fn create_logical_device(
     physical_device: vk::PhysicalDevice,
     required_device_features: RequiredDeviceFeatures,
 ) -> Result<(Arc<raii::Device>, u32)> {
-    let queue_family_properties = unsafe {
-        instance.get_physical_device_queue_family_properties(physical_device)
+    let queue_family_properties: Vec<vk::QueueFamilyProperties> = {
+        let count = unsafe {
+            instance.get_physical_device_queue_family_properties2_len(
+                physical_device,
+            )
+        };
+        let mut properties = vec![vk::QueueFamilyProperties2::default(); count];
+        unsafe {
+            instance.get_physical_device_queue_family_properties2(
+                physical_device,
+                &mut properties,
+            );
+        }
+        properties
+            .iter()
+            .map(|properties| properties.queue_family_properties)
+            .collect()
     };
 
     let (graphics_queue_index, _) = queue_family_properties

@@ -29,9 +29,16 @@ where
     /// such that each copy can be bound to a separate descriptor set.
     pub fn allocate(cxt: &VulkanContext, count: usize) -> Result<Self> {
         // compute the aligned size for each element in the buffer
-        let properties = unsafe {
-            cxt.instance
-                .get_physical_device_properties(cxt.physical_device)
+        let properties = {
+            let mut physical_device_properties =
+                vk::PhysicalDeviceProperties2::default();
+            unsafe {
+                cxt.instance.get_physical_device_properties2(
+                    cxt.physical_device,
+                    &mut physical_device_properties,
+                );
+            }
+            physical_device_properties.properties
         };
         let aligned_unit_size: u64 = {
             let count = size_of::<DataT>() as u64
