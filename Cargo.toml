@@ -31,13 +31,8 @@ image = "0.25.9"
 ctrlc = "3.5.1"
 argfile = "0.2.1"
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
-glfw = { version="0.60.0", features = ["vulkan", "static-link"] }
-glfw-sys = "6.0.0"
 simple-mermaid = "0.2.0"
 egui = "0.33.2"
 winit = "0.30.12"
 ash-window = "0.13.0"
 
-[features]
-# Build glfw from source when requested
-glfw-src-build = ["glfw-sys/src-build"]

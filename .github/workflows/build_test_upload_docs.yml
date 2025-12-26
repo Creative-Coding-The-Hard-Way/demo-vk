@@ -42,13 +42,13 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Build
-      run: cargo build --all --verbose --features glfw-src-build
+      run: cargo build --all --verbose
 
     - name: Run tests
-      run: cargo test --lib --verbose --features glfw-src-build
+      run: cargo test --lib --verbose
 
     - name: Build Docs
-      run: cargo doc --verbose --features glfw-src-build
+      run: cargo doc --verbose
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
