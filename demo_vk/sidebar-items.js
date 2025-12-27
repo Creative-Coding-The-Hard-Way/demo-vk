@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["map"],"macro":["here","unwrap_here"],"mod":["app","graphics"]};
+window.SIDEBAR_ITEMS = {"fn":["map"],"macro":["here","unwrap_here"],"mod":["app","demo","graphics"]};
