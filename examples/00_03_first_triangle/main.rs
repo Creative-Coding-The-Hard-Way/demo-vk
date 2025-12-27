@@ -4,18 +4,17 @@ use {
     ash::vk,
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::vulkan::{raii, Frame, RequiredDeviceFeatures},
     },
-    glfw::Window,
+    winit::window::Window,
 };
 
 mod pipeline;
 
 #[derive(Debug, Parser)]
 struct Args {}
-
-type Gfx = Graphics<Args>;
 
 struct FirstTriangle {
     pipeline: raii::Pipeline,
@@ -36,7 +35,11 @@ impl Demo for FirstTriangle {
     }
 
     /// Initialize the demo
-    fn new(_window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
+    fn new(
+        _window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Args,
+    ) -> Result<Self> {
         Ok(Self {
             pipeline: create_pipeline(gfx)?,
         })
@@ -46,9 +49,9 @@ impl Demo for FirstTriangle {
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         let image_memory_barrier = vk::ImageMemoryBarrier {
             old_layout: vk::ImageLayout::UNDEFINED,
             new_layout: vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
@@ -162,7 +165,7 @@ impl Demo for FirstTriangle {
             );
         }
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 

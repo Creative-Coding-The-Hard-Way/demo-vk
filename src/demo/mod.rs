@@ -1,31 +1,37 @@
-mod egui_integration;
+// mod egui_integration;
 mod frame_metrics;
 mod rolling_average;
 
 use {
     self::frame_metrics::FrameMetrics,
     crate::{
-        app::{app_main, App},
+        app::{app_main, App, AppState},
         graphics::vulkan::{
             Frame, FrameStatus, FramesInFlight, PresentImageStatus,
             RequiredDeviceFeatures, Swapchain, VulkanContext,
         },
-        trace,
+        unwrap_here,
     },
-    anyhow::{Context, Result},
-    ash::vk,
+    anyhow::Result,
+    ash::vk::{self},
     clap::Parser,
     spin_sleep_util::Interval,
     std::{
         sync::Arc,
         time::{Duration, Instant},
     },
+    winit::{
+        dpi::PhysicalSize,
+        event::{DeviceEvent, WindowEvent},
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
-pub use self::egui_integration::glfw_event_to_egui_event;
+// pub use self::egui_integration::glfw_event_to_egui_event;
 
 /// Standard graphics resources provided by the Demo.
-pub struct Graphics<A> {
+pub struct Graphics {
     /// The Vulkan entrypoint
     pub vulkan: Arc<VulkanContext>,
 
@@ -34,9 +40,6 @@ pub struct Graphics<A> {
 
     /// The application's swapchain.
     pub swapchain: Swapchain,
-
-    /// The demo's cli args
-    pub args: A,
 
     pub metrics: FrameMetrics,
 
@@ -68,8 +71,9 @@ pub trait Demo {
     /// requirements. This includes modifying the polling state, fullscreen
     /// status, size, etc...
     fn new(
-        window: &mut glfw::Window,
-        gfx: &mut Graphics<Self::Args>,
+        window: &mut Window,
+        gfx: &mut Graphics,
+        args: &Self::Args,
     ) -> Result<Self>
     where
         Self: Sized;
@@ -79,38 +83,40 @@ pub trait Demo {
         RequiredDeviceFeatures::default()
     }
 
-    /// Handles a single GLFW event.
-    ///
-    /// This function is called in a loop to consume any pending events before
-    /// every call to update().
-    fn handle_event(
+    /// Handles a single window event.
+    fn handle_window_event(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
-        #[allow(unused_variables)] event: glfw::WindowEvent,
-    ) -> Result<()> {
-        if let glfw::WindowEvent::Key(
-            glfw::Key::Escape,
-            _,
-            glfw::Action::Repeat,
-            _,
-        ) = event
-        {
-            window.set_should_close(true);
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
+        #[allow(unused_variables)] event: WindowEvent,
+    ) -> Result<AppState> {
+        if let WindowEvent::KeyboardInput { event, .. } = event {
+            if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                // If Esc is pressed, then quit
+                return Ok(AppState::Exit);
+            }
         }
-        Ok(())
+        Ok(AppState::Continue)
     }
 
-    /// Called in a loop after all pending events have been processed.
-    ///
-    /// This is a good place for rendering logic. This method blocks event
-    /// processing, so it should be kept as responsive as possible.
+    /// Handles a single device event.
+    fn handle_device_event(
+        &mut self,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
+        #[allow(unused_variables)] event: DeviceEvent,
+    ) -> Result<AppState> {
+        Ok(AppState::Continue)
+    }
+
+    /// The application is updated once every frame right before calling
+    /// [Self::draw].
     fn update(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
-    ) -> Result<()> {
-        Ok(())
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
+    ) -> Result<AppState> {
+        Ok(AppState::Continue)
     }
 
     /// Build the command buffer for the next frame.
@@ -118,10 +124,10 @@ pub trait Demo {
     /// Called after update() once the Frame is started.
     fn draw(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
         #[allow(unused_variables)] frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         // By default, this method does nothing but transition the swapchain
         // image to presentation format.
         //
@@ -152,7 +158,7 @@ pub trait Demo {
             );
         }
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     /// Rebuild any of the demo's swapchain-dependent resources.
@@ -162,8 +168,8 @@ pub trait Demo {
     /// buffers are guaranteed to be finished.
     fn rebuild_swapchain_resources(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
     ) -> Result<()> {
         Ok(())
     }
@@ -174,8 +180,8 @@ pub trait Demo {
     /// size of 0. This occurs when the application is minimized, etc..
     fn paused(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
     ) -> Result<()> {
         Ok(())
     }
@@ -183,26 +189,26 @@ pub trait Demo {
     /// Called when the application is unpaused.
     fn unpaused(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
     ) -> Result<()> {
         Ok(())
     }
 }
 
 struct DemoApp<D: Demo> {
-    graphics: Graphics<D::Args>,
+    graphics: Graphics,
     demo: D,
 }
 
 impl<D: Demo> DemoApp<D> {
     /// Called any time the framebuffer size may have changed.
     /// Returns the current paused status for convenience.
-    fn framebuffer_size_changed(
-        &mut self,
-        window: &mut glfw::Window,
-    ) -> Result<bool> {
-        let (w, h) = window.get_framebuffer_size();
+    fn check_paused(&mut self, window: &mut Window) -> Result<bool> {
+        let PhysicalSize {
+            width: w,
+            height: h,
+        } = window.inner_size();
         let should_pause = w == 0 || h == 0;
 
         if should_pause {
@@ -224,27 +230,38 @@ impl<D: Demo> DemoApp<D> {
 impl<D: Demo + Sized> App for DemoApp<D> {
     type Args = D::Args;
 
-    fn new(window: &mut glfw::Window, args: Self::Args) -> Result<Self>
+    fn new(window: &mut Window, args: &Self::Args) -> Result<Self>
     where
         Self: Sized,
     {
-        window.set_size(D::INITIAL_WINDOW_SIZE.0, D::INITIAL_WINDOW_SIZE.1);
+        let _ = window.request_inner_size(PhysicalSize {
+            width: D::INITIAL_WINDOW_SIZE.0,
+            height: D::INITIAL_WINDOW_SIZE.1,
+        });
         window.set_title(std::any::type_name::<D>());
 
-        let vulkan = VulkanContext::new(window, D::required_device_features())
-            .with_context(trace!("Unable to create the Vulkan Context!"))?;
+        let vulkan = unwrap_here!(
+            "Create Vulkan context",
+            VulkanContext::new(window, D::required_device_features())
+        );
 
-        let (w, h) = window.get_framebuffer_size();
-        let swapchain =
+        let PhysicalSize {
+            width: w,
+            height: h,
+        } = window.inner_size();
+        let swapchain = unwrap_here!(
+            "Create initial swapchain",
             Swapchain::new(vulkan.clone(), (w as u32, h as u32), None)
-                .with_context(trace!("Unable to create the swapchain!"))?;
+        );
 
-        let frames_in_flight = FramesInFlight::new(
-            vulkan.clone(),
-            swapchain.images().len(),
-            D::FRAMES_IN_FLIGHT_COUNT,
-        )
-        .with_context(trace!("Unable to create frames in flight!"))?;
+        let frames_in_flight = unwrap_here!(
+            "Create frames-in-flight",
+            FramesInFlight::new(
+                vulkan.clone(),
+                swapchain.images().len(),
+                D::FRAMES_IN_FLIGHT_COUNT,
+            )
+        );
 
         let fps_limiter = spin_sleep_util::interval(Duration::from_secs_f64(
             1.0 / D::FRAMES_PER_SECOND as f64,
@@ -255,54 +272,67 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             vulkan,
             swapchain,
             frames_in_flight,
-            args,
             metrics: FrameMetrics::new(D::FRAMES_PER_SECOND as usize),
             swapchain_needs_rebuild: false,
             paused: false,
         };
-        let demo = D::new(window, &mut graphics)
-            .with_context(trace!("Error initializing demo!"))?;
+        let demo = unwrap_here!(
+            "Initialize Demo",
+            D::new(window, &mut graphics, args)
+        );
 
         Ok(Self { graphics, demo })
     }
 
-    fn handle_event(
+    fn handle_window_event(
         &mut self,
-        window: &mut glfw::Window,
-        event: glfw::WindowEvent,
-    ) -> Result<()> {
-        self.demo.handle_event(window, &mut self.graphics, event)
+        window: &mut Window,
+        event: WindowEvent,
+    ) -> Result<AppState> {
+        self.demo
+            .handle_window_event(window, &mut self.graphics, event)
     }
 
-    fn update(&mut self, window: &mut glfw::Window) -> Result<()> {
-        if self.graphics.paused && self.framebuffer_size_changed(window)? {
+    fn handle_device_event(
+        &mut self,
+        window: &mut Window,
+        event: DeviceEvent,
+    ) -> Result<AppState> {
+        self.demo
+            .handle_device_event(window, &mut self.graphics, event)
+    }
+
+    fn update(&mut self, window: &mut Window) -> Result<AppState> {
+        if self.graphics.paused && self.check_paused(window)? {
             std::hint::spin_loop();
-            return Ok(());
+            return Ok(AppState::Continue);
         }
 
         if self.graphics.swapchain_needs_rebuild {
-            self.graphics
-                .frames_in_flight
-                .wait_for_all_frames_to_complete()
-                .with_context(trace!(
-                    "Error waiting for frames before swapchain rebuild!"
-                ))?;
-            if self.framebuffer_size_changed(window)? {
-                return Ok(());
+            unwrap_here!(
+                "Swapchain needs rebuild - wait for all frames to complete",
+                self.graphics
+                    .frames_in_flight
+                    .wait_for_all_frames_to_complete()
+            );
+            if self.check_paused(window)? {
+                return Ok(AppState::Continue);
             }
-            let (w, h) = window.get_framebuffer_size();
-            self.graphics.swapchain = Swapchain::new(
-                self.graphics.vulkan.clone(),
-                (w as u32, h as u32),
-                Some(self.graphics.swapchain.raw()),
-            )
-            .with_context(trace!("Error while rebuilding swapchain!"))?;
+            let window_size = window.inner_size();
+            self.graphics.swapchain = unwrap_here!(
+                "Swapchain needs rebuild - rebuild swapchain",
+                Swapchain::new(
+                    self.graphics.vulkan.clone(),
+                    (window_size.width as u32, window_size.height as u32),
+                    Some(self.graphics.swapchain.raw()),
+                )
+            );
 
-            self.demo
-                .rebuild_swapchain_resources(window, &mut self.graphics)
-                .with_context(trace!(
-                    "Error while rebuilding demo swapchain resources!"
-                ))?;
+            unwrap_here!(
+                "Rebuild Demo's swapchain resources",
+                self.demo
+                    .rebuild_swapchain_resources(window, &mut self.graphics)
+            );
 
             self.graphics.swapchain_needs_rebuild = false;
         }
@@ -313,9 +343,13 @@ impl<D: Demo + Sized> App for DemoApp<D> {
         // ------------------------
 
         let before_update = Instant::now();
-        self.demo
-            .update(window, &mut self.graphics)
-            .with_context(trace!("Unhandled error in Demo::update()!"))?;
+        if unwrap_here!(
+            "Demo::update()",
+            self.demo.update(window, &mut self.graphics)
+        ) == AppState::Exit
+        {
+            return Ok(AppState::Exit);
+        }
         self.graphics.metrics.update_tick(before_update);
 
         // Limit FPS, wait just before acquiring the frame
@@ -333,13 +367,17 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             FrameStatus::FrameStarted(frame) => frame,
             FrameStatus::SwapchainNeedsRebuild => {
                 self.graphics.swapchain_needs_rebuild = true;
-                return Ok(());
+                return Ok(AppState::Continue);
             }
         };
 
-        self.demo
-            .draw(window, &mut self.graphics, &frame)
-            .with_context(trace!("Unhandled error in Demo::draw()!"))?;
+        if unwrap_here!(
+            "Demo draw",
+            self.demo.draw(window, &mut self.graphics, &frame)
+        ) == AppState::Exit
+        {
+            return Ok(AppState::Exit);
+        }
 
         let result = self
             .graphics
@@ -350,7 +388,7 @@ impl<D: Demo + Sized> App for DemoApp<D> {
         }
         self.graphics.metrics.draw_tick(before_draw);
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 

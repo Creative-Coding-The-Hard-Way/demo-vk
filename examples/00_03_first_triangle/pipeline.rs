@@ -1,11 +1,14 @@
 use {
     anyhow::{Context, Result},
     ash::vk,
-    demo_vk::graphics::vulkan::{raii, spirv_words},
+    demo_vk::{
+        demo::Graphics,
+        graphics::vulkan::{raii, spirv_words},
+    },
     std::ffi::CString,
 };
 
-pub fn create_pipeline(gfx: &crate::Gfx) -> Result<raii::Pipeline> {
+pub fn create_pipeline(gfx: &Graphics) -> Result<raii::Pipeline> {
     let pipeline_layout = raii::PipelineLayout::new(
         "FirstTriangle",
         gfx.vulkan.device.clone(),

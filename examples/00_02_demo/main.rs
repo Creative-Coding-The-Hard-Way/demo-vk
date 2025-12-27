@@ -3,16 +3,15 @@ use {
     ash::vk,
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::vulkan::{Frame, RequiredDeviceFeatures},
     },
-    glfw::Window,
+    winit::window::Window,
 };
 
 #[derive(Debug, Parser)]
 struct Args {}
-
-type Gfx = Graphics<Args>;
 
 struct ExampleDemo {}
 
@@ -31,7 +30,11 @@ impl Demo for ExampleDemo {
     }
 
     /// Initialize the demo
-    fn new(_window: &mut Window, _gfx: &mut Gfx) -> Result<Self> {
+    fn new(
+        _window: &mut Window,
+        _gfx: &mut Graphics,
+        _args: &Args,
+    ) -> Result<Self> {
         Ok(Self {})
     }
 
@@ -39,9 +42,9 @@ impl Demo for ExampleDemo {
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         let image_memory_barrier = vk::ImageMemoryBarrier {
             old_layout: vk::ImageLayout::UNDEFINED,
             new_layout: vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
@@ -128,7 +131,7 @@ impl Demo for ExampleDemo {
             );
         }
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 
