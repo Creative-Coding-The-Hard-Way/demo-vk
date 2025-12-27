@@ -281,7 +281,13 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             D::new(window, &mut graphics, args)
         );
 
-        Ok(Self { graphics, demo })
+        let mut app = Self { graphics, demo };
+        unwrap_here!("Render first frame", app.update(window));
+
+        // only show the window after rendering the first frame
+        window.set_visible(true);
+
+        Ok(app)
     }
 
     fn handle_window_event(

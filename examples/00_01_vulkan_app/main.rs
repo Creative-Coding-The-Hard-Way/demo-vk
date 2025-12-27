@@ -60,7 +60,7 @@ impl App for VulkanApp {
             FramesInFlight::new(ctx.clone(), swapchain.images().len(), 2)
         );
 
-        log::info!("Setup complete!");
+        window.set_visible(true);
 
         Ok(Self {
             ctx,

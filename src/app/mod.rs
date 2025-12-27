@@ -34,6 +34,9 @@ pub trait App {
     /// The application is allowed to modify the window based on its own
     /// requirements. This includes modifying the polling state, fullscreen
     /// status, size, etc...
+    ///
+    /// Note: the window is not visible when initially created, the app must
+    /// choose when to make it visible for the first time.
     fn new(window: &mut Window, args: &Self::Args) -> Result<Self>
     where
         Self: Sized;
@@ -129,16 +132,19 @@ impl<A: App + 'static> ApplicationHandler for WinitAppHandler<A> {
             return;
         }
 
-        let mut window = event_loop.create_window(WindowAttributes::default());
+        let mut window = event_loop
+            .create_window(WindowAttributes::default().with_visible(false));
 
         if let Err(error) = window {
             self.exit_result = Err(error).context("Unable to create window");
+            event_loop.exit();
             return;
         }
 
         let app = A::new(window.as_mut().unwrap(), &self.args.take().unwrap());
         if let Err(error) = app {
             self.exit_result = Err(error);
+            event_loop.exit();
             return;
         }
 
