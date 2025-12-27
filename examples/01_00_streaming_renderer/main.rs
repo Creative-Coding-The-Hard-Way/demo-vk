@@ -3,6 +3,7 @@ use {
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::{
             image_memory_barrier,
@@ -12,15 +13,18 @@ use {
             vulkan::{Frame, RequiredDeviceFeatures},
         },
     },
-    glfw::{Action, Key, Window, WindowEvent},
     nalgebra::Matrix4,
     std::{f32, sync::Arc},
+    winit::{
+        dpi::PhysicalSize,
+        event::WindowEvent,
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
 #[derive(Debug, Parser)]
 struct Args {}
-
-type Gfx = Graphics<Args>;
 
 pub fn ortho_projection(aspect: f32, height: f32) -> Matrix4<f32> {
     let w = height * aspect;
@@ -72,12 +76,11 @@ impl Demo for Example {
     }
 
     /// Initialize the demo
-    fn new(window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
-        window.set_key_polling(true);
-        window.set_framebuffer_size_polling(true);
-        window.set_size(1024, 768);
-        window.set_aspect_ratio(4, 3);
-
+    fn new(
+        _window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
         let texture_atlas = {
             let mut texture_atlas = TextureAtlas::new(&gfx.vulkan)
                 .context("Unable to create texture atlas")?;
@@ -119,7 +122,11 @@ impl Demo for Example {
         })
     }
 
-    fn update(&mut self, _window: &mut Window, _gfx: &mut Gfx) -> Result<()> {
+    fn update(
+        &mut self,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
+    ) -> Result<AppState> {
         self.mesh.clear();
 
         let z = 0.0;
@@ -132,16 +139,16 @@ impl Demo for Example {
             nalgebra::vector![-0.5, -0.5, z],
         );
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     /// Draw a frame
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         image_memory_barrier()
             .ctx(&gfx.vulkan)
             .command_buffer(frame.command_buffer())
@@ -208,20 +215,22 @@ impl Demo for Example {
             .dst_access_mask(vk::AccessFlags::empty())
             .call();
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
-    fn handle_event(
+    fn handle_window_event(
         &mut self,
-        window: &mut Window,
-        _gfx: &mut Gfx,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
         event: WindowEvent,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         match event {
-            WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
-                window.set_should_close(true);
+            WindowEvent::KeyboardInput { event, .. } => {
+                if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                    return Ok(AppState::Exit);
+                }
             }
-            WindowEvent::FramebufferSize(width, height) => {
+            WindowEvent::Resized(PhysicalSize { width, height }) => {
                 self.mesh.set_transform(ortho_projection(
                     width as f32 / height as f32,
                     20.0,
@@ -236,7 +245,7 @@ impl Demo for Example {
             }
             _ => {}
         };
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 

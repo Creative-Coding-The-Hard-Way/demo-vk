@@ -245,13 +245,10 @@ impl<D: Demo + Sized> App for DemoApp<D> {
             VulkanContext::new(window, D::required_device_features())
         );
 
-        let PhysicalSize {
-            width: w,
-            height: h,
-        } = window.inner_size();
+        let PhysicalSize { width, height } = window.inner_size();
         let swapchain = unwrap_here!(
             "Create initial swapchain",
-            Swapchain::new(vulkan.clone(), (w as u32, h as u32), None)
+            Swapchain::new(vulkan.clone(), (width, height), None)
         );
 
         let frames_in_flight = unwrap_here!(
@@ -329,8 +326,15 @@ impl<D: Demo + Sized> App for DemoApp<D> {
                 "Swapchain needs rebuild - rebuild swapchain",
                 Swapchain::new(
                     self.graphics.vulkan.clone(),
-                    (window_size.width as u32, window_size.height as u32),
+                    (window_size.width, window_size.height),
                     Some(self.graphics.swapchain.raw()),
+                )
+            );
+            unwrap_here!(
+                "Rebuild swapchain semaphores for frames-in-flight sync",
+                self.graphics.frames_in_flight.rebuild_swapchain_semaphores(
+                    &self.graphics.vulkan,
+                    self.graphics.swapchain.images().len(),
                 )
             );
 

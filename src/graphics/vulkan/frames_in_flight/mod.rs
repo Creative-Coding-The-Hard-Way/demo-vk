@@ -204,6 +204,50 @@ impl FramesInFlight {
         })
     }
 
+    /// Rebuilds the swapchain semaphores.
+    ///
+    /// This should only be required after the swapchain is rebuilt.
+    ///
+    /// Rebuilding semaphores cannot be done until all images have finished,
+    /// which means waiting for a full pipeline stall.
+    pub fn rebuild_swapchain_semaphores(
+        &mut self,
+        ctx: &VulkanContext,
+        swapchain_image_count: usize,
+    ) -> Result<()> {
+        self.wait_for_all_frames_to_complete()?;
+
+        // Needed to ensure that all resources are finished being used before
+        // continuing
+        unsafe { ctx.device_wait_idle()? };
+
+        self.swapchain_image_present_semaphores.clear();
+        // Create one semaphore per swapchain image
+        for i in 0..swapchain_image_count {
+            self.swapchain_image_present_semaphores.push(unwrap_here!(
+                format!("Create present semaphore for swapchain image [{}]", i),
+                raii::Semaphore::new(
+                    format!("Swapchain Image Present [{}]", i),
+                    ctx.device.clone(),
+                    &vk::SemaphoreCreateInfo::default(),
+                )
+            ));
+        }
+
+        for (i, frame_sync) in self.frames.iter_mut().enumerate() {
+            frame_sync.swapchain_image_acquired = unwrap_here!(
+                format!("Rebuild frame {i} swapchain image acquired semaphore"),
+                raii::Semaphore::new(
+                    format!("Swapchain Image Present [{}]", i),
+                    ctx.device.clone(),
+                    &vk::SemaphoreCreateInfo::default(),
+                )
+            );
+        }
+
+        Ok(())
+    }
+
     /// Get the total number of configured frames in flight.
     pub fn frame_count(&self) -> usize {
         self.frames.len()
