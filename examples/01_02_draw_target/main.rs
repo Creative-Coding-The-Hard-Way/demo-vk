@@ -3,6 +3,7 @@ use {
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::{
             image_memory_barrier,
@@ -11,15 +12,20 @@ use {
             },
             vulkan::{Frame, RequiredDeviceFeatures},
         },
+        unwrap_here,
     },
-    glfw::{Action, Key, Window, WindowEvent},
     nalgebra::Matrix4,
+    std::time::Instant,
+    winit::{
+        dpi::PhysicalSize,
+        event::WindowEvent,
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
 #[derive(Debug, Parser)]
 struct Args {}
-
-type Gfx = Graphics<Args>;
 
 pub fn ortho_projection(aspect: f32, height: f32) -> Matrix4<f32> {
     let w = height * aspect;
@@ -39,6 +45,7 @@ struct Example {
     mesh: TrianglesMesh,
     g2: StreamingRenderer,
     draw_target: Texture,
+    start: Instant,
 }
 
 impl Demo for Example {
@@ -71,22 +78,25 @@ impl Demo for Example {
         }
     }
 
-    fn new(window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
-        window.set_key_polling(true);
-        window.set_framebuffer_size_polling(true);
-        window.set_size(1024, 768);
-        window.set_aspect_ratio(4, 3);
+    fn new(
+        _window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
+        let texture_atlas = unwrap_here!(
+            "Create texture atlas.",
+            TextureAtlas::new(&gfx.vulkan)
+        );
 
-        let texture_atlas = TextureAtlas::new(&gfx.vulkan)
-            .context("Unable to create texture atlas")?;
-
-        let g2 = StreamingRenderer::new(
-            &gfx.vulkan,
-            vk::Format::R16G16B16A16_SFLOAT,
-            &gfx.frames_in_flight,
-            &texture_atlas,
-        )
-        .context("Unable to create g2 subsystem")?;
+        let g2 = unwrap_here!(
+            "Create streaming renderer",
+            StreamingRenderer::new(
+                &gfx.vulkan,
+                vk::Format::R16G16B16A16_SFLOAT,
+                &gfx.frames_in_flight,
+                &texture_atlas,
+            )
+        );
 
         let mesh = {
             let mut mesh =
@@ -103,30 +113,37 @@ impl Demo for Example {
             mesh
         };
 
-        let draw_target = Texture::builder()
-            .ctx(&gfx.vulkan)
-            .image_usage_flags(
-                vk::ImageUsageFlags::COLOR_ATTACHMENT
-                    | vk::ImageUsageFlags::TRANSFER_SRC,
-            )
-            .memory_property_flags(vk::MemoryPropertyFlags::DEVICE_LOCAL)
-            .dimensions((
-                gfx.swapchain.extent().width,
-                gfx.swapchain.extent().height,
-            ))
-            .format(vk::Format::R16G16B16A16_SFLOAT)
-            .build()
-            .context("unable to create draw buffer target!")?;
+        let draw_target = unwrap_here!(
+            "Create high precision offscreen render target",
+            Texture::builder()
+                .ctx(&gfx.vulkan)
+                .image_usage_flags(
+                    vk::ImageUsageFlags::COLOR_ATTACHMENT
+                        | vk::ImageUsageFlags::TRANSFER_SRC,
+                )
+                .memory_property_flags(vk::MemoryPropertyFlags::DEVICE_LOCAL)
+                .dimensions((
+                    gfx.swapchain.extent().width,
+                    gfx.swapchain.extent().height,
+                ))
+                .format(vk::Format::R16G16B16A16_SFLOAT)
+                .build()
+        );
 
         Ok(Self {
             texture_atlas,
             mesh,
             g2,
             draw_target,
+            start: Instant::now(),
         })
     }
 
-    fn update(&mut self, _window: &mut Window, _gfx: &mut Gfx) -> Result<()> {
+    fn update(
+        &mut self,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
+    ) -> Result<AppState> {
         self.mesh.clear();
 
         let z = 0.0;
@@ -139,16 +156,32 @@ impl Demo for Example {
             nalgebra::vector![-0.5, -0.5, z],
         );
 
-        Ok(())
+        let dt = Instant::now().duration_since(self.start).as_secs_f32();
+        let point = nalgebra::vector![0.45 * dt.cos(), 0.45 * dt.sin(), z];
+        self.mesh.quad(
+            [
+                dt.cos().abs(),
+                (dt * 2.0).sin().abs(),
+                (dt / 3.0).tan().abs(),
+                1.0,
+            ],
+            -1,
+            point + nalgebra::vector![-0.05, 0.05, z],
+            point + nalgebra::vector![0.05, 0.05, z],
+            point + nalgebra::vector![0.05, -0.05, z],
+            point + nalgebra::vector![-0.05, -0.05, z],
+        );
+
+        Ok(AppState::Continue)
     }
 
     /// Draw a frame
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         // render to the draw target
 
         image_memory_barrier()
@@ -279,20 +312,22 @@ impl Demo for Example {
             .dst_access_mask(vk::AccessFlags::empty())
             .call();
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
-    fn handle_event(
+    fn handle_window_event(
         &mut self,
-        window: &mut Window,
-        _gfx: &mut Gfx,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
         event: WindowEvent,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         match event {
-            WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
-                window.set_should_close(true);
+            WindowEvent::KeyboardInput { event, .. } => {
+                if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                    return Ok(AppState::Exit);
+                }
             }
-            WindowEvent::FramebufferSize(width, height) => {
+            WindowEvent::Resized(PhysicalSize { width, height }) => {
                 self.mesh.set_transform(ortho_projection(
                     width as f32 / height as f32,
                     1.0,
@@ -307,29 +342,31 @@ impl Demo for Example {
             }
             _ => {}
         };
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     fn rebuild_swapchain_resources(
         &mut self,
-        #[allow(unused_variables)] window: &mut glfw::Window,
-        #[allow(unused_variables)] gfx: &mut Graphics<Self::Args>,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
     ) -> Result<()> {
         // safe because no frame are in flight
-        self.draw_target = Texture::builder()
-            .ctx(&gfx.vulkan)
-            .image_usage_flags(
-                vk::ImageUsageFlags::COLOR_ATTACHMENT
-                    | vk::ImageUsageFlags::TRANSFER_SRC,
-            )
-            .memory_property_flags(vk::MemoryPropertyFlags::DEVICE_LOCAL)
-            .dimensions((
-                gfx.swapchain.extent().width,
-                gfx.swapchain.extent().height,
-            ))
-            .format(vk::Format::R16G16B16A16_SFLOAT)
-            .build()
-            .context("unable to create draw buffer target!")?;
+        self.draw_target = unwrap_here!(
+            "Recreate the high precision offscreen render target",
+            Texture::builder()
+                .ctx(&gfx.vulkan)
+                .image_usage_flags(
+                    vk::ImageUsageFlags::COLOR_ATTACHMENT
+                        | vk::ImageUsageFlags::TRANSFER_SRC,
+                )
+                .memory_property_flags(vk::MemoryPropertyFlags::DEVICE_LOCAL)
+                .dimensions((
+                    gfx.swapchain.extent().width,
+                    gfx.swapchain.extent().height,
+                ))
+                .format(vk::Format::R16G16B16A16_SFLOAT)
+                .build()
+        );
         Ok(())
     }
 }
