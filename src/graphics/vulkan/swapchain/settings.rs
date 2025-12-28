@@ -142,6 +142,8 @@ fn select_present_mode(cxt: &VulkanContext) -> Result<vk::PresentModeKHR> {
     log::trace!("Present modes for device:\n{:#?}", present_modes);
     if present_modes.contains(&vk::PresentModeKHR::MAILBOX) {
         Ok(vk::PresentModeKHR::MAILBOX)
+    } else if present_modes.contains(&vk::PresentModeKHR::IMMEDIATE) {
+        Ok(vk::PresentModeKHR::IMMEDIATE)
     } else {
         Ok(vk::PresentModeKHR::FIFO)
     }

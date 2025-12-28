@@ -1,8 +1,9 @@
 use {
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::{
             image_memory_barrier,
@@ -11,16 +12,20 @@ use {
             },
             vulkan::{raii, spirv_words, Frame, RequiredDeviceFeatures},
         },
+        unwrap_here,
     },
-    glfw::{Action, Key, Window, WindowEvent},
     nalgebra::Matrix4,
     std::time::Instant,
+    winit::{
+        dpi::PhysicalSize,
+        event::WindowEvent,
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
 #[derive(Debug, Parser)]
 struct Args {}
-
-type Gfx = Graphics<Args>;
 
 pub fn ortho_projection(aspect: f32, height: f32) -> Matrix4<f32> {
     let w = height * aspect;
@@ -80,22 +85,25 @@ impl Demo for Example {
         }
     }
 
-    fn new(window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
-        window.set_key_polling(true);
-        window.set_framebuffer_size_polling(true);
-        window.set_size(1024, 768);
-        window.set_aspect_ratio(1, 1);
+    fn new(
+        _window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
+        let texture_atlas = unwrap_here!(
+            "Create texture atlas",
+            TextureAtlas::new(&gfx.vulkan)
+        );
 
-        let texture_atlas = TextureAtlas::new(&gfx.vulkan)
-            .context("Unable to create texture atlas")?;
-
-        let g2 = StreamingRenderer::<FrameData>::new(
-            &gfx.vulkan,
-            gfx.swapchain.format(),
-            &gfx.frames_in_flight,
-            &texture_atlas,
-        )
-        .context("Unable to create g2 subsystem")?;
+        let g2 = unwrap_here!(
+            "Create streaming renderer with custom frame data",
+            StreamingRenderer::<FrameData>::new(
+                &gfx.vulkan,
+                gfx.swapchain.format(),
+                &gfx.frames_in_flight,
+                &texture_atlas,
+            )
+        );
 
         let mesh = {
             let fragment_shader_spirv =
@@ -130,7 +138,11 @@ impl Demo for Example {
         })
     }
 
-    fn update(&mut self, _window: &mut Window, _gfx: &mut Gfx) -> Result<()> {
+    fn update(
+        &mut self,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
+    ) -> Result<AppState> {
         self.mesh.clear();
 
         let z = 0.0;
@@ -143,16 +155,16 @@ impl Demo for Example {
             nalgebra::vector![-0.5, -0.5, z],
         );
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     /// Draw a frame
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         self.g2.set_frame_constants(
             frame,
             FrameData {
@@ -232,20 +244,22 @@ impl Demo for Example {
             .dst_access_mask(vk::AccessFlags::empty())
             .call();
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
-    fn handle_event(
+    fn handle_window_event(
         &mut self,
-        window: &mut Window,
-        _gfx: &mut Gfx,
+        _window: &mut Window,
+        _gfx: &mut Graphics,
         event: WindowEvent,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         match event {
-            WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
-                window.set_should_close(true);
+            WindowEvent::KeyboardInput { event, .. } => {
+                if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                    return Ok(AppState::Exit);
+                }
             }
-            WindowEvent::FramebufferSize(width, height) => {
+            WindowEvent::Resized(PhysicalSize { width, height }) => {
                 self.mesh.set_transform(ortho_projection(1.0, 1.0));
                 self.mesh.set_scissor(vk::Rect2D {
                     offset: vk::Offset2D { x: 0, y: 0 },
@@ -257,7 +271,7 @@ impl Demo for Example {
             }
             _ => {}
         };
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 
