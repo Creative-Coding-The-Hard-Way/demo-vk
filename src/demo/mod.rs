@@ -1,4 +1,4 @@
-// mod egui_integration;
+mod egui_integration;
 mod frame_metrics;
 mod rolling_average;
 

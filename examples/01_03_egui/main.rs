@@ -3,7 +3,8 @@ use {
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
-        demo::{demo_main, glfw_event_to_egui_event, Demo, Graphics},
+        app::AppState,
+        demo::{demo_main, Demo, Graphics},
         graphics::{
             image_memory_barrier,
             streaming_renderer::{
@@ -12,21 +13,30 @@ use {
             },
             vulkan::{Frame, RequiredDeviceFeatures},
         },
+        unwrap_here,
     },
-    egui::{epaint::Primitive, FontId, ImageData, RichText},
-    glfw::{Action, Key, Window, WindowEvent},
+    egui::{epaint::Primitive, FontId, ImageData, RichText, ViewportInfo},
+    egui_winit::State,
     nalgebra::Matrix4,
     std::{collections::HashMap, f32, sync::Arc, time::Instant},
+    winit::{
+        dpi::PhysicalSize,
+        event::WindowEvent,
+        keyboard::{KeyCode, PhysicalKey},
+        window::Window,
+    },
 };
 
 #[derive(Debug, Parser)]
 struct Args {}
 
-type Gfx = Graphics<Args>;
-
-pub fn ortho_projection(width: f32, height: f32) -> Matrix4<f32> {
-    let w = width;
-    let h = height;
+pub fn ortho_projection(
+    points_per_pixel: f32,
+    width: f32,
+    height: f32,
+) -> Matrix4<f32> {
+    let w = width / points_per_pixel;
+    let h = height / points_per_pixel;
     #[rustfmt::skip]
     let projection = Matrix4::new(
         2.0 / w,  0.0,     0.0, -1.0,
@@ -42,10 +52,9 @@ struct Example {
     texture_loader: TextureLoader,
     mesh: TrianglesMesh,
     g2: StreamingRenderer,
-    input: egui::RawInput,
-    egui_ctx: egui::Context,
     egui_textures: HashMap<egui::TextureId, i32>,
     show_fps: bool,
+    egui_state: State,
 }
 
 impl Demo for Example {
@@ -79,30 +88,44 @@ impl Demo for Example {
     }
 
     /// Initialize the demo
-    fn new(window: &mut Window, gfx: &mut Gfx) -> Result<Self> {
-        window.set_cursor_pos_polling(true);
-        window.set_mouse_button_polling(true);
-        window.set_key_polling(true);
-        window.set_framebuffer_size_polling(true);
-        window.set_char_polling(true);
-        window.set_size(1920, 1080);
+    fn new(
+        window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
+        let texture_atlas = unwrap_here!(
+            "create texture atlas",
+            TextureAtlas::new(&gfx.vulkan)
+        );
 
-        let texture_atlas = TextureAtlas::new(&gfx.vulkan)
-            .context("Unable to create texture atlas")?;
+        let g2 = unwrap_here!(
+            "Create streaming renderer",
+            StreamingRenderer::new(
+                &gfx.vulkan,
+                gfx.swapchain.format(),
+                &gfx.frames_in_flight,
+                &texture_atlas,
+            )
+        );
 
-        let g2 = StreamingRenderer::new(
-            &gfx.vulkan,
-            gfx.swapchain.format(),
-            &gfx.frames_in_flight,
-            &texture_atlas,
-        )
-        .context("Unable to create g2 subsystem")?;
+        let egui_state = State::new(
+            egui::Context::default(),
+            egui::ViewportId::ROOT,
+            &window,
+            Some(window.scale_factor() as f32),
+            None,
+            None,
+        );
 
         let mesh = {
             let mut mesh =
                 TrianglesMesh::new(10, g2.default_material().clone());
-            let (w, h) = window.get_size();
-            mesh.set_transform(ortho_projection(w as f32, h as f32));
+            let PhysicalSize { width, height } = window.inner_size();
+            mesh.set_transform(ortho_projection(
+                egui_winit::pixels_per_point(egui_state.egui_ctx(), window),
+                width as f32,
+                height as f32,
+            ));
             mesh.set_scissor(vk::Rect2D {
                 extent: gfx.swapchain.extent(),
                 ..Default::default()
@@ -112,47 +135,58 @@ impl Demo for Example {
 
         let texture_loader = TextureLoader::new(gfx.vulkan.clone())?;
 
-        let egui_ctx = egui::Context::default();
-        egui_ctx.set_pixels_per_point(window.get_content_scale().0);
-        log::info!("pixels per point: {}", egui_ctx.pixels_per_point());
-
-        let input = egui::RawInput::default();
-
         Ok(Self {
             texture_loader,
             texture_atlas,
             mesh,
             g2,
-            input,
-            egui_ctx,
             egui_textures: HashMap::new(),
             show_fps: false,
+            egui_state,
         })
     }
 
-    fn update(&mut self, window: &mut Window, gfx: &mut Gfx) -> Result<()> {
-        {
-            let (w, h) = window.get_size();
-            self.input.screen_rect = Some(egui::Rect {
+    fn update(
+        &mut self,
+        window: &mut Window,
+        gfx: &mut Graphics,
+    ) -> Result<AppState> {
+        let raw_input = {
+            let mut viewport_info = ViewportInfo::default();
+            egui_winit::update_viewport_info(
+                &mut viewport_info,
+                self.egui_state.egui_ctx(),
+                window,
+                false,
+            );
+            let viewport_id = self.egui_state.egui_input().viewport_id;
+            self.egui_state
+                .egui_input_mut()
+                .viewports
+                .insert(viewport_id, viewport_info);
+
+            let mut raw_input = self.egui_state.take_egui_input(window);
+            let PhysicalSize { width, height } = window.inner_size();
+            raw_input.screen_rect = Some(egui::Rect {
                 min: egui::pos2(0.0, 0.0),
-                max: egui::pos2(w as f32, h as f32),
+                max: egui::pos2(width as f32, height as f32),
             });
-        }
+            raw_input
+        };
         let before_egui = Instant::now();
-        let full_output = self.egui_ctx.run(self.input.take(), |ctx| {
-            egui::SidePanel::right("fps")
+        let full_output = self.egui_state.egui_ctx().run(raw_input, |ctx| {
+            egui::SidePanel::left("fps")
                 .show_separator_line(false)
                 .resizable(false)
                 .frame(egui::Frame::NONE.inner_margin(10.0))
-                .default_width(600.0)
                 .show(ctx, |ui| {
                     ui.with_layout(
-                        egui::Layout::top_down(egui::Align::RIGHT),
+                        egui::Layout::top_down(egui::Align::LEFT),
                         |ui| {
                             ui.toggle_value(
                                 &mut self.show_fps,
                                 RichText::new("Frame Metrics")
-                                    .font(FontId::proportional(16.0)),
+                                    .font(FontId::proportional(24.0)),
                             );
                             if self.show_fps {
                                 ui.add(
@@ -173,6 +207,8 @@ impl Demo for Example {
                     );
                 });
         });
+        self.egui_state
+            .handle_platform_output(window, full_output.platform_output);
 
         // create new textures if needed
         for (egui_texture_id, delta) in &full_output.textures_delta.set {
@@ -263,9 +299,10 @@ impl Demo for Example {
 
         // Fill mesh with geometry
         self.mesh.clear();
-        let clipped_primitives = self
-            .egui_ctx
-            .tessellate(full_output.shapes, self.egui_ctx.pixels_per_point());
+        let clipped_primitives = self.egui_state.egui_ctx().tessellate(
+            full_output.shapes,
+            self.egui_state.egui_ctx().pixels_per_point(),
+        );
         for clipped_primitive in clipped_primitives {
             match clipped_primitive.primitive {
                 Primitive::Mesh(mesh) => {
@@ -294,16 +331,16 @@ impl Demo for Example {
         }
         gfx.metrics.ms_since("EGUI", before_egui);
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
     /// Draw a frame
     fn draw(
         &mut self,
         _window: &mut Window,
-        gfx: &mut Gfx,
+        gfx: &mut Graphics,
         frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         image_memory_barrier()
             .ctx(&gfx.vulkan)
             .command_buffer(frame.command_buffer())
@@ -370,50 +407,42 @@ impl Demo for Example {
             .dst_access_mask(vk::AccessFlags::empty())
             .call();
 
-        Ok(())
+        Ok(AppState::Continue)
     }
 
-    fn handle_event(
+    fn handle_window_event(
         &mut self,
         window: &mut Window,
-        _gfx: &mut Gfx,
+        _gfx: &mut Graphics,
         event: WindowEvent,
-    ) -> Result<()> {
-        if let Some(event) = glfw_event_to_egui_event(window, &event) {
-            self.input.events.push(event)
+    ) -> Result<AppState> {
+        if self.egui_state.on_window_event(window, &event).consumed {
+            return Ok(AppState::Continue);
         }
 
         match event {
-            WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
-                window.set_should_close(true);
+            WindowEvent::KeyboardInput { event, .. } => {
+                if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
+                    return Ok(AppState::Exit);
+                }
             }
-            WindowEvent::FramebufferSize(
-                framebuffer_width,
-                framebuffer_height,
-            ) => {
-                let (screen_width, screen_height) = window.get_size();
-                log::info!(
-                    "FramebufferSize: {}x{}, ScreenSize: {}x{}",
-                    framebuffer_width,
-                    framebuffer_height,
-                    screen_width,
-                    screen_height,
-                );
+            WindowEvent::Resized(PhysicalSize { width, height }) => {
                 self.mesh.set_transform(ortho_projection(
-                    screen_width as f32,
-                    screen_height as f32,
+                    egui_winit::pixels_per_point(
+                        self.egui_state.egui_ctx(),
+                        window,
+                    ),
+                    width as f32,
+                    height as f32,
                 ));
                 self.mesh.set_scissor(vk::Rect2D {
                     offset: vk::Offset2D { x: 0, y: 0 },
-                    extent: vk::Extent2D {
-                        width: framebuffer_width as u32,
-                        height: framebuffer_height as u32,
-                    },
+                    extent: vk::Extent2D { width, height },
                 });
             }
             _ => {}
         };
-        Ok(())
+        Ok(AppState::Continue)
     }
 }
 
