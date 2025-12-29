@@ -132,6 +132,39 @@ impl EguiPainter {
         self.state.on_window_event(window, event)
     }
 
+    /// Checks for compatibility with the swapchain and rebuilds resources if
+    /// needed.
+    pub fn rebuild_swapchain_resources(
+        &mut self,
+        gfx: &Graphics,
+    ) -> Result<()> {
+        if self.renderer.image_format() == gfx.swapchain.format() {
+            return Ok(()); // formats are compatible, nothing to be donwe
+        }
+
+        unwrap_here!(
+            "Wait for frames to finish before rebuilding EGUI painter resources",
+            gfx.frames_in_flight.wait_for_all_frames_to_complete()
+        );
+
+        // free all existing meshes and associated materials
+        self.free_meshes.clear();
+        self.used_meshes.clear();
+
+        self.renderer = unwrap_here!(
+            "Rebuild streaming renderer for the EGUI painter",
+            StreamingRenderer::new(
+                &gfx.vulkan,
+                gfx.swapchain.format(),
+                &gfx.frames_in_flight,
+                &self.atlas
+            )
+        );
+
+        // resources must be rebuilt
+        Ok(())
+    }
+
     /// Draws the EGUI UI to the currently bound color attachment.
     ///
     /// # Safety

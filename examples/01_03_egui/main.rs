@@ -198,6 +198,14 @@ impl Demo for Example {
         Ok(AppState::Continue)
     }
 
+    fn rebuild_swapchain_resources(
+        &mut self,
+        _window: &mut Window,
+        gfx: &mut Graphics,
+    ) -> Result<()> {
+        self.egui_painter.rebuild_swapchain_resources(gfx)
+    }
+
     fn handle_window_event(
         &mut self,
         window: &mut Window,

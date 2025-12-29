@@ -197,6 +197,11 @@ impl<PerFrameDataT: Copy> StreamingRenderer<PerFrameDataT> {
         Ok(Arc::new(material))
     }
 
+    /// Returns the image format this renderer is compatible with.
+    pub fn image_format(&self) -> vk::Format {
+        self.image_format
+    }
+
     /// Returns the default material for use by meshes without special material
     /// requirements.
     pub fn default_material(&self) -> &Arc<Material> {
