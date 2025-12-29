@@ -122,6 +122,13 @@ impl EguiPainter {
         window: &Window,
         event: &WindowEvent,
     ) -> EventResponse {
+        if let &WindowEvent::Resized(PhysicalSize { width, height }) = event {
+            self.projection = ortho_projection(
+                egui_winit::pixels_per_point(self.state.egui_ctx(), window),
+                width as f32,
+                height as f32,
+            );
+        }
         self.state.on_window_event(window, event)
     }
 

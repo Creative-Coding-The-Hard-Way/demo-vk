@@ -115,6 +115,9 @@ impl Demo for Example {
                             },
                         );
                     });
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    ui.label("Central Panel");
+                });
             })
         );
         gfx.metrics.ms_since("EGUI", before_egui);
