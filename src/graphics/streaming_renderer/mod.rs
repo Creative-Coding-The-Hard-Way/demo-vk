@@ -9,7 +9,7 @@ mod texture;
 pub(crate) mod utility;
 
 use {
-    self::{frame_constants::FrameConstants, mesh::Mesh},
+    self::frame_constants::FrameConstants,
     crate::graphics::vulkan::{
         raii, spirv_words, Frame, FramesInFlight, VulkanContext,
     },
@@ -21,7 +21,7 @@ use {
 };
 
 pub use self::{
-    mesh::{TrianglesMesh, Vertex},
+    mesh::{Mesh, TrianglesMesh, Vertex},
     texture::{Texture, TextureAtlas, TextureLoader},
 };
 

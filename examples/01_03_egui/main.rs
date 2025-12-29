@@ -8,14 +8,17 @@ use {
         graphics::{
             image_memory_barrier,
             streaming_renderer::{
-                StreamingRenderer, Texture, TextureAtlas, TextureLoader,
+                Mesh, StreamingRenderer, Texture, TextureAtlas, TextureLoader,
                 TrianglesMesh, Vertex,
             },
             vulkan::{Frame, RequiredDeviceFeatures},
         },
         unwrap_here,
     },
-    egui::{epaint::Primitive, FontId, ImageData, RichText, ViewportInfo},
+    egui::{
+        epaint::Primitive, FontId, ImageData, RichText, ScrollArea, TextEdit,
+        ViewportInfo,
+    },
     egui_winit::State,
     nalgebra::Matrix4,
     std::{collections::HashMap, f32, sync::Arc, time::Instant},
@@ -50,11 +53,25 @@ pub fn ortho_projection(
 struct Example {
     texture_atlas: TextureAtlas,
     texture_loader: TextureLoader,
-    mesh: TrianglesMesh,
+    projection: Matrix4<f32>,
+    used_meshes: Vec<TrianglesMesh>,
+    free_meshes: Vec<TrianglesMesh>,
     g2: StreamingRenderer,
     egui_textures: HashMap<egui::TextureId, i32>,
     show_fps: bool,
     egui_state: State,
+    text: String,
+}
+
+impl Example {
+    fn get_next_free_mesh(&mut self) -> TrianglesMesh {
+        let mut mesh = self.free_meshes.pop().unwrap_or_else(|| {
+            TrianglesMesh::new(1_000, self.g2.default_material().clone())
+        });
+        mesh.clear();
+        mesh.set_transform(self.projection);
+        mesh
+    }
 }
 
 impl Demo for Example {
@@ -117,32 +134,24 @@ impl Demo for Example {
             None,
         );
 
-        let mesh = {
-            let mut mesh =
-                TrianglesMesh::new(10, g2.default_material().clone());
-            let PhysicalSize { width, height } = window.inner_size();
-            mesh.set_transform(ortho_projection(
-                egui_winit::pixels_per_point(egui_state.egui_ctx(), window),
-                width as f32,
-                height as f32,
-            ));
-            mesh.set_scissor(vk::Rect2D {
-                extent: gfx.swapchain.extent(),
-                ..Default::default()
-            });
-            mesh
-        };
-
+        let PhysicalSize { width, height } = window.inner_size();
         let texture_loader = TextureLoader::new(gfx.vulkan.clone())?;
 
         Ok(Self {
             texture_loader,
             texture_atlas,
-            mesh,
+            projection: ortho_projection(
+                egui_winit::pixels_per_point(egui_state.egui_ctx(), window),
+                width as f32,
+                height as f32,
+            ),
+            used_meshes: vec![],
+            free_meshes: vec![],
             g2,
             egui_textures: HashMap::new(),
             show_fps: false,
             egui_state,
+            text: String::new(),
         })
     }
 
@@ -165,17 +174,17 @@ impl Demo for Example {
                 .viewports
                 .insert(viewport_id, viewport_info);
 
-            let mut raw_input = self.egui_state.take_egui_input(window);
             let PhysicalSize { width, height } = window.inner_size();
-            raw_input.screen_rect = Some(egui::Rect {
+            self.egui_state.egui_input_mut().screen_rect = Some(egui::Rect {
                 min: egui::pos2(0.0, 0.0),
                 max: egui::pos2(width as f32, height as f32),
             });
-            raw_input
+
+            self.egui_state.take_egui_input(window)
         };
         let before_egui = Instant::now();
         let full_output = self.egui_state.egui_ctx().run(raw_input, |ctx| {
-            egui::SidePanel::left("fps")
+            egui::SidePanel::right("fps")
                 .show_separator_line(false)
                 .resizable(false)
                 .frame(egui::Frame::NONE.inner_margin(10.0))
@@ -186,7 +195,7 @@ impl Demo for Example {
                             ui.toggle_value(
                                 &mut self.show_fps,
                                 RichText::new("Frame Metrics")
-                                    .font(FontId::proportional(24.0)),
+                                    .font(FontId::proportional(12.0)),
                             );
                             if self.show_fps {
                                 ui.add(
@@ -195,7 +204,7 @@ impl Demo for Example {
                                             "{}",
                                             gfx.metrics
                                         ))
-                                        .font(FontId::monospace(20.0))
+                                        .font(FontId::monospace(12.0))
                                         .color(egui::Color32::from_rgb(
                                             255, 255, 255,
                                         )),
@@ -297,20 +306,63 @@ impl Demo for Example {
             )?;
         }
 
+        let pixels_per_point =
+            egui_winit::pixels_per_point(self.egui_state.egui_ctx(), window);
+        fn egui_rect_to_vk_rect(
+            pixels_per_point: f32,
+            rect: egui::Rect,
+        ) -> vk::Rect2D {
+            vk::Rect2D {
+                offset: vk::Offset2D {
+                    x: (pixels_per_point * rect.min.x) as i32,
+                    y: (pixels_per_point * rect.min.y) as i32,
+                },
+                extent: vk::Extent2D {
+                    width: (pixels_per_point * rect.width()) as u32,
+                    height: (pixels_per_point * rect.height()) as u32,
+                },
+            }
+        }
+
+        // reset all meshes
+        self.free_meshes.extend(self.used_meshes.drain(0..));
+
         // Fill mesh with geometry
-        self.mesh.clear();
         let clipped_primitives = self.egui_state.egui_ctx().tessellate(
             full_output.shapes,
             self.egui_state.egui_ctx().pixels_per_point(),
         );
+        let mut triangles_mesh = self.get_next_free_mesh();
+        let mut current_clip = vk::Rect2D::default();
+        if let Some(primitive) = clipped_primitives.first() {
+            current_clip =
+                egui_rect_to_vk_rect(pixels_per_point, primitive.clip_rect);
+            triangles_mesh.set_scissor(current_clip);
+        }
+
         for clipped_primitive in clipped_primitives {
+            let clip_rect = egui_rect_to_vk_rect(
+                pixels_per_point,
+                clipped_primitive.clip_rect,
+            );
+            if clip_rect != current_clip {
+                // Allocate a new mesh and swap with the existing triangles_mesh
+                // so it can be saved in the 'used_meshes' list while the
+                // triangles_mesh remains the 'active' mesh for adding new
+                // vertices.
+                let mut next_mesh = self.get_next_free_mesh();
+                (triangles_mesh, next_mesh) = (next_mesh, triangles_mesh);
+                self.used_meshes.push(next_mesh);
+                triangles_mesh.set_scissor(clip_rect);
+            }
+
             match clipped_primitive.primitive {
                 Primitive::Mesh(mesh) => {
                     let texture_id = *self
                         .egui_textures
                         .get(&mesh.texture_id)
                         .unwrap_or(&-1);
-                    self.mesh.indexed_triangles(
+                    triangles_mesh.indexed_triangles(
                         mesh.vertices.iter().map(|vertex| {
                             Vertex::new(
                                 [vertex.pos.x, vertex.pos.y, 0.0],
@@ -329,6 +381,7 @@ impl Demo for Example {
                 }
             }
         }
+        self.used_meshes.push(triangles_mesh);
         gfx.metrics.ms_since("EGUI", before_egui);
 
         Ok(AppState::Continue)
@@ -392,7 +445,15 @@ impl Demo for Example {
             );
             self.g2
                 .bind_texture_atlas(&gfx.vulkan, frame, &self.texture_atlas);
-            self.g2.prepare_meshes(&gfx.vulkan, frame, &[&self.mesh])?;
+            self.g2.prepare_meshes(
+                &gfx.vulkan,
+                frame,
+                &self
+                    .used_meshes
+                    .iter()
+                    .map(|mesh| mesh as &dyn Mesh)
+                    .collect::<Vec<_>>(),
+            )?;
             self.g2.write_draw_commands(&gfx.vulkan, frame)?;
             gfx.vulkan.cmd_end_rendering(frame.command_buffer());
         }
@@ -427,18 +488,14 @@ impl Demo for Example {
                 }
             }
             WindowEvent::Resized(PhysicalSize { width, height }) => {
-                self.mesh.set_transform(ortho_projection(
+                self.projection = ortho_projection(
                     egui_winit::pixels_per_point(
                         self.egui_state.egui_ctx(),
                         window,
                     ),
                     width as f32,
                     height as f32,
-                ));
-                self.mesh.set_scissor(vk::Rect2D {
-                    offset: vk::Offset2D { x: 0, y: 0 },
-                    extent: vk::Extent2D { width, height },
-                });
+                );
             }
             _ => {}
         };
