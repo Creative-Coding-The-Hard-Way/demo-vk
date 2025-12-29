@@ -132,93 +132,106 @@
 <a href=#132 id=132 data-nosnippet>132</a>            </span><span class="kw">return</span>;
 <a href=#133 id=133 data-nosnippet>133</a>        }
 <a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw">let </span><span class="kw-2">mut </span>window = event_loop
-<a href=#136 id=136 data-nosnippet>136</a>            .create_window(WindowAttributes::default().with_visible(<span class="bool-val">false</span>));
-<a href=#137 id=137 data-nosnippet>137</a>
-<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = window {
-<a href=#139 id=139 data-nosnippet>139</a>            <span class="self">self</span>.exit_result = <span class="prelude-val">Err</span>(error).context(<span class="string">"Unable to create window"</span>);
-<a href=#140 id=140 data-nosnippet>140</a>            event_loop.exit();
-<a href=#141 id=141 data-nosnippet>141</a>            <span class="kw">return</span>;
-<a href=#142 id=142 data-nosnippet>142</a>        }
-<a href=#143 id=143 data-nosnippet>143</a>
-<a href=#144 id=144 data-nosnippet>144</a>        <span class="kw">let </span>app = A::new(window.as_mut().unwrap(), <span class="kw-2">&amp;</span><span class="self">self</span>.args.take().unwrap());
-<a href=#145 id=145 data-nosnippet>145</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = app {
-<a href=#146 id=146 data-nosnippet>146</a>            <span class="self">self</span>.exit_result = <span class="prelude-val">Err</span>(error);
-<a href=#147 id=147 data-nosnippet>147</a>            event_loop.exit();
-<a href=#148 id=148 data-nosnippet>148</a>            <span class="kw">return</span>;
-<a href=#149 id=149 data-nosnippet>149</a>        }
-<a href=#150 id=150 data-nosnippet>150</a>
-<a href=#151 id=151 data-nosnippet>151</a>        <span class="self">self</span>.window = <span class="prelude-val">Some</span>(window.unwrap());
-<a href=#152 id=152 data-nosnippet>152</a>        <span class="self">self</span>.app = <span class="prelude-val">Some</span>(app.unwrap());
-<a href=#153 id=153 data-nosnippet>153</a>    }
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">fn </span>window_event(
-<a href=#156 id=156 data-nosnippet>156</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#157 id=157 data-nosnippet>157</a>        event_loop: <span class="kw-2">&amp;</span>winit::event_loop::ActiveEventLoop,
-<a href=#158 id=158 data-nosnippet>158</a>        _window_id: winit::window::WindowId,
-<a href=#159 id=159 data-nosnippet>159</a>        event: WindowEvent,
-<a href=#160 id=160 data-nosnippet>160</a>    ) {
-<a href=#161 id=161 data-nosnippet>161</a>        <span class="kw">let </span>app_state = <span class="kw">match </span>event {
-<a href=#162 id=162 data-nosnippet>162</a>            WindowEvent::CloseRequested =&gt; <span class="prelude-val">Ok</span>(AppState::Exit),
-<a href=#163 id=163 data-nosnippet>163</a>            WindowEvent::RedrawRequested =&gt; {
-<a href=#164 id=164 data-nosnippet>164</a>                <span class="self">self</span>.window.as_mut().unwrap().pre_present_notify();
-<a href=#165 id=165 data-nosnippet>165</a>                <span class="kw">let </span>state = <span class="self">self
-<a href=#166 id=166 data-nosnippet>166</a>                    </span>.app
-<a href=#167 id=167 data-nosnippet>167</a>                    .as_mut()
-<a href=#168 id=168 data-nosnippet>168</a>                    .unwrap()
-<a href=#169 id=169 data-nosnippet>169</a>                    .update(<span class="self">self</span>.window.as_mut().unwrap())
-<a href=#170 id=170 data-nosnippet>170</a>                    .context(<span class="string">"Unexpected error in App::update()!"</span>);
-<a href=#171 id=171 data-nosnippet>171</a>                <span class="self">self</span>.window.as_mut().unwrap().request_redraw();
-<a href=#172 id=172 data-nosnippet>172</a>                state
-<a href=#173 id=173 data-nosnippet>173</a>            }
-<a href=#174 id=174 data-nosnippet>174</a>            <span class="kw">_ </span>=&gt; <span class="self">self
-<a href=#175 id=175 data-nosnippet>175</a>                </span>.app
-<a href=#176 id=176 data-nosnippet>176</a>                .as_mut()
-<a href=#177 id=177 data-nosnippet>177</a>                .unwrap()
-<a href=#178 id=178 data-nosnippet>178</a>                .handle_window_event(<span class="self">self</span>.window.as_mut().unwrap(), event),
-<a href=#179 id=179 data-nosnippet>179</a>        };
-<a href=#180 id=180 data-nosnippet>180</a>        <span class="self">self</span>.process_app_state(app_state, event_loop);
-<a href=#181 id=181 data-nosnippet>181</a>    }
-<a href=#182 id=182 data-nosnippet>182</a>
-<a href=#183 id=183 data-nosnippet>183</a>    <span class="kw">fn </span>device_event(
-<a href=#184 id=184 data-nosnippet>184</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#185 id=185 data-nosnippet>185</a>        event_loop: <span class="kw-2">&amp;</span>winit::event_loop::ActiveEventLoop,
-<a href=#186 id=186 data-nosnippet>186</a>        _device_id: winit::event::DeviceId,
-<a href=#187 id=187 data-nosnippet>187</a>        event: DeviceEvent,
-<a href=#188 id=188 data-nosnippet>188</a>    ) {
-<a href=#189 id=189 data-nosnippet>189</a>        <span class="kw">let </span>app_state = <span class="self">self
-<a href=#190 id=190 data-nosnippet>190</a>            </span>.app
-<a href=#191 id=191 data-nosnippet>191</a>            .as_mut()
-<a href=#192 id=192 data-nosnippet>192</a>            .unwrap()
-<a href=#193 id=193 data-nosnippet>193</a>            .handle_device_event(<span class="self">self</span>.window.as_mut().unwrap(), event);
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="self">self</span>.process_app_state(app_state, event_loop);
-<a href=#195 id=195 data-nosnippet>195</a>    }
-<a href=#196 id=196 data-nosnippet>196</a>}
-<a href=#197 id=197 data-nosnippet>197</a>
-<a href=#198 id=198 data-nosnippet>198</a><span class="kw">fn </span>try_app_main&lt;A&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<a href=#199 id=199 data-nosnippet>199</a><span class="kw">where
-<a href=#200 id=200 data-nosnippet>200</a>    </span>A: App + <span class="lifetime">'static</span>,
-<a href=#201 id=201 data-nosnippet>201</a>{
-<a href=#202 id=202 data-nosnippet>202</a>    logging::setup();
-<a href=#203 id=203 data-nosnippet>203</a>
-<a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">let </span>args = <span class="macro">unwrap_here!</span>(
-<a href=#205 id=205 data-nosnippet>205</a>        <span class="string">"Parse CLI args"</span>,
-<a href=#206 id=206 data-nosnippet>206</a>        argfile::expand_args(argfile::parse_fromfile, argfile::PREFIX)
-<a href=#207 id=207 data-nosnippet>207</a>    );
-<a href=#208 id=208 data-nosnippet>208</a>
-<a href=#209 id=209 data-nosnippet>209</a>    <span class="kw">let </span><span class="kw-2">mut </span>winit_app = WinitAppHandler::&lt;A&gt; {
-<a href=#210 id=210 data-nosnippet>210</a>        args: <span class="prelude-val">Some</span>(A::Args::parse_from(args)),
-<a href=#211 id=211 data-nosnippet>211</a>        app: <span class="prelude-val">None</span>,
-<a href=#212 id=212 data-nosnippet>212</a>        window: <span class="prelude-val">None</span>,
-<a href=#213 id=213 data-nosnippet>213</a>        exit_result: <span class="prelude-val">Ok</span>(()),
-<a href=#214 id=214 data-nosnippet>214</a>    };
-<a href=#215 id=215 data-nosnippet>215</a>
-<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span>event_loop = <span class="macro">unwrap_here!</span>(<span class="string">"Create event loop."</span>, EventLoop::new());
-<a href=#217 id=217 data-nosnippet>217</a>    event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
-<a href=#218 id=218 data-nosnippet>218</a>    <span class="macro">unwrap_here!</span>(
-<a href=#219 id=219 data-nosnippet>219</a>        <span class="string">"Run main application loop."</span>,
-<a href=#220 id=220 data-nosnippet>220</a>        event_loop.run_app(<span class="kw-2">&amp;mut </span>winit_app)
-<a href=#221 id=221 data-nosnippet>221</a>    );
-<a href=#222 id=222 data-nosnippet>222</a>
-<a href=#223 id=223 data-nosnippet>223</a>    winit_app.exit_result
-<a href=#224 id=224 data-nosnippet>224</a>}</code></pre></div></section></main></body></html>
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="self">self</span>.window = <span class="kw">match </span>event_loop
+<a href=#136 id=136 data-nosnippet>136</a>            .create_window(WindowAttributes::default().with_visible(<span class="bool-val">false</span>))
+<a href=#137 id=137 data-nosnippet>137</a>        {
+<a href=#138 id=138 data-nosnippet>138</a>            <span class="prelude-val">Ok</span>(window) =&gt; <span class="prelude-val">Some</span>(window),
+<a href=#139 id=139 data-nosnippet>139</a>            <span class="prelude-val">Err</span>(error) =&gt; {
+<a href=#140 id=140 data-nosnippet>140</a>                <span class="self">self</span>.exit_result =
+<a href=#141 id=141 data-nosnippet>141</a>                    <span class="prelude-val">Err</span>(error).context(<span class="string">"Unable to create window"</span>);
+<a href=#142 id=142 data-nosnippet>142</a>                event_loop.exit();
+<a href=#143 id=143 data-nosnippet>143</a>                <span class="kw">return</span>;
+<a href=#144 id=144 data-nosnippet>144</a>            }
+<a href=#145 id=145 data-nosnippet>145</a>        };
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="self">self</span>.app = <span class="kw">match </span>A::new(
+<a href=#148 id=148 data-nosnippet>148</a>            <span class="self">self</span>.window.as_mut().unwrap(),
+<a href=#149 id=149 data-nosnippet>149</a>            <span class="kw-2">&amp;</span><span class="self">self</span>.args.take().unwrap(),
+<a href=#150 id=150 data-nosnippet>150</a>        ) {
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="prelude-val">Ok</span>(app) =&gt; <span class="prelude-val">Some</span>(app),
+<a href=#152 id=152 data-nosnippet>152</a>            <span class="prelude-val">Err</span>(error) =&gt; {
+<a href=#153 id=153 data-nosnippet>153</a>                <span class="self">self</span>.exit_result =
+<a href=#154 id=154 data-nosnippet>154</a>                    <span class="prelude-val">Err</span>(error).context(<span class="string">"Unable to initialize app"</span>);
+<a href=#155 id=155 data-nosnippet>155</a>                event_loop.exit();
+<a href=#156 id=156 data-nosnippet>156</a>                <span class="kw">return</span>;
+<a href=#157 id=157 data-nosnippet>157</a>            }
+<a href=#158 id=158 data-nosnippet>158</a>        };
+<a href=#159 id=159 data-nosnippet>159</a>    }
+<a href=#160 id=160 data-nosnippet>160</a>
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">fn </span>window_event(
+<a href=#162 id=162 data-nosnippet>162</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#163 id=163 data-nosnippet>163</a>        event_loop: <span class="kw-2">&amp;</span>winit::event_loop::ActiveEventLoop,
+<a href=#164 id=164 data-nosnippet>164</a>        _window_id: winit::window::WindowId,
+<a href=#165 id=165 data-nosnippet>165</a>        event: WindowEvent,
+<a href=#166 id=166 data-nosnippet>166</a>    ) {
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">if </span><span class="self">self</span>.app.is_none() {
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="comment">// Quit if the app doesn't exist, this can happen when initial
+<a href=#169 id=169 data-nosnippet>169</a>            // setup failed but an event is still queued.
+<a href=#170 id=170 data-nosnippet>170</a>            </span><span class="self">self</span>.process_app_state(<span class="prelude-val">Ok</span>(AppState::Exit), event_loop);
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="kw">return</span>;
+<a href=#172 id=172 data-nosnippet>172</a>        }
+<a href=#173 id=173 data-nosnippet>173</a>
+<a href=#174 id=174 data-nosnippet>174</a>        <span class="kw">let </span>app_state = <span class="kw">match </span>event {
+<a href=#175 id=175 data-nosnippet>175</a>            WindowEvent::CloseRequested =&gt; <span class="prelude-val">Ok</span>(AppState::Exit),
+<a href=#176 id=176 data-nosnippet>176</a>            WindowEvent::RedrawRequested =&gt; {
+<a href=#177 id=177 data-nosnippet>177</a>                <span class="self">self</span>.window.as_mut().unwrap().pre_present_notify();
+<a href=#178 id=178 data-nosnippet>178</a>                <span class="kw">let </span>state = <span class="self">self
+<a href=#179 id=179 data-nosnippet>179</a>                    </span>.app
+<a href=#180 id=180 data-nosnippet>180</a>                    .as_mut()
+<a href=#181 id=181 data-nosnippet>181</a>                    .unwrap()
+<a href=#182 id=182 data-nosnippet>182</a>                    .update(<span class="self">self</span>.window.as_mut().unwrap())
+<a href=#183 id=183 data-nosnippet>183</a>                    .context(<span class="string">"Unexpected error in App::update()!"</span>);
+<a href=#184 id=184 data-nosnippet>184</a>                <span class="self">self</span>.window.as_mut().unwrap().request_redraw();
+<a href=#185 id=185 data-nosnippet>185</a>                state
+<a href=#186 id=186 data-nosnippet>186</a>            }
+<a href=#187 id=187 data-nosnippet>187</a>            <span class="kw">_ </span>=&gt; <span class="self">self
+<a href=#188 id=188 data-nosnippet>188</a>                </span>.app
+<a href=#189 id=189 data-nosnippet>189</a>                .as_mut()
+<a href=#190 id=190 data-nosnippet>190</a>                .unwrap()
+<a href=#191 id=191 data-nosnippet>191</a>                .handle_window_event(<span class="self">self</span>.window.as_mut().unwrap(), event),
+<a href=#192 id=192 data-nosnippet>192</a>        };
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="self">self</span>.process_app_state(app_state, event_loop);
+<a href=#194 id=194 data-nosnippet>194</a>    }
+<a href=#195 id=195 data-nosnippet>195</a>
+<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">fn </span>device_event(
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#198 id=198 data-nosnippet>198</a>        event_loop: <span class="kw-2">&amp;</span>winit::event_loop::ActiveEventLoop,
+<a href=#199 id=199 data-nosnippet>199</a>        _device_id: winit::event::DeviceId,
+<a href=#200 id=200 data-nosnippet>200</a>        event: DeviceEvent,
+<a href=#201 id=201 data-nosnippet>201</a>    ) {
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>app_state = <span class="self">self
+<a href=#203 id=203 data-nosnippet>203</a>            </span>.app
+<a href=#204 id=204 data-nosnippet>204</a>            .as_mut()
+<a href=#205 id=205 data-nosnippet>205</a>            .unwrap()
+<a href=#206 id=206 data-nosnippet>206</a>            .handle_device_event(<span class="self">self</span>.window.as_mut().unwrap(), event);
+<a href=#207 id=207 data-nosnippet>207</a>        <span class="self">self</span>.process_app_state(app_state, event_loop);
+<a href=#208 id=208 data-nosnippet>208</a>    }
+<a href=#209 id=209 data-nosnippet>209</a>}
+<a href=#210 id=210 data-nosnippet>210</a>
+<a href=#211 id=211 data-nosnippet>211</a><span class="kw">fn </span>try_app_main&lt;A&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<a href=#212 id=212 data-nosnippet>212</a><span class="kw">where
+<a href=#213 id=213 data-nosnippet>213</a>    </span>A: App + <span class="lifetime">'static</span>,
+<a href=#214 id=214 data-nosnippet>214</a>{
+<a href=#215 id=215 data-nosnippet>215</a>    logging::setup();
+<a href=#216 id=216 data-nosnippet>216</a>
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">let </span>args = <span class="macro">unwrap_here!</span>(
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="string">"Parse CLI args"</span>,
+<a href=#219 id=219 data-nosnippet>219</a>        argfile::expand_args(argfile::parse_fromfile, argfile::PREFIX)
+<a href=#220 id=220 data-nosnippet>220</a>    );
+<a href=#221 id=221 data-nosnippet>221</a>
+<a href=#222 id=222 data-nosnippet>222</a>    <span class="kw">let </span><span class="kw-2">mut </span>winit_app = WinitAppHandler::&lt;A&gt; {
+<a href=#223 id=223 data-nosnippet>223</a>        args: <span class="prelude-val">Some</span>(A::Args::parse_from(args)),
+<a href=#224 id=224 data-nosnippet>224</a>        app: <span class="prelude-val">None</span>,
+<a href=#225 id=225 data-nosnippet>225</a>        window: <span class="prelude-val">None</span>,
+<a href=#226 id=226 data-nosnippet>226</a>        exit_result: <span class="prelude-val">Ok</span>(()),
+<a href=#227 id=227 data-nosnippet>227</a>    };
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">let </span>event_loop = <span class="macro">unwrap_here!</span>(<span class="string">"Create event loop."</span>, EventLoop::new());
+<a href=#230 id=230 data-nosnippet>230</a>    event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
+<a href=#231 id=231 data-nosnippet>231</a>    <span class="macro">unwrap_here!</span>(
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="string">"Run main application loop."</span>,
+<a href=#233 id=233 data-nosnippet>233</a>        event_loop.run_app(<span class="kw-2">&amp;mut </span>winit_app)
+<a href=#234 id=234 data-nosnippet>234</a>    );
+<a href=#235 id=235 data-nosnippet>235</a>
+<a href=#236 id=236 data-nosnippet>236</a>    winit_app.exit_result
+<a href=#237 id=237 data-nosnippet>237</a>}</code></pre></div></section></main></body></html>

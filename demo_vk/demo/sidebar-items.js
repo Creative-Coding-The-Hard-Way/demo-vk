@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["demo_main"],"struct":["Graphics"],"trait":["Demo"]};
+window.SIDEBAR_ITEMS = {"fn":["demo_main"],"struct":["EguiPainter","Graphics"],"trait":["Demo"]};
