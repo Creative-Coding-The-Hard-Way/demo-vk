@@ -19,7 +19,7 @@ requirements.</p>
     &amp;mut self,
     ctx: &amp;<a class="struct" href="../vulkan/struct.VulkanContext.html" title="struct demo_vk::graphics::vulkan::VulkanContext">VulkanContext</a>,
     frame: &amp;<a class="struct" href="../vulkan/struct.Frame.html" title="struct demo_vk::graphics::vulkan::Frame">Frame</a>,
-    meshes: &amp;[&amp;dyn Mesh],
+    meshes: &amp;[&amp;dyn <a class="trait" href="trait.Mesh.html" title="trait demo_vk::graphics::streaming_renderer::Mesh">Mesh</a>],
 ) -&gt; <a class="type" href="../../../anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.92.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Prepares the meshes for this frame.</p>
 <p>This should only be called once per frame, calling it repeatedly will
 only render whatever meshes were provided last.</p>

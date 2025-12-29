@@ -204,159 +204,203 @@
 <a href=#204 id=204 data-nosnippet>204</a>        })
 <a href=#205 id=205 data-nosnippet>205</a>    }
 <a href=#206 id=206 data-nosnippet>206</a>
-<a href=#207 id=207 data-nosnippet>207</a>    <span class="doccomment">/// Get the total number of configured frames in flight.
-<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">pub fn </span>frame_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-<a href=#209 id=209 data-nosnippet>209</a>        <span class="self">self</span>.frames.len()
-<a href=#210 id=210 data-nosnippet>210</a>    }
-<a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a>    <span class="doccomment">/// Blocks until all submitted commands for all frames have completed.
-<a href=#213 id=213 data-nosnippet>213</a>    ///
-<a href=#214 id=214 data-nosnippet>214</a>    /// NOTE: Only waits on pending frames. If there's a frame mid-assembly,
-<a href=#215 id=215 data-nosnippet>215</a>    ///       there's nothing to wait on. (and what's more, attempting to wait
-<a href=#216 id=216 data-nosnippet>216</a>    ///       would never succeed until the frame is submitted)
-<a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">pub fn </span>wait_for_all_frames_to_complete(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">let </span>fences = <span class="self">self
-<a href=#219 id=219 data-nosnippet>219</a>            </span>.frames
-<a href=#220 id=220 data-nosnippet>220</a>            .iter()
-<a href=#221 id=221 data-nosnippet>221</a>            .filter(|frame_sync| frame_sync.status == FrameSyncStatus::Pending)
-<a href=#222 id=222 data-nosnippet>222</a>            .map(|frame_sync| frame_sync.graphics_commands_complete.raw)
-<a href=#223 id=223 data-nosnippet>223</a>            .collect::&lt;Vec&lt;vk::Fence&gt;&gt;();
-<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">unsafe </span>{
-<a href=#225 id=225 data-nosnippet>225</a>            <span class="self">self</span>.cxt
-<a href=#226 id=226 data-nosnippet>226</a>                .wait_for_fences(<span class="kw-2">&amp;</span>fences, <span class="bool-val">true</span>, u64::MAX)
-<a href=#227 id=227 data-nosnippet>227</a>                .context(<span class="string">"wait for all pending frames to complete"</span>)
-<a href=#228 id=228 data-nosnippet>228</a>        }
-<a href=#229 id=229 data-nosnippet>229</a>    }
-<a href=#230 id=230 data-nosnippet>230</a>
-<a href=#231 id=231 data-nosnippet>231</a>    <span class="doccomment">/// Starts the next frame in flight.
-<a href=#232 id=232 data-nosnippet>232</a>    ///
-<a href=#233 id=233 data-nosnippet>233</a>    /// This method *can* block if all frames are in flight. It will block until
-<a href=#234 id=234 data-nosnippet>234</a>    /// the next frame is available.
-<a href=#235 id=235 data-nosnippet>235</a>    ///
-<a href=#236 id=236 data-nosnippet>236</a>    /// # Returns
-<a href=#237 id=237 data-nosnippet>237</a>    ///
-<a href=#238 id=238 data-nosnippet>238</a>    /// A [FrameStatus] containing one of:
-<a href=#239 id=239 data-nosnippet>239</a>    /// * A [Frame] that must be returned to [Self::present_frame]
-<a href=#240 id=240 data-nosnippet>240</a>    /// * A flag indicating that the Swapchain needs to be rebuilt before the
-<a href=#241 id=241 data-nosnippet>241</a>    ///   next frame.
-<a href=#242 id=242 data-nosnippet>242</a>    </span><span class="kw">pub fn </span>start_frame(
-<a href=#243 id=243 data-nosnippet>243</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#244 id=244 data-nosnippet>244</a>        swapchain: <span class="kw-2">&amp;</span>Swapchain,
-<a href=#245 id=245 data-nosnippet>245</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;FrameStatus&gt; {
-<a href=#246 id=246 data-nosnippet>246</a>        <span class="self">self</span>.frame_index = (<span class="self">self</span>.frame_index + <span class="number">1</span>) % <span class="self">self</span>.frames.len();
+<a href=#207 id=207 data-nosnippet>207</a>    <span class="doccomment">/// Rebuilds the swapchain semaphores.
+<a href=#208 id=208 data-nosnippet>208</a>    ///
+<a href=#209 id=209 data-nosnippet>209</a>    /// This should only be required after the swapchain is rebuilt.
+<a href=#210 id=210 data-nosnippet>210</a>    ///
+<a href=#211 id=211 data-nosnippet>211</a>    /// Rebuilding semaphores cannot be done until all images have finished,
+<a href=#212 id=212 data-nosnippet>212</a>    /// which means waiting for a full pipeline stall.
+<a href=#213 id=213 data-nosnippet>213</a>    </span><span class="kw">pub fn </span>rebuild_swapchain_semaphores(
+<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#215 id=215 data-nosnippet>215</a>        ctx: <span class="kw-2">&amp;</span>VulkanContext,
+<a href=#216 id=216 data-nosnippet>216</a>        swapchain_image_count: usize,
+<a href=#217 id=217 data-nosnippet>217</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="self">self</span>.wait_for_all_frames_to_complete()<span class="question-mark">?</span>;
+<a href=#219 id=219 data-nosnippet>219</a>
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="comment">// Needed to ensure that all resources are finished being used before
+<a href=#221 id=221 data-nosnippet>221</a>        // continuing
+<a href=#222 id=222 data-nosnippet>222</a>        </span><span class="kw">unsafe </span>{ ctx.device_wait_idle()<span class="question-mark">? </span>};
+<a href=#223 id=223 data-nosnippet>223</a>
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="self">self</span>.swapchain_image_present_semaphores.clear();
+<a href=#225 id=225 data-nosnippet>225</a>        <span class="comment">// Create one semaphore per swapchain image
+<a href=#226 id=226 data-nosnippet>226</a>        </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..swapchain_image_count {
+<a href=#227 id=227 data-nosnippet>227</a>            <span class="self">self</span>.swapchain_image_present_semaphores.push(<span class="macro">unwrap_here!</span>(
+<a href=#228 id=228 data-nosnippet>228</a>                <span class="macro">format!</span>(<span class="string">"Create present semaphore for swapchain image [{}]"</span>, i),
+<a href=#229 id=229 data-nosnippet>229</a>                raii::Semaphore::new(
+<a href=#230 id=230 data-nosnippet>230</a>                    <span class="macro">format!</span>(<span class="string">"Swapchain Image Present [{}]"</span>, i),
+<a href=#231 id=231 data-nosnippet>231</a>                    ctx.device.clone(),
+<a href=#232 id=232 data-nosnippet>232</a>                    <span class="kw-2">&amp;</span>vk::SemaphoreCreateInfo::default(),
+<a href=#233 id=233 data-nosnippet>233</a>                )
+<a href=#234 id=234 data-nosnippet>234</a>            ));
+<a href=#235 id=235 data-nosnippet>235</a>        }
+<a href=#236 id=236 data-nosnippet>236</a>
+<a href=#237 id=237 data-nosnippet>237</a>        <span class="kw">for </span>(i, frame_sync) <span class="kw">in </span><span class="self">self</span>.frames.iter_mut().enumerate() {
+<a href=#238 id=238 data-nosnippet>238</a>            frame_sync.swapchain_image_acquired = <span class="macro">unwrap_here!</span>(
+<a href=#239 id=239 data-nosnippet>239</a>                <span class="macro">format!</span>(<span class="string">"Rebuild frame {i} swapchain image acquired semaphore"</span>),
+<a href=#240 id=240 data-nosnippet>240</a>                raii::Semaphore::new(
+<a href=#241 id=241 data-nosnippet>241</a>                    <span class="macro">format!</span>(<span class="string">"Swapchain Image Present [{}]"</span>, i),
+<a href=#242 id=242 data-nosnippet>242</a>                    ctx.device.clone(),
+<a href=#243 id=243 data-nosnippet>243</a>                    <span class="kw-2">&amp;</span>vk::SemaphoreCreateInfo::default(),
+<a href=#244 id=244 data-nosnippet>244</a>                )
+<a href=#245 id=245 data-nosnippet>245</a>            );
+<a href=#246 id=246 data-nosnippet>246</a>        }
 <a href=#247 id=247 data-nosnippet>247</a>
-<a href=#248 id=248 data-nosnippet>248</a>        <span class="kw">let </span>frame_sync = <span class="kw-2">&amp;mut </span><span class="self">self</span>.frames[<span class="self">self</span>.frame_index];
-<a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a>        <span class="comment">// Wait for the last frame's submission to complete, if its still
-<a href=#251 id=251 data-nosnippet>251</a>        // running.
-<a href=#252 id=252 data-nosnippet>252</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Wait for the previous submission to complete"</span>, <span class="kw">unsafe </span>{
-<a href=#253 id=253 data-nosnippet>253</a>            <span class="self">self</span>.cxt.wait_for_fences(
-<a href=#254 id=254 data-nosnippet>254</a>                <span class="kw-2">&amp;</span>[frame_sync.graphics_commands_complete.raw],
-<a href=#255 id=255 data-nosnippet>255</a>                <span class="bool-val">true</span>,
-<a href=#256 id=256 data-nosnippet>256</a>                u64::MAX,
-<a href=#257 id=257 data-nosnippet>257</a>            )
-<a href=#258 id=258 data-nosnippet>258</a>        });
-<a href=#259 id=259 data-nosnippet>259</a>
-<a href=#260 id=260 data-nosnippet>260</a>        <span class="comment">// Acquire the next Swapchain image
-<a href=#261 id=261 data-nosnippet>261</a>        </span><span class="kw">let </span>status = <span class="macro">unwrap_here!</span>(
-<a href=#262 id=262 data-nosnippet>262</a>            <span class="string">"Acquire the next swapchain image"</span>,
-<a href=#263 id=263 data-nosnippet>263</a>            swapchain.acquire_image(frame_sync.swapchain_image_acquired.raw)
-<a href=#264 id=264 data-nosnippet>264</a>        );
-<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>swapchain_image_index = <span class="kw">match </span>status {
-<a href=#266 id=266 data-nosnippet>266</a>            AcquireImageStatus::ImageAcquired(index) =&gt; index,
-<a href=#267 id=267 data-nosnippet>267</a>            <span class="kw">_ </span>=&gt; {
-<a href=#268 id=268 data-nosnippet>268</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(FrameStatus::SwapchainNeedsRebuild);
-<a href=#269 id=269 data-nosnippet>269</a>            }
-<a href=#270 id=270 data-nosnippet>270</a>        };
-<a href=#271 id=271 data-nosnippet>271</a>
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="comment">// NOTE: only reset the frame's fence and command buffer _after_
-<a href=#273 id=273 data-nosnippet>273</a>        // acquiring a swapchain image. The order matters because the frame
-<a href=#274 id=274 data-nosnippet>274</a>        // will not be processed if the swapchain is out-of-date and needs
-<a href=#275 id=275 data-nosnippet>275</a>        // to be reconstructed.
-<a href=#276 id=276 data-nosnippet>276</a>
-<a href=#277 id=277 data-nosnippet>277</a>        // Swapchain image is available, so reset the commands fence.
-<a href=#278 id=278 data-nosnippet>278</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Reset the frame's fence"</span>, <span class="kw">unsafe </span>{
-<a href=#279 id=279 data-nosnippet>279</a>            <span class="self">self</span>.cxt
-<a href=#280 id=280 data-nosnippet>280</a>                .reset_fences(<span class="kw-2">&amp;</span>[frame_sync.graphics_commands_complete.raw])
-<a href=#281 id=281 data-nosnippet>281</a>        });
-<a href=#282 id=282 data-nosnippet>282</a>        <span class="comment">// mark the frame as pending so nobody gets stuck waiting for it
-<a href=#283 id=283 data-nosnippet>283</a>        </span>frame_sync.status = FrameSyncStatus::Assembling;
-<a href=#284 id=284 data-nosnippet>284</a>
-<a href=#285 id=285 data-nosnippet>285</a>        <span class="comment">// Start the Frame's command buffer.
-<a href=#286 id=286 data-nosnippet>286</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Reset the frame's command pool"</span>, <span class="kw">unsafe </span>{
-<a href=#287 id=287 data-nosnippet>287</a>            <span class="self">self</span>.cxt.reset_command_pool(
-<a href=#288 id=288 data-nosnippet>288</a>                frame_sync.command_pool.raw,
-<a href=#289 id=289 data-nosnippet>289</a>                vk::CommandPoolResetFlags::empty(),
-<a href=#290 id=290 data-nosnippet>290</a>            )
-<a href=#291 id=291 data-nosnippet>291</a>        });
-<a href=#292 id=292 data-nosnippet>292</a>        <span class="macro">unwrap_here!</span>(<span class="string">"Begin the frame's command buffer"</span>, <span class="kw">unsafe </span>{
-<a href=#293 id=293 data-nosnippet>293</a>            <span class="self">self</span>.cxt.begin_command_buffer(
-<a href=#294 id=294 data-nosnippet>294</a>                frame_sync.command_buffer,
-<a href=#295 id=295 data-nosnippet>295</a>                <span class="kw-2">&amp;</span>vk::CommandBufferBeginInfo {
-<a href=#296 id=296 data-nosnippet>296</a>                    flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
-<a href=#297 id=297 data-nosnippet>297</a>                    ..Default::default()
-<a href=#298 id=298 data-nosnippet>298</a>                },
-<a href=#299 id=299 data-nosnippet>299</a>            )
-<a href=#300 id=300 data-nosnippet>300</a>        });
-<a href=#301 id=301 data-nosnippet>301</a>
-<a href=#302 id=302 data-nosnippet>302</a>        <span class="prelude-val">Ok</span>(FrameStatus::FrameStarted(Frame {
-<a href=#303 id=303 data-nosnippet>303</a>            command_buffer: frame_sync.command_buffer,
-<a href=#304 id=304 data-nosnippet>304</a>            swapchain_image_index,
-<a href=#305 id=305 data-nosnippet>305</a>            frame_index: <span class="self">self</span>.frame_index,
-<a href=#306 id=306 data-nosnippet>306</a>            swapchain_image: swapchain.images()[swapchain_image_index <span class="kw">as </span>usize],
-<a href=#307 id=307 data-nosnippet>307</a>            swapchain_image_view: swapchain.image_views()
-<a href=#308 id=308 data-nosnippet>308</a>                [swapchain_image_index <span class="kw">as </span>usize]
-<a href=#309 id=309 data-nosnippet>309</a>                .raw,
-<a href=#310 id=310 data-nosnippet>310</a>        }))
-<a href=#311 id=311 data-nosnippet>311</a>    }
-<a href=#312 id=312 data-nosnippet>312</a>
-<a href=#313 id=313 data-nosnippet>313</a>    <span class="doccomment">/// Queues the [Frame]'s command buffer and swapchain presentation.
-<a href=#314 id=314 data-nosnippet>314</a>    </span><span class="kw">pub fn </span>present_frame(
-<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#316 id=316 data-nosnippet>316</a>        swapchain: <span class="kw-2">&amp;</span>Swapchain,
-<a href=#317 id=317 data-nosnippet>317</a>        frame: Frame,
-<a href=#318 id=318 data-nosnippet>318</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;PresentImageStatus&gt; {
-<a href=#319 id=319 data-nosnippet>319</a>        <span class="kw">let </span>frame_sync = <span class="kw-2">&amp;mut </span><span class="self">self</span>.frames[frame.frame_index()];
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="macro">unwrap_here!</span>(<span class="string">"End the frame's command buffer"</span>, <span class="kw">unsafe </span>{
-<a href=#321 id=321 data-nosnippet>321</a>            <span class="self">self</span>.cxt.end_command_buffer(frame_sync.command_buffer)
-<a href=#322 id=322 data-nosnippet>322</a>        });
-<a href=#323 id=323 data-nosnippet>323</a>
-<a href=#324 id=324 data-nosnippet>324</a>        <span class="kw">let </span>wait_stage = vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
-<a href=#325 id=325 data-nosnippet>325</a>        <span class="macro">unwrap_here!</span>(<span class="string">"Submit the frame's primary command buffer"</span>, <span class="kw">unsafe </span>{
-<a href=#326 id=326 data-nosnippet>326</a>            <span class="self">self</span>.cxt.queue_submit(
-<a href=#327 id=327 data-nosnippet>327</a>                <span class="self">self</span>.cxt.graphics_queue,
-<a href=#328 id=328 data-nosnippet>328</a>                <span class="kw-2">&amp;</span>[vk::SubmitInfo {
-<a href=#329 id=329 data-nosnippet>329</a>                    wait_semaphore_count: <span class="number">1</span>,
-<a href=#330 id=330 data-nosnippet>330</a>                    p_wait_semaphores: <span class="kw-2">&amp;</span>frame_sync.swapchain_image_acquired.raw,
-<a href=#331 id=331 data-nosnippet>331</a>                    p_wait_dst_stage_mask: <span class="kw-2">&amp;</span>wait_stage,
-<a href=#332 id=332 data-nosnippet>332</a>                    command_buffer_count: <span class="number">1</span>,
-<a href=#333 id=333 data-nosnippet>333</a>                    p_command_buffers: <span class="kw-2">&amp;</span>frame_sync.command_buffer,
-<a href=#334 id=334 data-nosnippet>334</a>                    signal_semaphore_count: <span class="number">1</span>,
-<a href=#335 id=335 data-nosnippet>335</a>                    p_signal_semaphores: <span class="kw-2">&amp;</span><span class="self">self
-<a href=#336 id=336 data-nosnippet>336</a>                        </span>.swapchain_image_present_semaphores
-<a href=#337 id=337 data-nosnippet>337</a>                        [frame.swapchain_image_index <span class="kw">as </span>usize]
-<a href=#338 id=338 data-nosnippet>338</a>                        .raw,
-<a href=#339 id=339 data-nosnippet>339</a>                    ..Default::default()
-<a href=#340 id=340 data-nosnippet>340</a>                }],
-<a href=#341 id=341 data-nosnippet>341</a>                frame_sync.graphics_commands_complete.raw,
-<a href=#342 id=342 data-nosnippet>342</a>            )
-<a href=#343 id=343 data-nosnippet>343</a>        });
-<a href=#344 id=344 data-nosnippet>344</a>        frame_sync.status = FrameSyncStatus::Pending;
+<a href=#248 id=248 data-nosnippet>248</a>        <span class="prelude-val">Ok</span>(())
+<a href=#249 id=249 data-nosnippet>249</a>    }
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="doccomment">/// Get the total number of configured frames in flight.
+<a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">pub fn </span>frame_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="self">self</span>.frames.len()
+<a href=#254 id=254 data-nosnippet>254</a>    }
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a>    <span class="doccomment">/// Blocks until all submitted commands for all frames have completed.
+<a href=#257 id=257 data-nosnippet>257</a>    ///
+<a href=#258 id=258 data-nosnippet>258</a>    /// NOTE: Only waits on pending frames. If there's a frame mid-assembly,
+<a href=#259 id=259 data-nosnippet>259</a>    ///       there's nothing to wait on. (and what's more, attempting to wait
+<a href=#260 id=260 data-nosnippet>260</a>    ///       would never succeed until the frame is submitted)
+<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">pub fn </span>wait_for_all_frames_to_complete(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#262 id=262 data-nosnippet>262</a>        <span class="kw">let </span>fences = <span class="self">self
+<a href=#263 id=263 data-nosnippet>263</a>            </span>.frames
+<a href=#264 id=264 data-nosnippet>264</a>            .iter()
+<a href=#265 id=265 data-nosnippet>265</a>            .filter(|frame_sync| frame_sync.status == FrameSyncStatus::Pending)
+<a href=#266 id=266 data-nosnippet>266</a>            .map(|frame_sync| frame_sync.graphics_commands_complete.raw)
+<a href=#267 id=267 data-nosnippet>267</a>            .collect::&lt;Vec&lt;vk::Fence&gt;&gt;();
+<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">unsafe </span>{
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="self">self</span>.cxt
+<a href=#270 id=270 data-nosnippet>270</a>                .wait_for_fences(<span class="kw-2">&amp;</span>fences, <span class="bool-val">true</span>, u64::MAX)
+<a href=#271 id=271 data-nosnippet>271</a>                .context(<span class="string">"wait for all pending frames to complete"</span>)
+<a href=#272 id=272 data-nosnippet>272</a>        }
+<a href=#273 id=273 data-nosnippet>273</a>    }
+<a href=#274 id=274 data-nosnippet>274</a>
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="doccomment">/// Starts the next frame in flight.
+<a href=#276 id=276 data-nosnippet>276</a>    ///
+<a href=#277 id=277 data-nosnippet>277</a>    /// This method *can* block if all frames are in flight. It will block until
+<a href=#278 id=278 data-nosnippet>278</a>    /// the next frame is available.
+<a href=#279 id=279 data-nosnippet>279</a>    ///
+<a href=#280 id=280 data-nosnippet>280</a>    /// # Returns
+<a href=#281 id=281 data-nosnippet>281</a>    ///
+<a href=#282 id=282 data-nosnippet>282</a>    /// A [FrameStatus] containing one of:
+<a href=#283 id=283 data-nosnippet>283</a>    /// * A [Frame] that must be returned to [Self::present_frame]
+<a href=#284 id=284 data-nosnippet>284</a>    /// * A flag indicating that the Swapchain needs to be rebuilt before the
+<a href=#285 id=285 data-nosnippet>285</a>    ///   next frame.
+<a href=#286 id=286 data-nosnippet>286</a>    </span><span class="kw">pub fn </span>start_frame(
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#288 id=288 data-nosnippet>288</a>        swapchain: <span class="kw-2">&amp;</span>Swapchain,
+<a href=#289 id=289 data-nosnippet>289</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;FrameStatus&gt; {
+<a href=#290 id=290 data-nosnippet>290</a>        <span class="self">self</span>.frame_index = (<span class="self">self</span>.frame_index + <span class="number">1</span>) % <span class="self">self</span>.frames.len();
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a>        <span class="kw">let </span>frame_sync = <span class="kw-2">&amp;mut </span><span class="self">self</span>.frames[<span class="self">self</span>.frame_index];
+<a href=#293 id=293 data-nosnippet>293</a>
+<a href=#294 id=294 data-nosnippet>294</a>        <span class="comment">// Wait for the last frame's submission to complete, if its still
+<a href=#295 id=295 data-nosnippet>295</a>        // running.
+<a href=#296 id=296 data-nosnippet>296</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Wait for the previous submission to complete"</span>, <span class="kw">unsafe </span>{
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="self">self</span>.cxt.wait_for_fences(
+<a href=#298 id=298 data-nosnippet>298</a>                <span class="kw-2">&amp;</span>[frame_sync.graphics_commands_complete.raw],
+<a href=#299 id=299 data-nosnippet>299</a>                <span class="bool-val">true</span>,
+<a href=#300 id=300 data-nosnippet>300</a>                u64::MAX,
+<a href=#301 id=301 data-nosnippet>301</a>            )
+<a href=#302 id=302 data-nosnippet>302</a>        });
+<a href=#303 id=303 data-nosnippet>303</a>
+<a href=#304 id=304 data-nosnippet>304</a>        <span class="comment">// Acquire the next Swapchain image
+<a href=#305 id=305 data-nosnippet>305</a>        </span><span class="kw">let </span>status = <span class="macro">unwrap_here!</span>(
+<a href=#306 id=306 data-nosnippet>306</a>            <span class="string">"Acquire the next swapchain image"</span>,
+<a href=#307 id=307 data-nosnippet>307</a>            swapchain.acquire_image(frame_sync.swapchain_image_acquired.raw)
+<a href=#308 id=308 data-nosnippet>308</a>        );
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">let </span>swapchain_image_index = <span class="kw">match </span>status {
+<a href=#310 id=310 data-nosnippet>310</a>            AcquireImageStatus::ImageAcquired(index) =&gt; index,
+<a href=#311 id=311 data-nosnippet>311</a>            <span class="kw">_ </span>=&gt; {
+<a href=#312 id=312 data-nosnippet>312</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(FrameStatus::SwapchainNeedsRebuild);
+<a href=#313 id=313 data-nosnippet>313</a>            }
+<a href=#314 id=314 data-nosnippet>314</a>        };
+<a href=#315 id=315 data-nosnippet>315</a>
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="comment">// NOTE: only reset the frame's fence and command buffer _after_
+<a href=#317 id=317 data-nosnippet>317</a>        // acquiring a swapchain image. The order matters because the frame
+<a href=#318 id=318 data-nosnippet>318</a>        // will not be processed if the swapchain is out-of-date and needs
+<a href=#319 id=319 data-nosnippet>319</a>        // to be reconstructed.
+<a href=#320 id=320 data-nosnippet>320</a>
+<a href=#321 id=321 data-nosnippet>321</a>        // Swapchain image is available, so reset the commands fence.
+<a href=#322 id=322 data-nosnippet>322</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Reset the frame's fence"</span>, <span class="kw">unsafe </span>{
+<a href=#323 id=323 data-nosnippet>323</a>            <span class="self">self</span>.cxt
+<a href=#324 id=324 data-nosnippet>324</a>                .reset_fences(<span class="kw-2">&amp;</span>[frame_sync.graphics_commands_complete.raw])
+<a href=#325 id=325 data-nosnippet>325</a>        });
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="comment">// mark the frame as pending so nobody gets stuck waiting for it
+<a href=#327 id=327 data-nosnippet>327</a>        </span>frame_sync.status = FrameSyncStatus::Assembling;
+<a href=#328 id=328 data-nosnippet>328</a>
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="comment">// Start the Frame's command buffer.
+<a href=#330 id=330 data-nosnippet>330</a>        </span><span class="macro">unwrap_here!</span>(<span class="string">"Reset the frame's command pool"</span>, <span class="kw">unsafe </span>{
+<a href=#331 id=331 data-nosnippet>331</a>            <span class="self">self</span>.cxt.reset_command_pool(
+<a href=#332 id=332 data-nosnippet>332</a>                frame_sync.command_pool.raw,
+<a href=#333 id=333 data-nosnippet>333</a>                vk::CommandPoolResetFlags::empty(),
+<a href=#334 id=334 data-nosnippet>334</a>            )
+<a href=#335 id=335 data-nosnippet>335</a>        });
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="macro">unwrap_here!</span>(<span class="string">"Begin the frame's command buffer"</span>, <span class="kw">unsafe </span>{
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="self">self</span>.cxt.begin_command_buffer(
+<a href=#338 id=338 data-nosnippet>338</a>                frame_sync.command_buffer,
+<a href=#339 id=339 data-nosnippet>339</a>                <span class="kw-2">&amp;</span>vk::CommandBufferBeginInfo {
+<a href=#340 id=340 data-nosnippet>340</a>                    flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
+<a href=#341 id=341 data-nosnippet>341</a>                    ..Default::default()
+<a href=#342 id=342 data-nosnippet>342</a>                },
+<a href=#343 id=343 data-nosnippet>343</a>            )
+<a href=#344 id=344 data-nosnippet>344</a>        });
 <a href=#345 id=345 data-nosnippet>345</a>
-<a href=#346 id=346 data-nosnippet>346</a>        swapchain.present_image(
-<a href=#347 id=347 data-nosnippet>347</a>            <span class="self">self</span>.swapchain_image_present_semaphores
-<a href=#348 id=348 data-nosnippet>348</a>                [frame.swapchain_image_index <span class="kw">as </span>usize]
-<a href=#349 id=349 data-nosnippet>349</a>                .raw,
-<a href=#350 id=350 data-nosnippet>350</a>            frame.swapchain_image_index(),
-<a href=#351 id=351 data-nosnippet>351</a>        )
-<a href=#352 id=352 data-nosnippet>352</a>    }
-<a href=#353 id=353 data-nosnippet>353</a>}
-<a href=#354 id=354 data-nosnippet>354</a>
-<a href=#355 id=355 data-nosnippet>355</a><span class="kw">impl </span>Drop <span class="kw">for </span>FramesInFlight {
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#357 id=357 data-nosnippet>357</a>        <span class="self">self</span>.wait_for_all_frames_to_complete().unwrap();
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw">unsafe </span>{
-<a href=#359 id=359 data-nosnippet>359</a>            <span class="self">self</span>.cxt.device_wait_idle().unwrap();
-<a href=#360 id=360 data-nosnippet>360</a>        }
-<a href=#361 id=361 data-nosnippet>361</a>    }
-<a href=#362 id=362 data-nosnippet>362</a>}</code></pre></div></section></main></body></html>
+<a href=#346 id=346 data-nosnippet>346</a>        <span class="prelude-val">Ok</span>(FrameStatus::FrameStarted(Frame {
+<a href=#347 id=347 data-nosnippet>347</a>            command_buffer: frame_sync.command_buffer,
+<a href=#348 id=348 data-nosnippet>348</a>            swapchain_image_index,
+<a href=#349 id=349 data-nosnippet>349</a>            frame_index: <span class="self">self</span>.frame_index,
+<a href=#350 id=350 data-nosnippet>350</a>            swapchain_image: swapchain.images()[swapchain_image_index <span class="kw">as </span>usize],
+<a href=#351 id=351 data-nosnippet>351</a>            swapchain_image_view: swapchain.image_views()
+<a href=#352 id=352 data-nosnippet>352</a>                [swapchain_image_index <span class="kw">as </span>usize]
+<a href=#353 id=353 data-nosnippet>353</a>                .raw,
+<a href=#354 id=354 data-nosnippet>354</a>        }))
+<a href=#355 id=355 data-nosnippet>355</a>    }
+<a href=#356 id=356 data-nosnippet>356</a>
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="doccomment">/// Queues the [Frame]'s command buffer and swapchain presentation.
+<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="kw">pub fn </span>present_frame(
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#360 id=360 data-nosnippet>360</a>        swapchain: <span class="kw-2">&amp;</span>Swapchain,
+<a href=#361 id=361 data-nosnippet>361</a>        frame: Frame,
+<a href=#362 id=362 data-nosnippet>362</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;PresentImageStatus&gt; {
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">let </span>frame_sync = <span class="kw-2">&amp;mut </span><span class="self">self</span>.frames[frame.frame_index()];
+<a href=#364 id=364 data-nosnippet>364</a>        <span class="macro">unwrap_here!</span>(<span class="string">"End the frame's command buffer"</span>, <span class="kw">unsafe </span>{
+<a href=#365 id=365 data-nosnippet>365</a>            <span class="self">self</span>.cxt.end_command_buffer(frame_sync.command_buffer)
+<a href=#366 id=366 data-nosnippet>366</a>        });
+<a href=#367 id=367 data-nosnippet>367</a>
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">let </span>wait_stage = vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
+<a href=#369 id=369 data-nosnippet>369</a>        <span class="macro">unwrap_here!</span>(<span class="string">"Submit the frame's primary command buffer"</span>, <span class="kw">unsafe </span>{
+<a href=#370 id=370 data-nosnippet>370</a>            <span class="self">self</span>.cxt.queue_submit(
+<a href=#371 id=371 data-nosnippet>371</a>                <span class="self">self</span>.cxt.graphics_queue,
+<a href=#372 id=372 data-nosnippet>372</a>                <span class="kw-2">&amp;</span>[vk::SubmitInfo {
+<a href=#373 id=373 data-nosnippet>373</a>                    wait_semaphore_count: <span class="number">1</span>,
+<a href=#374 id=374 data-nosnippet>374</a>                    p_wait_semaphores: <span class="kw-2">&amp;</span>frame_sync.swapchain_image_acquired.raw,
+<a href=#375 id=375 data-nosnippet>375</a>                    p_wait_dst_stage_mask: <span class="kw-2">&amp;</span>wait_stage,
+<a href=#376 id=376 data-nosnippet>376</a>                    command_buffer_count: <span class="number">1</span>,
+<a href=#377 id=377 data-nosnippet>377</a>                    p_command_buffers: <span class="kw-2">&amp;</span>frame_sync.command_buffer,
+<a href=#378 id=378 data-nosnippet>378</a>                    signal_semaphore_count: <span class="number">1</span>,
+<a href=#379 id=379 data-nosnippet>379</a>                    p_signal_semaphores: <span class="kw-2">&amp;</span><span class="self">self
+<a href=#380 id=380 data-nosnippet>380</a>                        </span>.swapchain_image_present_semaphores
+<a href=#381 id=381 data-nosnippet>381</a>                        [frame.swapchain_image_index <span class="kw">as </span>usize]
+<a href=#382 id=382 data-nosnippet>382</a>                        .raw,
+<a href=#383 id=383 data-nosnippet>383</a>                    ..Default::default()
+<a href=#384 id=384 data-nosnippet>384</a>                }],
+<a href=#385 id=385 data-nosnippet>385</a>                frame_sync.graphics_commands_complete.raw,
+<a href=#386 id=386 data-nosnippet>386</a>            )
+<a href=#387 id=387 data-nosnippet>387</a>        });
+<a href=#388 id=388 data-nosnippet>388</a>        frame_sync.status = FrameSyncStatus::Pending;
+<a href=#389 id=389 data-nosnippet>389</a>
+<a href=#390 id=390 data-nosnippet>390</a>        swapchain.present_image(
+<a href=#391 id=391 data-nosnippet>391</a>            <span class="self">self</span>.swapchain_image_present_semaphores
+<a href=#392 id=392 data-nosnippet>392</a>                [frame.swapchain_image_index <span class="kw">as </span>usize]
+<a href=#393 id=393 data-nosnippet>393</a>                .raw,
+<a href=#394 id=394 data-nosnippet>394</a>            frame.swapchain_image_index(),
+<a href=#395 id=395 data-nosnippet>395</a>        )
+<a href=#396 id=396 data-nosnippet>396</a>    }
+<a href=#397 id=397 data-nosnippet>397</a>}
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a><span class="kw">impl </span>Drop <span class="kw">for </span>FramesInFlight {
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+<a href=#401 id=401 data-nosnippet>401</a>        <span class="self">self</span>.wait_for_all_frames_to_complete().unwrap();
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">unsafe </span>{
+<a href=#403 id=403 data-nosnippet>403</a>            <span class="self">self</span>.cxt.device_wait_idle().unwrap();
+<a href=#404 id=404 data-nosnippet>404</a>        }
+<a href=#405 id=405 data-nosnippet>405</a>    }
+<a href=#406 id=406 data-nosnippet>406</a>}</code></pre></div></section></main></body></html>

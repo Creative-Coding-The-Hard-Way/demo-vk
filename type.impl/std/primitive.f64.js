@@ -1,9 +1,9 @@
 (function() {
-    var type_impls = Object.fromEntries([["spin_sleep",[]]]);
+    var type_impls = Object.fromEntries([["serde",[]],["serde_core",[]],["spin_sleep",[]]]);
     if (window.register_type_impls) {
         window.register_type_impls(type_impls);
     } else {
         window.pending_type_impls = type_impls;
     }
 })()
-//{"start":55,"fragment_lengths":[17]}
+//{"start":55,"fragment_lengths":[12,18,18]}

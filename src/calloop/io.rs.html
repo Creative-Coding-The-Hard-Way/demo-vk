@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.13.0/src/io.rs`."><title>io.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>io.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Adapters for async IO objects
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.14.3/src/io.rs`."><title>io.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>io.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Adapters for async IO objects
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module mainly hosts the [`Async`] adapter for making IO objects async with readiness
 <a href=#4 id=4 data-nosnippet>4</a>//! monitoring backed by an [`EventLoop`](crate::EventLoop). See [`LoopHandle::adapt_io`] for
@@ -51,7 +51,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>    was_nonblocking: bool,
 <a href=#52 id=52 data-nosnippet>52</a>}
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, F: AsFd + std::fmt::Debug&gt; std::fmt::Debug <span class="kw">for </span>Async&lt;<span class="lifetime">'l</span>, F&gt; {
+<a href=#54 id=54 data-nosnippet>54</a><span class="kw">impl</span>&lt;F: AsFd + std::fmt::Debug&gt; std::fmt::Debug <span class="kw">for </span>Async&lt;<span class="lifetime">'_</span>, F&gt; {
 <a href=#55 id=55 data-nosnippet>55</a>    <span class="attr">#[cfg_attr(feature = <span class="string">"nightly_coverage"</span>, coverage(off))]
 <a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
 <a href=#57 id=57 data-nosnippet>57</a>        f.debug_struct(<span class="string">"Async"</span>).field(<span class="string">"fd"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.fd).finish()
@@ -146,7 +146,7 @@
 <a href=#146 id=146 data-nosnippet>146</a>    io: <span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>Async&lt;<span class="lifetime">'l</span>, F&gt;,
 <a href=#147 id=147 data-nosnippet>147</a>}
 <a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a><span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, <span class="lifetime">'l</span>, F: AsFd&gt; std::future::Future <span class="kw">for </span>Readable&lt;<span class="lifetime">'s</span>, <span class="lifetime">'l</span>, F&gt; {
+<a href=#149 id=149 data-nosnippet>149</a><span class="kw">impl</span>&lt;F: AsFd&gt; std::future::Future <span class="kw">for </span>Readable&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, F&gt; {
 <a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">type </span>Output = ();
 <a href=#151 id=151 data-nosnippet>151</a>    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; TaskPoll&lt;()&gt; {
 <a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">let </span>io = <span class="kw-2">&amp;mut </span><span class="self">self</span>.as_mut().io;
@@ -166,7 +166,7 @@
 <a href=#166 id=166 data-nosnippet>166</a>    io: <span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>Async&lt;<span class="lifetime">'l</span>, F&gt;,
 <a href=#167 id=167 data-nosnippet>167</a>}
 <a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a><span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, <span class="lifetime">'l</span>, F: AsFd&gt; std::future::Future <span class="kw">for </span>Writable&lt;<span class="lifetime">'s</span>, <span class="lifetime">'l</span>, F&gt; {
+<a href=#169 id=169 data-nosnippet>169</a><span class="kw">impl</span>&lt;F: AsFd&gt; std::future::Future <span class="kw">for </span>Writable&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, F&gt; {
 <a href=#170 id=170 data-nosnippet>170</a>    <span class="kw">type </span>Output = ();
 <a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; TaskPoll&lt;()&gt; {
 <a href=#172 id=172 data-nosnippet>172</a>        <span class="kw">let </span>io = <span class="kw-2">&amp;mut </span><span class="self">self</span>.as_mut().io;
@@ -180,7 +180,7 @@
 <a href=#180 id=180 data-nosnippet>180</a>    }
 <a href=#181 id=181 data-nosnippet>181</a>}
 <a href=#182 id=182 data-nosnippet>182</a>
-<a href=#183 id=183 data-nosnippet>183</a><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, F: AsFd&gt; Drop <span class="kw">for </span>Async&lt;<span class="lifetime">'l</span>, F&gt; {
+<a href=#183 id=183 data-nosnippet>183</a><span class="kw">impl</span>&lt;F: AsFd&gt; Drop <span class="kw">for </span>Async&lt;<span class="lifetime">'_</span>, F&gt; {
 <a href=#184 id=184 data-nosnippet>184</a>    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
 <a href=#185 id=185 data-nosnippet>185</a>        <span class="self">self</span>.inner.kill(<span class="kw-2">&amp;</span><span class="self">self</span>.dispatcher);
 <a href=#186 id=186 data-nosnippet>186</a>        <span class="comment">// restore flags
@@ -191,7 +191,7 @@
 <a href=#191 id=191 data-nosnippet>191</a>    }
 <a href=#192 id=192 data-nosnippet>192</a>}
 <a href=#193 id=193 data-nosnippet>193</a>
-<a href=#194 id=194 data-nosnippet>194</a><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, F: AsFd&gt; Unpin <span class="kw">for </span>Async&lt;<span class="lifetime">'l</span>, F&gt; {}
+<a href=#194 id=194 data-nosnippet>194</a><span class="kw">impl</span>&lt;F: AsFd&gt; Unpin <span class="kw">for </span>Async&lt;<span class="lifetime">'_</span>, F&gt; {}
 <a href=#195 id=195 data-nosnippet>195</a>
 <a href=#196 id=196 data-nosnippet>196</a><span class="kw">trait </span>IoLoopInner {
 <a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">unsafe fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, dispatcher: <span class="kw-2">&amp;</span>RefCell&lt;IoDispatcher&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt;;
@@ -199,7 +199,7 @@
 <a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">fn </span>kill(<span class="kw-2">&amp;</span><span class="self">self</span>, dispatcher: <span class="kw-2">&amp;</span>RefCell&lt;IoDispatcher&gt;);
 <a href=#200 id=200 data-nosnippet>200</a>}
 <a href=#201 id=201 data-nosnippet>201</a>
-<a href=#202 id=202 data-nosnippet>202</a><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, Data&gt; IoLoopInner <span class="kw">for </span>LoopInner&lt;<span class="lifetime">'l</span>, Data&gt; {
+<a href=#202 id=202 data-nosnippet>202</a><span class="kw">impl</span>&lt;Data&gt; IoLoopInner <span class="kw">for </span>LoopInner&lt;<span class="lifetime">'_</span>, Data&gt; {
 <a href=#203 id=203 data-nosnippet>203</a>    <span class="kw">unsafe fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, dispatcher: <span class="kw-2">&amp;</span>RefCell&lt;IoDispatcher&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
 <a href=#204 id=204 data-nosnippet>204</a>        <span class="kw">let </span>disp = dispatcher.borrow();
 <a href=#205 id=205 data-nosnippet>205</a>        <span class="self">self</span>.poll.borrow_mut().register(
@@ -306,7 +306,7 @@
 <a href=#306 id=306 data-nosnippet>306</a>
 <a href=#307 id=307 data-nosnippet>307</a></span><span class="attr">#[cfg(feature = <span class="string">"futures-io"</span>)]
 <a href=#308 id=308 data-nosnippet>308</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"futures-io"</span>)))]
-<a href=#309 id=309 data-nosnippet>309</a></span><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, F: AsFd + std::io::Read&gt; AsyncRead <span class="kw">for </span>Async&lt;<span class="lifetime">'l</span>, F&gt; {
+<a href=#309 id=309 data-nosnippet>309</a></span><span class="kw">impl</span>&lt;F: AsFd + std::io::Read&gt; AsyncRead <span class="kw">for </span>Async&lt;<span class="lifetime">'_</span>, F&gt; {
 <a href=#310 id=310 data-nosnippet>310</a>    <span class="kw">fn </span>poll_read(
 <a href=#311 id=311 data-nosnippet>311</a>        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
 <a href=#312 id=312 data-nosnippet>312</a>        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
@@ -336,7 +336,7 @@
 <a href=#336 id=336 data-nosnippet>336</a>
 <a href=#337 id=337 data-nosnippet>337</a><span class="attr">#[cfg(feature = <span class="string">"futures-io"</span>)]
 <a href=#338 id=338 data-nosnippet>338</a>#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"futures-io"</span>)))]
-<a href=#339 id=339 data-nosnippet>339</a></span><span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, F: AsFd + std::io::Write&gt; AsyncWrite <span class="kw">for </span>Async&lt;<span class="lifetime">'l</span>, F&gt; {
+<a href=#339 id=339 data-nosnippet>339</a></span><span class="kw">impl</span>&lt;F: AsFd + std::io::Write&gt; AsyncWrite <span class="kw">for </span>Async&lt;<span class="lifetime">'_</span>, F&gt; {
 <a href=#340 id=340 data-nosnippet>340</a>    <span class="kw">fn </span>poll_write(
 <a href=#341 id=341 data-nosnippet>341</a>        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
 <a href=#342 id=342 data-nosnippet>342</a>        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
