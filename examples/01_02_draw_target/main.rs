@@ -1,5 +1,5 @@
 use {
-    anyhow::{Context, Result},
+    anyhow::Result,
     ash::vk::{self},
     clap::Parser,
     demo_vk::{
@@ -334,10 +334,7 @@ impl Demo for Example {
                 ));
                 self.mesh.set_scissor(vk::Rect2D {
                     offset: vk::Offset2D { x: 0, y: 0 },
-                    extent: vk::Extent2D {
-                        width: width as u32,
-                        height: height as u32,
-                    },
+                    extent: vk::Extent2D { width, height },
                 });
             }
             _ => {}

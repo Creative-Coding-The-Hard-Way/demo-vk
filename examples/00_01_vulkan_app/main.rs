@@ -46,13 +46,10 @@ impl App for VulkanApp {
             VulkanContext::new(window, RequiredDeviceFeatures::default())
         );
 
-        let PhysicalSize {
-            width: w,
-            height: h,
-        } = window.inner_size();
+        let PhysicalSize { width, height } = window.inner_size();
         let swapchain = unwrap_here!(
             "Create the application swapchain",
-            Swapchain::new(ctx.clone(), (w as u32, h as u32), None)
+            Swapchain::new(ctx.clone(), (width, height), None)
         );
 
         let frames_in_flight = unwrap_here!(
@@ -103,13 +100,10 @@ impl App for VulkanApp {
                 "wait for all frames to finish before rebuilding the swapchain",
                 self.frames_in_flight.wait_for_all_frames_to_complete()
             );
-            let PhysicalSize {
-                width: w,
-                height: h,
-            } = window.inner_size();
+            let PhysicalSize { width, height } = window.inner_size();
             self.swapchain = unwrap_here!(
                 "rebuild the swapchain",
-                Swapchain::new(self.ctx.clone(), (w as u32, h as u32), None,)
+                Swapchain::new(self.ctx.clone(), (width, height), None,)
             );
         }
 

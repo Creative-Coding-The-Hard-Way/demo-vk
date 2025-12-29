@@ -6,10 +6,11 @@ use {
     anyhow::{bail, Result},
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::vulkan::Frame,
     },
-    glfw::Window,
+    winit::window::Window,
 };
 
 #[derive(Debug, Parser)]
@@ -20,27 +21,32 @@ struct ErrorDuringDraw;
 impl Demo for ErrorDuringDraw {
     type Args = Args;
 
-    fn new(_window: &mut Window, _gfx: &mut Graphics<Args>) -> Result<Self> {
+    fn new(
+        _window: &mut Window,
+        _gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
         Ok(Self {})
     }
 
     fn draw(
         &mut self,
         _window: &mut Window,
-        _gfx: &mut Graphics<Args>,
+        _gfx: &mut Graphics,
         _frame: &Frame,
-    ) -> Result<()> {
+    ) -> Result<AppState> {
         bail!("Error after acquiring a frame!");
     }
 }
 
-#[test]
-fn when_an_error_is_raised_in_draw_then_the_application_should_exit() {
+fn main() {
     let result = demo_main::<ErrorDuringDraw>();
     assert!(result.is_err());
+    // unable to initialize because the first frame is rendered during
+    // setup
     assert!(result
         .err()
         .unwrap()
         .to_string()
-        .contains("Unhandled error in Demo::draw()"));
+        .contains("Unable to initialize app"));
 }

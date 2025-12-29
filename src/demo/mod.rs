@@ -28,7 +28,7 @@ use {
     },
 };
 
-// pub use self::egui_integration::glfw_event_to_egui_event;
+pub use self::egui_integration::EguiPainter;
 
 /// Standard graphics resources provided by the Demo.
 pub struct Graphics {

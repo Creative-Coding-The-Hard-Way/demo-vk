@@ -37,3 +37,11 @@ winit = "0.30.12"
 ash-window = "0.13.0"
 egui-winit = "0.33.3"
 
+[[test]]
+name = "device_buffer_address"
+harness = false
+
+
+[[test]]
+name = "error_during_draw"
+harness = false

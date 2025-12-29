@@ -6,10 +6,11 @@ use {
     ash::vk,
     clap::Parser,
     demo_vk::{
+        app::AppState,
         demo::{demo_main, Demo, Graphics},
         graphics::vulkan::{CPUBuffer, RequiredDeviceFeatures, UniformBuffer},
     },
-    glfw::Window,
+    winit::window::Window,
 };
 
 #[derive(Debug, Parser)]
@@ -31,7 +32,11 @@ impl Demo for DeviceBufferAddressTest {
         }
     }
 
-    fn new(window: &mut Window, gfx: &mut Graphics<Args>) -> Result<Self> {
+    fn new(
+        _window: &mut Window,
+        gfx: &mut Graphics,
+        _args: &Self::Args,
+    ) -> Result<Self> {
         let _ubuf = UniformBuffer::<f32>::allocate(&gfx.vulkan, 1)?;
 
         // This is the heart of the test. Allocate a buffer and fetch the device
@@ -52,12 +57,19 @@ impl Demo for DeviceBufferAddressTest {
         };
         log::info!("Created buffer with address: {}", address);
 
-        window.set_should_close(true);
         Ok(Self {})
+    }
+
+    fn update(
+        &mut self,
+        #[allow(unused_variables)] window: &mut Window,
+        #[allow(unused_variables)] gfx: &mut Graphics,
+    ) -> Result<AppState> {
+        Ok(AppState::Exit)
     }
 }
 
-#[test]
-fn no_validation_errors_should_be_raised() {
-    let _ = demo_main::<DeviceBufferAddressTest>();
+fn main() {
+    let result = demo_main::<DeviceBufferAddressTest>();
+    assert!(result.is_ok());
 }

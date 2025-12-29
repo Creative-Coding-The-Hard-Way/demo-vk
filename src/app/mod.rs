@@ -132,24 +132,30 @@ impl<A: App + 'static> ApplicationHandler for WinitAppHandler<A> {
             return;
         }
 
-        let mut window = event_loop
-            .create_window(WindowAttributes::default().with_visible(false));
+        self.window = match event_loop
+            .create_window(WindowAttributes::default().with_visible(false))
+        {
+            Ok(window) => Some(window),
+            Err(error) => {
+                self.exit_result =
+                    Err(error).context("Unable to create window");
+                event_loop.exit();
+                return;
+            }
+        };
 
-        if let Err(error) = window {
-            self.exit_result = Err(error).context("Unable to create window");
-            event_loop.exit();
-            return;
-        }
-
-        let app = A::new(window.as_mut().unwrap(), &self.args.take().unwrap());
-        if let Err(error) = app {
-            self.exit_result = Err(error);
-            event_loop.exit();
-            return;
-        }
-
-        self.window = Some(window.unwrap());
-        self.app = Some(app.unwrap());
+        self.app = match A::new(
+            self.window.as_mut().unwrap(),
+            &self.args.take().unwrap(),
+        ) {
+            Ok(app) => Some(app),
+            Err(error) => {
+                self.exit_result =
+                    Err(error).context("Unable to initialize app");
+                event_loop.exit();
+                return;
+            }
+        };
     }
 
     fn window_event(
@@ -158,6 +164,13 @@ impl<A: App + 'static> ApplicationHandler for WinitAppHandler<A> {
         _window_id: winit::window::WindowId,
         event: WindowEvent,
     ) {
+        if self.app.is_none() {
+            // Quit if the app doesn't exist, this can happen when initial
+            // setup failed but an event is still queued.
+            self.process_app_state(Ok(AppState::Exit), event_loop);
+            return;
+        }
+
         let app_state = match event {
             WindowEvent::CloseRequested => Ok(AppState::Exit),
             WindowEvent::RedrawRequested => {
