@@ -324,31 +324,14 @@ impl EguiPainter {
             full_output.shapes,
             self.state.egui_ctx().pixels_per_point(),
         );
-        let mut triangles_mesh = self.get_next_free_mesh();
-        let mut current_clip = vk::Rect2D::default();
-        if let Some(primitive) = clipped_primitives.first() {
-            current_clip =
-                egui_rect_to_vk_rect(pixels_per_point, primitive.clip_rect);
-            triangles_mesh.set_scissor(current_clip);
-        }
 
-        for clipped_primitive in clipped_primitives {
-            let clip_rect = egui_rect_to_vk_rect(
+        for clipped_primitive in &clipped_primitives {
+            let mut triangles_mesh = self.get_next_free_mesh();
+            triangles_mesh.set_scissor(egui_rect_to_vk_rect(
                 pixels_per_point,
                 clipped_primitive.clip_rect,
-            );
-            if clip_rect != current_clip {
-                // Allocate a new mesh and swap with the existing triangles_mesh
-                // so it can be saved in the 'used_meshes' list while the
-                // triangles_mesh remains the 'active' mesh for adding new
-                // vertices.
-                let mut next_mesh = self.get_next_free_mesh();
-                (triangles_mesh, next_mesh) = (next_mesh, triangles_mesh);
-                self.used_meshes.push(next_mesh);
-                triangles_mesh.set_scissor(clip_rect);
-            }
-
-            match clipped_primitive.primitive {
+            ));
+            match &clipped_primitive.primitive {
                 Primitive::Mesh(mesh) => {
                     let texture_id = *self
                         .egui_textures
@@ -372,8 +355,8 @@ impl EguiPainter {
                     );
                 }
             }
+            self.used_meshes.push(triangles_mesh);
         }
-        self.used_meshes.push(triangles_mesh);
 
         Ok(())
     }
