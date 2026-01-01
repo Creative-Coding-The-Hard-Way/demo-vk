@@ -45,6 +45,11 @@ impl Demo for Example {
                     dynamic_rendering: vk::TRUE,
                     ..Default::default()
                 },
+            physical_device_maintenance4_features:
+                vk::PhysicalDeviceMaintenance4Features {
+                    maintenance4: vk::TRUE,
+                    ..Default::default()
+                },
             physical_device_vulkan12_features:
                 vk::PhysicalDeviceVulkan12Features {
                     // required for texture atlas behavior

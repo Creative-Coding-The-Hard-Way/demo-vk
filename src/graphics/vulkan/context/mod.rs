@@ -24,6 +24,8 @@ pub use self::instance::Instance;
 #[derive(Debug, Default)]
 pub struct RequiredDeviceFeatures {
     pub physical_device_features: vk::PhysicalDeviceFeatures,
+    pub physical_device_maintenance4_features:
+        vk::PhysicalDeviceMaintenance4Features<'static>,
     pub physical_device_vulkan12_features:
         vk::PhysicalDeviceVulkan12Features<'static>,
     pub physical_device_dynamic_rendering_features:

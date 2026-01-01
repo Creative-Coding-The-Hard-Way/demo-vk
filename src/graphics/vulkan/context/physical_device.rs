@@ -159,6 +159,8 @@ fn has_required_features(
     required_device_features: &RequiredDeviceFeatures,
 ) -> bool {
     // load supported fetaures from the device
+    let mut actual_maintenenc4_features =
+        vk::PhysicalDeviceMaintenance4Features::default();
     let mut actual_dynamic_rendering_features =
         vk::PhysicalDeviceDynamicRenderingFeatures::default();
     let mut actual_vulkan12_features =
@@ -166,7 +168,8 @@ fn has_required_features(
     let actual_features = unsafe {
         let mut features = vk::PhysicalDeviceFeatures2::default()
             .push_next(&mut actual_vulkan12_features)
-            .push_next(&mut actual_dynamic_rendering_features);
+            .push_next(&mut actual_dynamic_rendering_features)
+            .push_next(&mut actual_maintenenc4_features);
         instance.get_physical_device_features2(physical_device, &mut features);
         features.features
     };
@@ -184,6 +187,13 @@ fn has_required_features(
             }
         };
     }
+
+    // check for maintenence4 features
+    check!(
+        required_device_features.physical_device_maintenance4_features,
+        actual_maintenenc4_features,
+        maintenance4
+    );
 
     // check for dynamic rendering support
     check!(

@@ -61,6 +61,10 @@ pub fn create_logical_device(
     let extensions = [ash::khr::swapchain::NAME.as_ptr()];
 
     let logical_device = {
+        let mut maintenence4_features =
+            vk::PhysicalDeviceMaintenance4Features {
+                ..required_device_features.physical_device_maintenance4_features
+            };
         let mut physical_device_dynamic_rendering_features =
             vk::PhysicalDeviceDynamicRenderingFeatures {
                 ..required_device_features
@@ -79,7 +83,8 @@ pub fn create_logical_device(
             ..Default::default()
         }
         .push_next(&mut physical_device_vulkan12_features)
-        .push_next(&mut physical_device_dynamic_rendering_features);
+        .push_next(&mut physical_device_dynamic_rendering_features)
+        .push_next(&mut maintenence4_features);
 
         // create the device using the requested features
         let create_info = vk::DeviceCreateInfo {
