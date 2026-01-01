@@ -1,5 +1,5 @@
 use {
-    anyhow::{Context, Result, bail},
+    anyhow::{bail, Context, Result},
     std::path::Path,
 };
 
@@ -71,7 +71,11 @@ pub fn compile_glsl(
     } else {
         vec!["-o", "-"]
     };
-    args.extend_from_slice(&["--target-spv=spv1.5", shader_path_str]);
+    args.extend_from_slice(&[
+        "--target-spv=spv1.6",
+        "--target-env=vulkan1.3",
+        shader_path_str,
+    ]);
     let output = std::process::Command::new("glslc")
         .args(&args)
         .output()
