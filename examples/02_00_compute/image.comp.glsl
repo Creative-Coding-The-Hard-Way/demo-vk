@@ -17,11 +17,11 @@ void main() {
         return;
     }
 
-    vec2 uv = gl_GlobalInvocationID.xy / pc.resolution;
+    vec2 uv = vec2(gl_GlobalInvocationID.xy) / vec2(pc.resolution);
     imageStore(
         out_tex,
         ivec2(gl_GlobalInvocationID.xy),
-        vec4(uv.x, uv.y, 0.25, 1.0)
+        vec4(0.0, uv.y, uv.x, 1.0)
     );
 }
 

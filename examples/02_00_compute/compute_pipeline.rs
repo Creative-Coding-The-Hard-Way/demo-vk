@@ -2,21 +2,18 @@ use {
     anyhow::Result,
     ash::vk,
     demo_vk::{
-        graphics::vulkan::{raii, spirv_words, VulkanContext},
+        graphics::{
+            streaming_renderer::Texture,
+            vulkan::{raii, spirv_words, VulkanContext},
+        },
         unwrap_here,
     },
 };
 
-#[repr(C, align(16))]
-#[derive(Debug, Copy, Clone)]
-struct PushConstants {
-    pub resolution: [u32; 2],
-}
-
 pub struct Compute {
     descriptor_set: vk::DescriptorSet,
-    descriptor_pool: raii::DescriptorPool,
-    descriptor_set_layout: raii::DescriptorSetLayout,
+    _descriptor_pool: raii::DescriptorPool,
+    _descriptor_set_layout: raii::DescriptorSetLayout,
     pipeline_layout: raii::PipelineLayout,
     pipeline: raii::Pipeline,
 }
@@ -86,7 +83,7 @@ impl Compute {
             let push_constant_ranges = [vk::PushConstantRange {
                 stage_flags: vk::ShaderStageFlags::COMPUTE,
                 offset: 0,
-                size: std::mem::size_of::<PushConstants>() as u32,
+                size: (std::mem::size_of::<u32>() * 2) as u32,
             }];
             unwrap_here!(
                 "Compute pipeline layout",
@@ -163,10 +160,77 @@ impl Compute {
 
         Ok(Self {
             descriptor_set,
-            descriptor_pool,
-            descriptor_set_layout,
+            _descriptor_pool: descriptor_pool,
+            _descriptor_set_layout: descriptor_set_layout,
             pipeline_layout,
             pipeline,
         })
+    }
+
+    pub fn write_descriptor_set(&self, ctx: &VulkanContext, image: &Texture) {
+        let descriptor_image_info = vk::DescriptorImageInfo {
+            sampler: vk::Sampler::null(),
+            image_view: image.view().raw,
+            image_layout: vk::ImageLayout::GENERAL,
+        };
+        unsafe {
+            ctx.update_descriptor_sets(
+                &[vk::WriteDescriptorSet {
+                    dst_set: self.descriptor_set,
+                    dst_binding: 0,
+                    dst_array_element: 0,
+                    descriptor_count: 1,
+                    descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                    p_image_info: &descriptor_image_info,
+                    p_buffer_info: std::ptr::null(),
+                    p_texel_buffer_view: std::ptr::null(),
+                    ..Default::default()
+                }],
+                &[],
+            )
+        };
+    }
+
+    pub fn dispatch(
+        &self,
+        ctx: &VulkanContext,
+        command_buffer: vk::CommandBuffer,
+        image: &Texture,
+    ) {
+        unsafe {
+            ctx.cmd_push_constants(
+                command_buffer,
+                self.pipeline_layout.raw,
+                vk::ShaderStageFlags::COMPUTE,
+                0,
+                &image.width().to_le_bytes(),
+            );
+            ctx.cmd_push_constants(
+                command_buffer,
+                self.pipeline_layout.raw,
+                vk::ShaderStageFlags::COMPUTE,
+                4,
+                &image.height().to_le_bytes(),
+            );
+            ctx.cmd_bind_descriptor_sets(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                self.pipeline_layout.raw,
+                0,
+                &[self.descriptor_set],
+                &[],
+            );
+            ctx.cmd_bind_pipeline(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                self.pipeline.raw,
+            );
+            ctx.cmd_dispatch(
+                command_buffer,
+                image.width() / 8,
+                image.height() / 8,
+                1,
+            );
+        }
     }
 }

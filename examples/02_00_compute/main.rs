@@ -108,7 +108,7 @@ impl Demo for Example {
             loader.tex_sub_image(
                 &gfx.vulkan,
                 &image,
-                &vec![0xFF; (image.width() * image.height() * 4) as usize],
+                &vec![0x00; (image.width() * image.height() * 4) as usize],
                 [0, 0],
                 [image.width(), image.height()]
             )
@@ -116,6 +116,7 @@ impl Demo for Example {
 
         let compute =
             unwrap_here!("Create compute resources", Compute::new(&gfx.vulkan));
+        compute.write_descriptor_set(&gfx.vulkan, &image);
 
         Ok(Self {
             gui,
@@ -149,20 +150,34 @@ impl Demo for Example {
         image_memory_barrier()
             .ctx(&gfx.vulkan)
             .command_buffer(frame.command_buffer())
+            .image(self.image.image().raw)
+            .old_layout(vk::ImageLayout::UNDEFINED)
+            .new_layout(vk::ImageLayout::GENERAL)
+            .src_access_mask(vk::AccessFlags::empty())
+            .dst_access_mask(vk::AccessFlags::SHADER_WRITE)
+            .call();
+
+        self.compute
+            .dispatch(&gfx.vulkan, frame.command_buffer(), &self.image);
+
+        image_memory_barrier()
+            .ctx(&gfx.vulkan)
+            .command_buffer(frame.command_buffer())
+            .image(self.image.image().raw)
+            .old_layout(vk::ImageLayout::GENERAL)
+            .new_layout(vk::ImageLayout::TRANSFER_SRC_OPTIMAL)
+            .src_access_mask(vk::AccessFlags::SHADER_WRITE)
+            .dst_access_mask(vk::AccessFlags::TRANSFER_READ)
+            .call();
+
+        image_memory_barrier()
+            .ctx(&gfx.vulkan)
+            .command_buffer(frame.command_buffer())
             .image(frame.swapchain_image())
             .old_layout(vk::ImageLayout::UNDEFINED)
             .new_layout(vk::ImageLayout::TRANSFER_DST_OPTIMAL)
             .src_access_mask(vk::AccessFlags::empty())
             .dst_access_mask(vk::AccessFlags::TRANSFER_WRITE)
-            .call();
-        image_memory_barrier()
-            .ctx(&gfx.vulkan)
-            .command_buffer(frame.command_buffer())
-            .image(self.image.image().raw)
-            .old_layout(vk::ImageLayout::UNDEFINED)
-            .new_layout(vk::ImageLayout::TRANSFER_SRC_OPTIMAL)
-            .src_access_mask(vk::AccessFlags::empty())
-            .dst_access_mask(vk::AccessFlags::TRANSFER_READ)
             .call();
 
         unsafe {
