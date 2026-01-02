@@ -10,8 +10,10 @@ use {
         demo::{demo_main, Demo, EguiPainter, Graphics},
         graphics::{
             image_memory_barrier,
-            streaming_renderer::{Texture, TextureLoader},
-            vulkan::{Frame, RequiredDeviceFeatures},
+            streaming_renderer::Texture,
+            vulkan::{
+                raii, spirv_words, Frame, RequiredDeviceFeatures, SyncCommands,
+            },
         },
         unwrap_here,
     },
@@ -19,9 +21,9 @@ use {
     std::sync::Arc,
     winit::{
         dpi::PhysicalSize,
-        event::WindowEvent,
+        event::{ElementState, WindowEvent},
         keyboard::{KeyCode, PhysicalKey},
-        window::Window,
+        window::{Fullscreen, Window},
     },
 };
 
@@ -30,7 +32,7 @@ struct Args {}
 
 struct Example {
     gui: EguiPainter,
-    compute: Compute,
+    kernel: Compute,
     image: Arc<Texture>,
 }
 
@@ -87,7 +89,7 @@ impl Demo for Example {
                     gfx.swapchain.extent().width,
                     gfx.swapchain.extent().height
                 ))
-                .format(vk::Format::R8G8B8A8_UNORM)
+                .format(vk::Format::R16G16B16A16_SFLOAT)
                 .image_usage_flags(
                     vk::ImageUsageFlags::STORAGE
                         | vk::ImageUsageFlags::SAMPLED
@@ -98,30 +100,79 @@ impl Demo for Example {
                 .build()
         ));
 
-        let mut loader = unwrap_here!(
-            "Create texture loader",
-            TextureLoader::new(gfx.vulkan.clone())
-        );
-
-        unwrap_here!(
-            "Initialize texture data.",
-            loader.tex_sub_image(
-                &gfx.vulkan,
-                &image,
-                &vec![0x00; (image.width() * image.height() * 4) as usize],
-                [0, 0],
-                [image.width(), image.height()]
+        let init = {
+            let module_spirv = unwrap_here!(
+                "Include init spirv bytes",
+                spirv_words(include_bytes!("./init.comp.spv"))
+            );
+            let module = unwrap_here!(
+                "Create init kernel",
+                raii::ShaderModule::new(
+                    "Compute Kernel",
+                    gfx.vulkan.device.clone(),
+                    &vk::ShaderModuleCreateInfo {
+                        code_size: module_spirv.len() * 4,
+                        p_code: module_spirv.as_ptr(),
+                        ..Default::default()
+                    }
+                )
+            );
+            unwrap_here!(
+                "Create init kernel resources",
+                Compute::new(&gfx.vulkan, &module)
             )
+        };
+        init.write_descriptor_set(&gfx.vulkan, &image);
+
+        let one_time_commands = unwrap_here!(
+            "Create one-time-submit command buffer",
+            SyncCommands::new(gfx.vulkan.clone())
+        );
+        unwrap_here!(
+            "Initialize compute image",
+            one_time_commands.submit_and_wait(|command_buffer| {
+                image_memory_barrier()
+                    .ctx(&gfx.vulkan)
+                    .command_buffer(command_buffer)
+                    .image(image.image().raw)
+                    .old_layout(vk::ImageLayout::UNDEFINED)
+                    .new_layout(vk::ImageLayout::GENERAL)
+                    .src_access_mask(vk::AccessFlags::empty())
+                    .dst_access_mask(vk::AccessFlags::SHADER_WRITE)
+                    .call();
+                init.dispatch(&gfx.vulkan, command_buffer, &image);
+                Ok(())
+            })
         );
 
-        let compute =
-            unwrap_here!("Create compute resources", Compute::new(&gfx.vulkan));
+        let compute = {
+            let module_spirv = unwrap_here!(
+                "Include compute kernel spirv",
+                spirv_words(include_bytes!("./image.comp.spv"))
+            );
+            let module = unwrap_here!(
+                "Create compute kernel",
+                raii::ShaderModule::new(
+                    "Compute Kernel",
+                    gfx.vulkan.device.clone(),
+                    &vk::ShaderModuleCreateInfo {
+                        code_size: module_spirv.len() * 4,
+                        p_code: module_spirv.as_ptr(),
+                        ..Default::default()
+                    }
+                )
+            );
+            unwrap_here!(
+                "Create compute resources",
+                Compute::new(&gfx.vulkan, &module)
+            )
+        };
         compute.write_descriptor_set(&gfx.vulkan, &image);
 
         Ok(Self {
             gui,
             image,
-            compute,
+            kernel: compute,
         })
     }
 
@@ -157,7 +208,7 @@ impl Demo for Example {
             .dst_access_mask(vk::AccessFlags::SHADER_WRITE)
             .call();
 
-        self.compute
+        self.kernel
             .dispatch(&gfx.vulkan, frame.command_buffer(), &self.image);
 
         image_memory_barrier()
@@ -302,7 +353,30 @@ impl Demo for Example {
         _window: &mut Window,
         gfx: &mut Graphics,
     ) -> Result<()> {
-        self.gui.rebuild_swapchain_resources(gfx)
+        unwrap_here!(
+            "rebuild gui swapchain resources",
+            self.gui.rebuild_swapchain_resources(gfx)
+        );
+        self.image = Arc::new(unwrap_here!(
+            "Create compute target image",
+            Texture::builder()
+                .ctx(&gfx.vulkan)
+                .dimensions((
+                    gfx.swapchain.extent().width,
+                    gfx.swapchain.extent().height
+                ))
+                .format(vk::Format::R16G16B16A16_SFLOAT)
+                .image_usage_flags(
+                    vk::ImageUsageFlags::STORAGE
+                        | vk::ImageUsageFlags::SAMPLED
+                        | vk::ImageUsageFlags::TRANSFER_SRC
+                        | vk::ImageUsageFlags::TRANSFER_DST
+                )
+                .memory_property_flags(vk::MemoryPropertyFlags::DEVICE_LOCAL)
+                .build()
+        ));
+        self.kernel.write_descriptor_set(&gfx.vulkan, &self.image);
+        Ok(())
     }
 
     fn handle_window_event(
@@ -317,12 +391,24 @@ impl Demo for Example {
 
         match event {
             WindowEvent::KeyboardInput { event, .. } => {
-                if event.physical_key == PhysicalKey::Code(KeyCode::Escape) {
-                    return Ok(AppState::Exit);
+                if event.state == ElementState::Released {
+                    if event.physical_key == PhysicalKey::Code(KeyCode::Escape)
+                    {
+                        return Ok(AppState::Exit);
+                    }
+                    if event.physical_key == PhysicalKey::Code(KeyCode::Space) {
+                        match window.fullscreen() {
+                            None => {
+                                window.set_fullscreen(Some(
+                                    Fullscreen::Borderless(None),
+                                ));
+                            }
+                            _ => {
+                                window.set_fullscreen(None);
+                            }
+                        }
+                    }
                 }
-            }
-            WindowEvent::Resized(PhysicalSize { .. }) => {
-                // no-op currently
             }
             _ => {}
         };

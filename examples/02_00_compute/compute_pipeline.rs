@@ -4,7 +4,7 @@ use {
     demo_vk::{
         graphics::{
             streaming_renderer::Texture,
-            vulkan::{raii, spirv_words, VulkanContext},
+            vulkan::{raii, VulkanContext},
         },
         unwrap_here,
     },
@@ -19,7 +19,10 @@ pub struct Compute {
 }
 
 impl Compute {
-    pub fn new(ctx: &VulkanContext) -> Result<Self> {
+    pub fn new(
+        ctx: &VulkanContext,
+        module: &raii::ShaderModule,
+    ) -> Result<Self> {
         let descriptor_set_layout = {
             let bindings = [vk::DescriptorSetLayoutBinding {
                 binding: 0,
@@ -103,22 +106,6 @@ impl Compute {
         };
 
         let pipeline = {
-            let kernel_words = unwrap_here!(
-                "Include shader SPIR-V bytes.",
-                spirv_words(include_bytes!("./image.comp.spv"))
-            );
-            let module = unwrap_here!(
-                "Create shader module",
-                raii::ShaderModule::new(
-                    "Compute module",
-                    ctx.device.clone(),
-                    &vk::ShaderModuleCreateInfo {
-                        code_size: kernel_words.len() * 4,
-                        p_code: kernel_words.as_ptr(),
-                        ..Default::default()
-                    }
-                )
-            );
             let map_entries = [
                 vk::SpecializationMapEntry {
                     constant_id: 0,
