@@ -65,6 +65,7 @@ impl Demo for Example {
         gfx: &mut Graphics,
         _args: &Self::Args,
     ) -> Result<Self> {
+        log::info!("hello world");
         let egui_painter = unwrap_here!(
             "Create the egui painter",
             EguiPainter::new(gfx, window)

@@ -20,7 +20,6 @@ use {
     egui::Align2,
     std::sync::Arc,
     winit::{
-        dpi::PhysicalSize,
         event::{ElementState, WindowEvent},
         keyboard::{KeyCode, PhysicalKey},
         window::{Fullscreen, Window},

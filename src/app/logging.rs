@@ -48,19 +48,22 @@ static LAST_NEWLINE_DELIM_MACHER: LazyLock<Regex> =
 ///
 /// This gets setup on the first call to setup_logger().
 static LOGGER_HANDLE: LazyLock<LoggerHandle> = LazyLock::new(|| {
-    Logger::try_with_env_or_str("trace")
-        .unwrap()
-        .log_to_file(FileSpec::default().directory("logs"))
-        .rotate(
-            Criterion::AgeOrSize(flexi_logger::Age::Hour, 1024 * 1024 * 8),
-            Naming::Timestamps,
-            flexi_logger::Cleanup::KeepLogFiles(3),
-        )
-        .format(multiline_format)
-        .duplicate_to_stdout(Duplicate::Debug)
-        .write_mode(WriteMode::Async)
-        .start()
-        .expect("Unable to start the logger!")
+    Logger::try_with_env_or_str(
+        "debug, tracing::span=off, winit=warn, sctk=warn",
+    )
+    .unwrap()
+    .log_to_stdout()
+    .duplicate_to_stdout(Duplicate::All)
+    .log_to_file(FileSpec::default().directory("logs"))
+    .rotate(
+        Criterion::AgeOrSize(flexi_logger::Age::Hour, 1024 * 1024 * 8),
+        Naming::Timestamps,
+        flexi_logger::Cleanup::KeepLogFiles(2),
+    )
+    .format(multiline_format)
+    .write_mode(WriteMode::Async)
+    .start()
+    .expect("Unable to start the logger!")
 });
 
 /// Initialize the multiline logger.
@@ -94,7 +97,7 @@ fn multiline_format(
     let mut full_line = String::new();
     writeln!(
         full_line,
-        "{} [{}] [{}:{}]",
+        "{} [{}] {}:{}",
         record.level(),
         now.now().format("%H:%M:%S%.3f"),
         file_message,
