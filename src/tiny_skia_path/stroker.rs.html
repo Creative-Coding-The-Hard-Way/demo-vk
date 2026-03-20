@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-path-0.11.4/src/stroker.rs`."><title>stroker.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia_path/</div>stroker.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2008 The Android Open Source Project
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-skia-path-0.11.4/src/stroker.rs`."><title>stroker.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">tiny_skia_path/</div>stroker.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2008 The Android Open Source Project
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2020 Yevhenii Reizner
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Use of this source code is governed by a BSD-style license that can be
@@ -6,7 +6,7 @@
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a>// Based on SkStroke.cpp
 <a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">use crate</span>::{Path, Point, Transform};
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">use </span>crate::{Path, Point, Transform};
 <a href=#10 id=10 data-nosnippet>10</a>
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span><span class="kw">crate</span>::dash::StrokeDash;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span><span class="kw">crate</span>::floating_point::{NonZeroPositiveF32, NormalizedF32, NormalizedF32Exclusive};
@@ -409,7 +409,7 @@
 <a href=#409 id=409 data-nosnippet>409</a>                    last_segment_is_line = <span class="bool-val">false</span>;
 <a href=#410 id=410 data-nosnippet>410</a>                }
 <a href=#411 id=411 data-nosnippet>411</a>                PathSegment::Close =&gt; {
-<a href=#412 id=412 data-nosnippet>412</a>                    <span class="kw">if </span>line_cap != LineCap::Butt {
+<a href=#412 id=412 data-nosnippet>412</a>                    <span class="kw">if </span><span class="macro">line_cap !</span>= LineCap::Butt {
 <a href=#413 id=413 data-nosnippet>413</a>                        <span class="comment">// If the stroke consists of a moveTo followed by a close, treat it
 <a href=#414 id=414 data-nosnippet>414</a>                        // as if it were followed by a zero-length line. Lines without length
 <a href=#415 id=415 data-nosnippet>415</a>                        // can have square and round end caps.
@@ -631,7 +631,7 @@
 <a href=#631 id=631 data-nosnippet>631</a>    <span class="kw">fn </span>cubic_stroke(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cubic: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>], quad_points: <span class="kw-2">&amp;mut </span>QuadConstruct) -&gt; bool {
 <a href=#632 id=632 data-nosnippet>632</a>        <span class="kw">if </span>!<span class="self">self</span>.found_tangents {
 <a href=#633 id=633 data-nosnippet>633</a>            <span class="kw">let </span>result_type = <span class="self">self</span>.tangents_meet(cubic, quad_points);
-<a href=#634 id=634 data-nosnippet>634</a>            <span class="kw">if </span>result_type != ResultType::Quad {
+<a href=#634 id=634 data-nosnippet>634</a>            <span class="kw">if </span><span class="macro">result_type !</span>= ResultType::Quad {
 <a href=#635 id=635 data-nosnippet>635</a>                <span class="kw">let </span>ok = points_within_dist(
 <a href=#636 id=636 data-nosnippet>636</a>                    quad_points.quad[<span class="number">0</span>],
 <a href=#637 id=637 data-nosnippet>637</a>                    quad_points.quad[<span class="number">2</span>],
@@ -807,7 +807,7 @@
 <a href=#807 id=807 data-nosnippet>807</a>        <span class="comment">// get the quadratic approximation of the stroke
 <a href=#808 id=808 data-nosnippet>808</a>        </span><span class="self">self</span>.cubic_quad_ends(cubic, quad_points);
 <a href=#809 id=809 data-nosnippet>809</a>        <span class="kw">let </span>result_type = <span class="self">self</span>.intersect_ray(IntersectRayType::CtrlPt, quad_points);
-<a href=#810 id=810 data-nosnippet>810</a>        <span class="kw">if </span>result_type != ResultType::Quad {
+<a href=#810 id=810 data-nosnippet>810</a>        <span class="kw">if </span><span class="macro">result_type !</span>= ResultType::Quad {
 <a href=#811 id=811 data-nosnippet>811</a>            <span class="kw">return </span>result_type;
 <a href=#812 id=812 data-nosnippet>812</a>        }
 <a href=#813 id=813 data-nosnippet>813</a>
@@ -1070,7 +1070,7 @@
 <a href=#1070 id=1070 data-nosnippet>1070</a>        }
 <a href=#1071 id=1071 data-nosnippet>1071</a>
 <a href=#1072 id=1072 data-nosnippet>1072</a>        <span class="kw">let </span>result_type = <span class="self">self</span>.intersect_ray(IntersectRayType::CtrlPt, quad_points);
-<a href=#1073 id=1073 data-nosnippet>1073</a>        <span class="kw">if </span>result_type != ResultType::Quad {
+<a href=#1073 id=1073 data-nosnippet>1073</a>        <span class="kw">if </span><span class="macro">result_type !</span>= ResultType::Quad {
 <a href=#1074 id=1074 data-nosnippet>1074</a>            <span class="kw">return </span>result_type;
 <a href=#1075 id=1075 data-nosnippet>1075</a>        }
 <a href=#1076 id=1076 data-nosnippet>1076</a>
@@ -2036,10 +2036,10 @@
 <a href=#2036 id=2036 data-nosnippet>2036</a>    <span class="macro">debug_assert!</span>(outer1 &lt; outer2);
 <a href=#2037 id=2037 data-nosnippet>2037</a>    <span class="kw">let </span>mid1 = (<span class="number">1 </span>+ (<span class="number">2 </span>&gt;&gt; outer2)) &gt;&gt; outer1;
 <a href=#2038 id=2038 data-nosnippet>2038</a>    <span class="macro">debug_assert!</span>(mid1 &lt;= <span class="number">2</span>);
-<a href=#2039 id=2039 data-nosnippet>2039</a>    <span class="macro">debug_assert!</span>(outer1 != mid1 &amp;&amp; outer2 != mid1);
+<a href=#2039 id=2039 data-nosnippet>2039</a>    <span class="macro">debug_assert!</span>(<span class="macro">outer1 !</span>= mid1 &amp;&amp; <span class="macro">outer2 !</span>= mid1);
 <a href=#2040 id=2040 data-nosnippet>2040</a>    <span class="kw">let </span>mid2 = outer1 ^ outer2 ^ mid1;
 <a href=#2041 id=2041 data-nosnippet>2041</a>    <span class="macro">debug_assert!</span>(mid2 &gt;= <span class="number">1 </span>&amp;&amp; mid2 &lt;= <span class="number">3</span>);
-<a href=#2042 id=2042 data-nosnippet>2042</a>    <span class="macro">debug_assert!</span>(mid2 != outer1 &amp;&amp; mid2 != outer2 &amp;&amp; mid2 != mid1);
+<a href=#2042 id=2042 data-nosnippet>2042</a>    <span class="macro">debug_assert!</span>(<span class="macro">mid2 !</span>= outer1 &amp;&amp; <span class="macro">mid2 !</span>= outer2 &amp;&amp; <span class="macro">mid2 !</span>= mid1);
 <a href=#2043 id=2043 data-nosnippet>2043</a>    <span class="macro">debug_assert!</span>(((<span class="number">1 </span>&lt;&lt; outer1) | (<span class="number">1 </span>&lt;&lt; outer2) | (<span class="number">1 </span>&lt;&lt; mid1) | (<span class="number">1 </span>&lt;&lt; mid2)) == <span class="number">0x0f</span>);
 <a href=#2044 id=2044 data-nosnippet>2044</a>    <span class="kw">let </span>line_slop = pt_max * pt_max * <span class="number">0.00001</span>; <span class="comment">// this multiplier is pulled out of the air
 <a href=#2045 id=2045 data-nosnippet>2045</a>
@@ -2050,7 +2050,7 @@
 <a href=#2050 id=2050 data-nosnippet>2050</a><span class="attr">#[rustfmt::skip]
 <a href=#2051 id=2051 data-nosnippet>2051</a>#[cfg(test)]
 <a href=#2052 id=2052 data-nosnippet>2052</a></span><span class="kw">mod </span>tests {
-<a href=#2053 id=2053 data-nosnippet>2053</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#2053 id=2053 data-nosnippet>2053</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
 <a href=#2054 id=2054 data-nosnippet>2054</a>
 <a href=#2055 id=2055 data-nosnippet>2055</a>    <span class="kw">impl </span>PathSegment {
 <a href=#2056 id=2056 data-nosnippet>2056</a>        <span class="kw">fn </span>new_move_to(x: f32, y: f32) -&gt; <span class="self">Self </span>{
@@ -2202,4 +2202,5 @@
 <a href=#2202 id=2202 data-nosnippet>2202</a>
 <a href=#2203 id=2203 data-nosnippet>2203</a>        <span class="macro">assert!</span>(PathStroker::new().stroke(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;</span>stroke, <span class="number">1.0</span>).is_some());
 <a href=#2204 id=2204 data-nosnippet>2204</a>    }
-<a href=#2205 id=2205 data-nosnippet>2205</a>}</code></pre></div></section></main></body></html>
+<a href=#2205 id=2205 data-nosnippet>2205</a>}
+</code></pre></div></section></main></body></html>

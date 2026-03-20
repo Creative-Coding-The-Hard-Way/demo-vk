@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["symlink"],"trait":["FileExt","OpenOptionsExt"]};
+window.SIDEBAR_ITEMS = {"fn":["chown","chroot","lchown","symlink"],"trait":["FileExt","OpenOptionsExt"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.14.3/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Macros for helping with common operations in Calloop.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.14.4/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Macros for helping with common operations in Calloop.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a>/// Register a set of event sources. Effectively calls
 <a href=#4 id=4 data-nosnippet>4</a>/// [`EventSource::register()`] for all the sources provided.
@@ -28,7 +28,7 @@
 <a href=#28 id=28 data-nosnippet>28</a>            $(
 <a href=#29 id=29 data-nosnippet>29</a>                <span class="macro-nonterminal">$source</span>.register(<span class="macro-nonterminal">$poll</span>, <span class="macro-nonterminal">$token_fac</span>)<span class="question-mark">?</span>;
 <a href=#30 id=30 data-nosnippet>30</a>            )*
-<a href=#31 id=31 data-nosnippet>31</a>                <span class="macro-nonterminal">$crate::Result</span>::&lt;<span class="kw">_</span>&gt;::Ok(())
+<a href=#31 id=31 data-nosnippet>31</a>                <span class="macro-nonterminal">$crate::Result:</span>:&lt;<span class="kw">_</span>&gt;::Ok(())
 <a href=#32 id=32 data-nosnippet>32</a>        }
 <a href=#33 id=33 data-nosnippet>33</a>    };
 <a href=#34 id=34 data-nosnippet>34</a>}
@@ -61,7 +61,7 @@
 <a href=#61 id=61 data-nosnippet>61</a>            $(
 <a href=#62 id=62 data-nosnippet>62</a>                <span class="macro-nonterminal">$source</span>.reregister(<span class="macro-nonterminal">$poll</span>, <span class="macro-nonterminal">$token_fac</span>)<span class="question-mark">?</span>;
 <a href=#63 id=63 data-nosnippet>63</a>            )*
-<a href=#64 id=64 data-nosnippet>64</a>                <span class="macro-nonterminal">$crate::Result</span>::&lt;<span class="kw">_</span>&gt;::Ok(())
+<a href=#64 id=64 data-nosnippet>64</a>                <span class="macro-nonterminal">$crate::Result:</span>:&lt;<span class="kw">_</span>&gt;::Ok(())
 <a href=#65 id=65 data-nosnippet>65</a>        }
 <a href=#66 id=66 data-nosnippet>66</a>    };
 <a href=#67 id=67 data-nosnippet>67</a>}
@@ -94,7 +94,7 @@
 <a href=#94 id=94 data-nosnippet>94</a>            $(
 <a href=#95 id=95 data-nosnippet>95</a>                <span class="macro-nonterminal">$source</span>.unregister(<span class="macro-nonterminal">$poll</span>)<span class="question-mark">?</span>;
 <a href=#96 id=96 data-nosnippet>96</a>            )*
-<a href=#97 id=97 data-nosnippet>97</a>                <span class="macro-nonterminal">$crate::Result</span>::&lt;<span class="kw">_</span>&gt;::Ok(())
+<a href=#97 id=97 data-nosnippet>97</a>                <span class="macro-nonterminal">$crate::Result:</span>:&lt;<span class="kw">_</span>&gt;::Ok(())
 <a href=#98 id=98 data-nosnippet>98</a>        }
 <a href=#99 id=99 data-nosnippet>99</a>    };
 <a href=#100 id=100 data-nosnippet>100</a>}
@@ -103,7 +103,7 @@
 <a href=#103 id=103 data-nosnippet>103</a></span><span class="kw">mod </span>tests {
 <a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">use </span>std::time::Duration;
 <a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">use crate</span>::{
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">use </span>crate::{
 <a href=#107 id=107 data-nosnippet>107</a>        ping::{make_ping, PingSource},
 <a href=#108 id=108 data-nosnippet>108</a>        EventSource, PostAction,
 <a href=#109 id=109 data-nosnippet>109</a>    };
@@ -220,4 +220,5 @@
 <a href=#220 id=220 data-nosnippet>220</a>
 <a href=#221 id=221 data-nosnippet>221</a>        <span class="macro">assert_eq!</span>(fired, [<span class="bool-val">false</span>; <span class="number">3</span>]);
 <a href=#222 id=222 data-nosnippet>222</a>    }
-<a href=#223 id=223 data-nosnippet>223</a>}</code></pre></div></section></main></body></html>
+<a href=#223 id=223 data-nosnippet>223</a>}
+</code></pre></div></section></main></body></html>

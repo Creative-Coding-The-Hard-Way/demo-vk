@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_absolute_path_buffer_size","get_buffer_size"],"struct":["Event","EventMask","Events","Inotify","WatchDescriptor","WatchMask","Watches"],"type":["EventOwned"]};
+window.SIDEBAR_ITEMS = {"enum":["EventKind","EventMaskParseError"],"fn":["get_absolute_path_buffer_size","get_buffer_size"],"struct":["Event","EventAuxiliaryFlags","EventMask","Events","Inotify","ParsedEventMask","WatchDescriptor","WatchMask","Watches"],"type":["EventOwned"]};

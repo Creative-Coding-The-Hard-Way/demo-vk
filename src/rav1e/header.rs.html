@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/src/header.rs`."><title>header.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rav1e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rav1e/</div>header.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (c) 2018-2022, The rav1e contributors. All rights reserved
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/src/header.rs`."><title>header.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rav1e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rav1e/</div>header.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (c) 2018-2022, The rav1e contributors. All rights reserved
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// This source code is subject to the terms of the BSD 2 Clause License and
 <a href=#4 id=4 data-nosnippet>4</a>// the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -103,7 +103,7 @@
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">loop </span>{
 <a href=#104 id=104 data-nosnippet>104</a>      <span class="kw">let </span><span class="kw-2">mut </span>byte = (value &amp; <span class="number">0x7f</span>) <span class="kw">as </span>u8;
 <a href=#105 id=105 data-nosnippet>105</a>      value &gt;&gt;= <span class="number">7u8</span>;
-<a href=#106 id=106 data-nosnippet>106</a>      <span class="kw">if </span>value != <span class="number">0 </span>{
+<a href=#106 id=106 data-nosnippet>106</a>      <span class="kw">if </span><span class="macro">value !</span>= <span class="number">0 </span>{
 <a href=#107 id=107 data-nosnippet>107</a>        <span class="comment">// Signal that more bytes follow.
 <a href=#108 id=108 data-nosnippet>108</a>        </span>byte |= <span class="number">0x80</span>;
 <a href=#109 id=109 data-nosnippet>109</a>      }
@@ -196,11 +196,11 @@
 <a href=#196 id=196 data-nosnippet>196</a>  ) -&gt; io::Result&lt;()&gt; {
 <a href=#197 id=197 data-nosnippet>197</a>    <span class="self">self</span>.write_bit(<span class="bool-val">false</span>)<span class="question-mark">?</span>; <span class="comment">// forbidden bit.
 <a href=#198 id=198 data-nosnippet>198</a>    </span><span class="self">self</span>.write::&lt;<span class="number">4</span>, u8&gt;(obu_type <span class="kw">as </span>u8)<span class="question-mark">?</span>;
-<a href=#199 id=199 data-nosnippet>199</a>    <span class="self">self</span>.write_bit(obu_extension != <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="self">self</span>.write_bit(<span class="macro">obu_extension !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
 <a href=#200 id=200 data-nosnippet>200</a>    <span class="self">self</span>.write_bit(<span class="bool-val">true</span>)<span class="question-mark">?</span>; <span class="comment">// obu_has_payload_length_field
 <a href=#201 id=201 data-nosnippet>201</a>    </span><span class="self">self</span>.write_bit(<span class="bool-val">false</span>)<span class="question-mark">?</span>; <span class="comment">// reserved
 <a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a>    </span><span class="kw">if </span>obu_extension != <span class="number">0 </span>{
+<a href=#203 id=203 data-nosnippet>203</a>    </span><span class="kw">if </span><span class="macro">obu_extension !</span>= <span class="number">0 </span>{
 <a href=#204 id=204 data-nosnippet>204</a>      <span class="macro">unimplemented!</span>();
 <a href=#205 id=205 data-nosnippet>205</a>      <span class="comment">//self.write(8, obu_extension &amp; 0xFF)?; size += 8;
 <a href=#206 id=206 data-nosnippet>206</a>    </span>}
@@ -377,14 +377,14 @@
 <a href=#377 id=377 data-nosnippet>377</a>        <span class="self">self</span>.write_bit(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
 <a href=#378 id=378 data-nosnippet>378</a>      } <span class="kw">else </span>{
 <a href=#379 id=379 data-nosnippet>379</a>        <span class="self">self</span>.write_bit(<span class="bool-val">false</span>)<span class="question-mark">?</span>;
-<a href=#380 id=380 data-nosnippet>380</a>        <span class="self">self</span>.write_bit(seq.force_screen_content_tools != <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#380 id=380 data-nosnippet>380</a>        <span class="self">self</span>.write_bit(seq.<span class="macro">force_screen_content_tools !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
 <a href=#381 id=381 data-nosnippet>381</a>      }
 <a href=#382 id=382 data-nosnippet>382</a>      <span class="kw">if </span>seq.force_screen_content_tools &gt; <span class="number">0 </span>{
 <a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">if </span>seq.force_integer_mv == <span class="number">2 </span>{
 <a href=#384 id=384 data-nosnippet>384</a>          <span class="self">self</span>.write_bit(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
 <a href=#385 id=385 data-nosnippet>385</a>        } <span class="kw">else </span>{
 <a href=#386 id=386 data-nosnippet>386</a>          <span class="self">self</span>.write_bit(<span class="bool-val">false</span>)<span class="question-mark">?</span>;
-<a href=#387 id=387 data-nosnippet>387</a>          <span class="self">self</span>.write_bit(seq.force_integer_mv != <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#387 id=387 data-nosnippet>387</a>          <span class="self">self</span>.write_bit(seq.<span class="macro">force_integer_mv !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
 <a href=#388 id=388 data-nosnippet>388</a>        }
 <a href=#389 id=389 data-nosnippet>389</a>      } <span class="kw">else </span>{
 <a href=#390 id=390 data-nosnippet>390</a>        <span class="macro">assert!</span>(seq.force_integer_mv == <span class="number">2</span>);
@@ -440,7 +440,7 @@
 <a href=#440 id=440 data-nosnippet>440</a>      } <span class="kw">else if </span>seq.profile == <span class="number">1 </span>{
 <a href=#441 id=441 data-nosnippet>441</a>        <span class="macro">assert!</span>(seq.chroma_sampling == ChromaSampling::Cs444);
 <a href=#442 id=442 data-nosnippet>442</a>      } <span class="kw">else if </span>seq.bit_depth == <span class="number">12 </span>{
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>subsampling_x = seq.chroma_sampling != ChromaSampling::Cs444;
+<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>subsampling_x = seq.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs444;
 <a href=#444 id=444 data-nosnippet>444</a>        <span class="kw">let </span>subsampling_y = seq.chroma_sampling == ChromaSampling::Cs420;
 <a href=#445 id=445 data-nosnippet>445</a>        <span class="self">self</span>.write_bit(subsampling_x)<span class="question-mark">?</span>;
 <a href=#446 id=446 data-nosnippet>446</a>        <span class="kw">if </span>subsampling_x {
@@ -516,7 +516,7 @@
 <a href=#516 id=516 data-nosnippet>516</a>    <span class="self">self</span>.write_bit(fi.disable_cdf_update)<span class="question-mark">?</span>;
 <a href=#517 id=517 data-nosnippet>517</a>
 <a href=#518 id=518 data-nosnippet>518</a>    <span class="kw">if </span>fi.sequence.force_screen_content_tools == <span class="number">2 </span>{
-<a href=#519 id=519 data-nosnippet>519</a>      <span class="self">self</span>.write_bit(fi.allow_screen_content_tools != <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#519 id=519 data-nosnippet>519</a>      <span class="self">self</span>.write_bit(fi.<span class="macro">allow_screen_content_tools !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
 <a href=#520 id=520 data-nosnippet>520</a>    } <span class="kw">else </span>{
 <a href=#521 id=521 data-nosnippet>521</a>      <span class="macro">assert!</span>(
 <a href=#522 id=522 data-nosnippet>522</a>        fi.allow_screen_content_tools
@@ -526,7 +526,7 @@
 <a href=#526 id=526 data-nosnippet>526</a>
 <a href=#527 id=527 data-nosnippet>527</a>    <span class="kw">if </span>fi.allow_screen_content_tools &gt; <span class="number">0 </span>{
 <a href=#528 id=528 data-nosnippet>528</a>      <span class="kw">if </span>fi.sequence.force_integer_mv == <span class="number">2 </span>{
-<a href=#529 id=529 data-nosnippet>529</a>        <span class="self">self</span>.write_bit(fi.force_integer_mv != <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#529 id=529 data-nosnippet>529</a>        <span class="self">self</span>.write_bit(fi.<span class="macro">force_integer_mv !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
 <a href=#530 id=530 data-nosnippet>530</a>      } <span class="kw">else </span>{
 <a href=#531 id=531 data-nosnippet>531</a>        <span class="macro">assert!</span>(fi.force_integer_mv == fi.sequence.force_integer_mv);
 <a href=#532 id=532 data-nosnippet>532</a>      }
@@ -545,7 +545,7 @@
 <a href=#545 id=545 data-nosnippet>545</a>      //self.write(frame_id_len, fi.current_frame_id);
 <a href=#546 id=546 data-nosnippet>546</a>    </span>}
 <a href=#547 id=547 data-nosnippet>547</a>
-<a href=#548 id=548 data-nosnippet>548</a>    <span class="kw">if </span>fi.frame_type != FrameType::SWITCH
+<a href=#548 id=548 data-nosnippet>548</a>    <span class="kw">if </span>fi.<span class="macro">frame_type !</span>= FrameType::SWITCH
 <a href=#549 id=549 data-nosnippet>549</a>      &amp;&amp; !fi.sequence.reduced_still_picture_hdr
 <a href=#550 id=550 data-nosnippet>550</a>    {
 <a href=#551 id=551 data-nosnippet>551</a>      <span class="self">self</span>.write_bit(fi.frame_size_override_flag)<span class="question-mark">?</span>; <span class="comment">// frame size overhead flag
@@ -578,14 +578,14 @@
 <a href=#578 id=578 data-nosnippet>578</a>    } <span class="kw">else </span>{
 <a href=#579 id=579 data-nosnippet>579</a>      <span class="comment">// Inter frame info goes here
 <a href=#580 id=580 data-nosnippet>580</a>      </span><span class="kw">if </span>fi.intra_only {
-<a href=#581 id=581 data-nosnippet>581</a>        <span class="macro">assert!</span>(fi.refresh_frame_flags != ALL_REF_FRAMES_MASK);
+<a href=#581 id=581 data-nosnippet>581</a>        <span class="macro">assert!</span>(fi.<span class="macro">refresh_frame_flags !</span>= ALL_REF_FRAMES_MASK);
 <a href=#582 id=582 data-nosnippet>582</a>      } <span class="kw">else </span>{
 <a href=#583 id=583 data-nosnippet>583</a>        <span class="comment">// TODO: This should be set once inter mode is used
 <a href=#584 id=584 data-nosnippet>584</a>      </span>}
 <a href=#585 id=585 data-nosnippet>585</a>      <span class="self">self</span>.write_var(REF_FRAMES <span class="kw">as </span>u32, fi.refresh_frame_flags)<span class="question-mark">?</span>;
 <a href=#586 id=586 data-nosnippet>586</a>    };
 <a href=#587 id=587 data-nosnippet>587</a>
-<a href=#588 id=588 data-nosnippet>588</a>    <span class="kw">if </span>(!fi.intra_only || fi.refresh_frame_flags != ALL_REF_FRAMES_MASK) {
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="kw">if </span>(!fi.intra_only || fi.<span class="macro">refresh_frame_flags !</span>= ALL_REF_FRAMES_MASK) {
 <a href=#589 id=589 data-nosnippet>589</a>      <span class="comment">// Write all ref frame order hints if error_resilient_mode == 1
 <a href=#590 id=590 data-nosnippet>590</a>      </span><span class="kw">if </span>(fi.error_resilient &amp;&amp; fi.sequence.enable_order_hint) {
 <a href=#591 id=591 data-nosnippet>591</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..REF_FRAMES {
@@ -605,7 +605,7 @@
 <a href=#605 id=605 data-nosnippet>605</a>    </span><span class="kw">if </span>fi.intra_only {
 <a href=#606 id=606 data-nosnippet>606</a>      <span class="self">self</span>.write_frame_size(fi)<span class="question-mark">?</span>;
 <a href=#607 id=607 data-nosnippet>607</a>      <span class="self">self</span>.write_render_size(fi)<span class="question-mark">?</span>;
-<a href=#608 id=608 data-nosnippet>608</a>      <span class="kw">if </span>fi.allow_screen_content_tools != <span class="number">0 </span>{
+<a href=#608 id=608 data-nosnippet>608</a>      <span class="kw">if </span>fi.<span class="macro">allow_screen_content_tools !</span>= <span class="number">0 </span>{
 <a href=#609 id=609 data-nosnippet>609</a>        <span class="comment">// TODO: &amp;&amp; UpscaledWidth == FrameWidth.
 <a href=#610 id=610 data-nosnippet>610</a>        </span><span class="self">self</span>.write_bit(fi.allow_intrabc)<span class="question-mark">?</span>;
 <a href=#611 id=611 data-nosnippet>611</a>      }
@@ -739,7 +739,7 @@
 <a href=#739 id=739 data-nosnippet>739</a>    </span><span class="macro">assert!</span>(fi.base_q_idx &gt; <span class="number">0</span>);
 <a href=#740 id=740 data-nosnippet>740</a>    <span class="self">self</span>.write::&lt;<span class="number">8</span>, u8&gt;(fi.base_q_idx)<span class="question-mark">?</span>; <span class="comment">// base_q_idx
 <a href=#741 id=741 data-nosnippet>741</a>    </span><span class="self">self</span>.write_delta_q(fi.dc_delta_q[<span class="number">0</span>])<span class="question-mark">?</span>;
-<a href=#742 id=742 data-nosnippet>742</a>    <span class="kw">if </span>fi.sequence.chroma_sampling != ChromaSampling::Cs400 {
+<a href=#742 id=742 data-nosnippet>742</a>    <span class="kw">if </span>fi.sequence.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs400 {
 <a href=#743 id=743 data-nosnippet>743</a>      <span class="macro">assert!</span>(fi.ac_delta_q[<span class="number">0</span>] == <span class="number">0</span>);
 <a href=#744 id=744 data-nosnippet>744</a>      <span class="kw">let </span>diff_uv_delta = fi.dc_delta_q[<span class="number">1</span>] != fi.dc_delta_q[<span class="number">2</span>]
 <a href=#745 id=745 data-nosnippet>745</a>        || fi.ac_delta_q[<span class="number">1</span>] != fi.ac_delta_q[<span class="number">2</span>];
@@ -777,7 +777,7 @@
 <a href=#777 id=777 data-nosnippet>777</a>
 <a href=#778 id=778 data-nosnippet>778</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>reference_select = <span class="bool-val">false</span>;
 <a href=#779 id=779 data-nosnippet>779</a>    <span class="kw">if </span>!fi.intra_only {
-<a href=#780 id=780 data-nosnippet>780</a>      reference_select = fi.reference_mode != ReferenceMode::SINGLE;
+<a href=#780 id=780 data-nosnippet>780</a>      reference_select = fi.<span class="macro">reference_mode !</span>= ReferenceMode::SINGLE;
 <a href=#781 id=781 data-nosnippet>781</a>      <span class="self">self</span>.write_bit(reference_select)<span class="question-mark">?</span>;
 <a href=#782 id=782 data-nosnippet>782</a>    }
 <a href=#783 id=783 data-nosnippet>783</a>
@@ -799,10 +799,10 @@
 <a href=#799 id=799 data-nosnippet>799</a>    </span><span class="kw">if </span>!fi.intra_only {
 <a href=#800 id=800 data-nosnippet>800</a>      <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">7 </span>{
 <a href=#801 id=801 data-nosnippet>801</a>        <span class="kw">let </span>mode = fi.globalmv_transformation_type[i];
-<a href=#802 id=802 data-nosnippet>802</a>        <span class="self">self</span>.write_bit(mode != GlobalMVMode::IDENTITY)<span class="question-mark">?</span>;
-<a href=#803 id=803 data-nosnippet>803</a>        <span class="kw">if </span>mode != GlobalMVMode::IDENTITY {
+<a href=#802 id=802 data-nosnippet>802</a>        <span class="self">self</span>.write_bit(<span class="macro">mode !</span>= GlobalMVMode::IDENTITY)<span class="question-mark">?</span>;
+<a href=#803 id=803 data-nosnippet>803</a>        <span class="kw">if </span><span class="macro">mode !</span>= GlobalMVMode::IDENTITY {
 <a href=#804 id=804 data-nosnippet>804</a>          <span class="self">self</span>.write_bit(mode == GlobalMVMode::ROTZOOM)<span class="question-mark">?</span>;
-<a href=#805 id=805 data-nosnippet>805</a>          <span class="kw">if </span>mode != GlobalMVMode::ROTZOOM {
+<a href=#805 id=805 data-nosnippet>805</a>          <span class="kw">if </span><span class="macro">mode !</span>= GlobalMVMode::ROTZOOM {
 <a href=#806 id=806 data-nosnippet>806</a>            <span class="self">self</span>.write_bit(mode == GlobalMVMode::TRANSLATION)<span class="question-mark">?</span>;
 <a href=#807 id=807 data-nosnippet>807</a>          }
 <a href=#808 id=808 data-nosnippet>808</a>        }
@@ -855,7 +855,7 @@
 <a href=#855 id=855 data-nosnippet>855</a>        }
 <a href=#856 id=856 data-nosnippet>856</a>
 <a href=#857 id=857 data-nosnippet>857</a>        <span class="kw">let </span>chroma_scaling_from_luma =
-<a href=#858 id=858 data-nosnippet>858</a>          <span class="kw">if </span>fi.sequence.chroma_sampling != ChromaSampling::Cs400 {
+<a href=#858 id=858 data-nosnippet>858</a>          <span class="kw">if </span>fi.sequence.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs400 {
 <a href=#859 id=859 data-nosnippet>859</a>            <span class="self">self</span>.write_bit(grain_params.chroma_scaling_from_luma)<span class="question-mark">?</span>;
 <a href=#860 id=860 data-nosnippet>860</a>            grain_params.chroma_scaling_from_luma
 <a href=#861 id=861 data-nosnippet>861</a>          } <span class="kw">else </span>{
@@ -1110,7 +1110,7 @@
 <a href=#1110 id=1110 data-nosnippet>1110</a>        <span class="macro">assert!</span>(fi.cdef_y_strengths[i] &lt; <span class="number">64</span>);
 <a href=#1111 id=1111 data-nosnippet>1111</a>        <span class="macro">assert!</span>(fi.cdef_uv_strengths[i] &lt; <span class="number">64</span>);
 <a href=#1112 id=1112 data-nosnippet>1112</a>        <span class="self">self</span>.write::&lt;<span class="number">6</span>, u8&gt;(fi.cdef_y_strengths[i])<span class="question-mark">?</span>; <span class="comment">// cdef y strength
-<a href=#1113 id=1113 data-nosnippet>1113</a>        </span><span class="kw">if </span>fi.sequence.chroma_sampling != ChromaSampling::Cs400 {
+<a href=#1113 id=1113 data-nosnippet>1113</a>        </span><span class="kw">if </span>fi.sequence.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs400 {
 <a href=#1114 id=1114 data-nosnippet>1114</a>          <span class="self">self</span>.write::&lt;<span class="number">6</span>, u8&gt;(fi.cdef_uv_strengths[i])<span class="question-mark">?</span>; <span class="comment">// cdef uv strength
 <a href=#1115 id=1115 data-nosnippet>1115</a>        </span>}
 <a href=#1116 id=1116 data-nosnippet>1116</a>      }
@@ -1132,7 +1132,7 @@
 <a href=#1132 id=1132 data-nosnippet>1132</a>      <span class="kw">let </span><span class="kw-2">mut </span>use_chroma_lrf = <span class="bool-val">false</span>;
 <a href=#1133 id=1133 data-nosnippet>1133</a>      <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..planes {
 <a href=#1134 id=1134 data-nosnippet>1134</a>        <span class="self">self</span>.write::&lt;<span class="number">2</span>, u8&gt;(rs.planes[i].cfg.lrf_type)<span class="question-mark">?</span>; <span class="comment">// filter type by plane
-<a href=#1135 id=1135 data-nosnippet>1135</a>        </span><span class="kw">if </span>rs.planes[i].cfg.lrf_type != RESTORE_NONE {
+<a href=#1135 id=1135 data-nosnippet>1135</a>        </span><span class="kw">if </span>rs.planes[i].cfg.<span class="macro">lrf_type !</span>= RESTORE_NONE {
 <a href=#1136 id=1136 data-nosnippet>1136</a>          use_lrf = <span class="bool-val">true</span>;
 <a href=#1137 id=1137 data-nosnippet>1137</a>          <span class="kw">if </span>i &gt; <span class="number">0 </span>{
 <a href=#1138 id=1138 data-nosnippet>1138</a>            use_chroma_lrf = <span class="bool-val">true</span>;
@@ -1199,8 +1199,8 @@
 <a href=#1199 id=1199 data-nosnippet>1199</a>  }
 <a href=#1200 id=1200 data-nosnippet>1200</a>
 <a href=#1201 id=1201 data-nosnippet>1201</a>  <span class="kw">fn </span>write_delta_q(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delta_q: i8) -&gt; io::Result&lt;()&gt; {
-<a href=#1202 id=1202 data-nosnippet>1202</a>    <span class="self">self</span>.write_bit(delta_q != <span class="number">0</span>)<span class="question-mark">?</span>;
-<a href=#1203 id=1203 data-nosnippet>1203</a>    <span class="kw">if </span>delta_q != <span class="number">0 </span>{
+<a href=#1202 id=1202 data-nosnippet>1202</a>    <span class="self">self</span>.write_bit(<span class="macro">delta_q !</span>= <span class="number">0</span>)<span class="question-mark">?</span>;
+<a href=#1203 id=1203 data-nosnippet>1203</a>    <span class="kw">if </span><span class="macro">delta_q !</span>= <span class="number">0 </span>{
 <a href=#1204 id=1204 data-nosnippet>1204</a>      <span class="macro">assert!</span>((-<span class="number">63</span>..=<span class="number">63</span>).contains(<span class="kw-2">&amp;</span>delta_q));
 <a href=#1205 id=1205 data-nosnippet>1205</a>      <span class="self">self</span>.write_signed::&lt;<span class="number">7</span>, i8&gt;(delta_q)<span class="question-mark">?</span>;
 <a href=#1206 id=1206 data-nosnippet>1206</a>    }
@@ -1241,4 +1241,5 @@
 <a href=#1241 id=1241 data-nosnippet>1241</a>      u64::from(val) == result.<span class="number">1 </span>&amp;&amp; result.<span class="number">0</span>.is_empty()
 <a href=#1242 id=1242 data-nosnippet>1242</a>    }
 <a href=#1243 id=1243 data-nosnippet>1243</a>  }
-<a href=#1244 id=1244 data-nosnippet>1244</a>}</code></pre></div></section></main></body></html>
+<a href=#1244 id=1244 data-nosnippet>1244</a>}
+</code></pre></div></section></main></body></html>

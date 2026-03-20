@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x11rb-protocol-0.13.2/src/protocol/xinput.rs`."><title>xinput.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb_protocol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">x11rb_protocol/protocol/</div>xinput.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-5"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file contains generated code. Do not edit directly.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x11rb-protocol-0.13.2/src/protocol/xinput.rs`."><title>xinput.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb_protocol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">x11rb_protocol/protocol/</div>xinput.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-5"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file contains generated code. Do not edit directly.
 <a href=#2 id=2 data-nosnippet>2</a>// To regenerate this, run 'make'.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! Bindings to the `Input` X11 extension.
@@ -122,7 +122,7 @@
 <a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#123 id=123 data-nosnippet>123</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">if </span>header.minor_opcode != GET_EXTENSION_VERSION_REQUEST {
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_EXTENSION_VERSION_REQUEST {
 <a href=#126 id=126 data-nosnippet>126</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#127 id=127 data-nosnippet>127</a>        }
 <a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">let </span>(name_len, remaining) = u16::try_parse(value)<span class="question-mark">?</span>;
@@ -177,7 +177,7 @@
 <a href=#177 id=177 data-nosnippet>177</a>        <span class="kw">let </span>(server_minor, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#178 id=178 data-nosnippet>178</a>        <span class="kw">let </span>(present, remaining) = bool::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#179 id=179 data-nosnippet>179</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">19</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#180 id=180 data-nosnippet>180</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#180 id=180 data-nosnippet>180</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#181 id=181 data-nosnippet>181</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#182 id=182 data-nosnippet>182</a>        }
 <a href=#183 id=183 data-nosnippet>183</a>        <span class="kw">let </span>result = GetExtensionVersionReply { xi_reply_type, sequence, length, server_major, server_minor, present };
@@ -1011,7 +1011,7 @@
 <a href=#1011 id=1011 data-nosnippet>1011</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1012 id=1012 data-nosnippet>1012</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1013 id=1013 data-nosnippet>1013</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1014 id=1014 data-nosnippet>1014</a>        <span class="kw">if </span>header.minor_opcode != LIST_INPUT_DEVICES_REQUEST {
+<a href=#1014 id=1014 data-nosnippet>1014</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= LIST_INPUT_DEVICES_REQUEST {
 <a href=#1015 id=1015 data-nosnippet>1015</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1016 id=1016 data-nosnippet>1016</a>        }
 <a href=#1017 id=1017 data-nosnippet>1017</a>        <span class="kw">let _ </span>= value;
@@ -1062,7 +1062,7 @@
 <a href=#1062 id=1062 data-nosnippet>1062</a>        </span><span class="kw">let </span>offset = remaining.as_ptr() <span class="kw">as </span>usize - value.as_ptr() <span class="kw">as </span>usize;
 <a href=#1063 id=1063 data-nosnippet>1063</a>        <span class="kw">let </span>misalignment = (<span class="number">4 </span>- (offset % <span class="number">4</span>)) % <span class="number">4</span>;
 <a href=#1064 id=1064 data-nosnippet>1064</a>        <span class="kw">let </span>remaining = remaining.get(misalignment..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#1065 id=1065 data-nosnippet>1065</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1065 id=1065 data-nosnippet>1065</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1066 id=1066 data-nosnippet>1066</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1067 id=1067 data-nosnippet>1067</a>        }
 <a href=#1068 id=1068 data-nosnippet>1068</a>        <span class="kw">let </span>result = ListInputDevicesReply { xi_reply_type, sequence, length, devices, infos, names };
@@ -1182,7 +1182,7 @@
 <a href=#1182 id=1182 data-nosnippet>1182</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1183 id=1183 data-nosnippet>1183</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1184 id=1184 data-nosnippet>1184</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1185 id=1185 data-nosnippet>1185</a>        <span class="kw">if </span>header.minor_opcode != OPEN_DEVICE_REQUEST {
+<a href=#1185 id=1185 data-nosnippet>1185</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= OPEN_DEVICE_REQUEST {
 <a href=#1186 id=1186 data-nosnippet>1186</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1187 id=1187 data-nosnippet>1187</a>        }
 <a href=#1188 id=1188 data-nosnippet>1188</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -1232,7 +1232,7 @@
 <a href=#1232 id=1232 data-nosnippet>1232</a>        </span><span class="kw">let </span>offset = remaining.as_ptr() <span class="kw">as </span>usize - value.as_ptr() <span class="kw">as </span>usize;
 <a href=#1233 id=1233 data-nosnippet>1233</a>        <span class="kw">let </span>misalignment = (<span class="number">4 </span>- (offset % <span class="number">4</span>)) % <span class="number">4</span>;
 <a href=#1234 id=1234 data-nosnippet>1234</a>        <span class="kw">let </span>remaining = remaining.get(misalignment..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#1235 id=1235 data-nosnippet>1235</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1235 id=1235 data-nosnippet>1235</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1236 id=1236 data-nosnippet>1236</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1237 id=1237 data-nosnippet>1237</a>        }
 <a href=#1238 id=1238 data-nosnippet>1238</a>        <span class="kw">let </span>result = OpenDeviceReply { xi_reply_type, sequence, length, class_info };
@@ -1312,7 +1312,7 @@
 <a href=#1312 id=1312 data-nosnippet>1312</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1313 id=1313 data-nosnippet>1313</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1314 id=1314 data-nosnippet>1314</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1315 id=1315 data-nosnippet>1315</a>        <span class="kw">if </span>header.minor_opcode != CLOSE_DEVICE_REQUEST {
+<a href=#1315 id=1315 data-nosnippet>1315</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CLOSE_DEVICE_REQUEST {
 <a href=#1316 id=1316 data-nosnippet>1316</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1317 id=1317 data-nosnippet>1317</a>        }
 <a href=#1318 id=1318 data-nosnippet>1318</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -1371,7 +1371,7 @@
 <a href=#1371 id=1371 data-nosnippet>1371</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1372 id=1372 data-nosnippet>1372</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1373 id=1373 data-nosnippet>1373</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1374 id=1374 data-nosnippet>1374</a>        <span class="kw">if </span>header.minor_opcode != SET_DEVICE_MODE_REQUEST {
+<a href=#1374 id=1374 data-nosnippet>1374</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_DEVICE_MODE_REQUEST {
 <a href=#1375 id=1375 data-nosnippet>1375</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1376 id=1376 data-nosnippet>1376</a>        }
 <a href=#1377 id=1377 data-nosnippet>1377</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -1418,7 +1418,7 @@
 <a href=#1418 id=1418 data-nosnippet>1418</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#1419 id=1419 data-nosnippet>1419</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#1420 id=1420 data-nosnippet>1420</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#1421 id=1421 data-nosnippet>1421</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1421 id=1421 data-nosnippet>1421</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1422 id=1422 data-nosnippet>1422</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1423 id=1423 data-nosnippet>1423</a>        }
 <a href=#1424 id=1424 data-nosnippet>1424</a>        <span class="kw">let </span>status = status.into();
@@ -1528,7 +1528,7 @@
 <a href=#1528 id=1528 data-nosnippet>1528</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1529 id=1529 data-nosnippet>1529</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1530 id=1530 data-nosnippet>1530</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1531 id=1531 data-nosnippet>1531</a>        <span class="kw">if </span>header.minor_opcode != SELECT_EXTENSION_EVENT_REQUEST {
+<a href=#1531 id=1531 data-nosnippet>1531</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SELECT_EXTENSION_EVENT_REQUEST {
 <a href=#1532 id=1532 data-nosnippet>1532</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1533 id=1533 data-nosnippet>1533</a>        }
 <a href=#1534 id=1534 data-nosnippet>1534</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1595,7 +1595,7 @@
 <a href=#1595 id=1595 data-nosnippet>1595</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1596 id=1596 data-nosnippet>1596</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1597 id=1597 data-nosnippet>1597</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1598 id=1598 data-nosnippet>1598</a>        <span class="kw">if </span>header.minor_opcode != GET_SELECTED_EXTENSION_EVENTS_REQUEST {
+<a href=#1598 id=1598 data-nosnippet>1598</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_SELECTED_EXTENSION_EVENTS_REQUEST {
 <a href=#1599 id=1599 data-nosnippet>1599</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1600 id=1600 data-nosnippet>1600</a>        }
 <a href=#1601 id=1601 data-nosnippet>1601</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1642,7 +1642,7 @@
 <a href=#1642 id=1642 data-nosnippet>1642</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">20</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#1643 id=1643 data-nosnippet>1643</a>        <span class="kw">let </span>(this_classes, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;EventClass&gt;(remaining, num_this_classes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 <a href=#1644 id=1644 data-nosnippet>1644</a>        <span class="kw">let </span>(all_classes, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;EventClass&gt;(remaining, num_all_classes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#1645 id=1645 data-nosnippet>1645</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1645 id=1645 data-nosnippet>1645</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1646 id=1646 data-nosnippet>1646</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1647 id=1647 data-nosnippet>1647</a>        }
 <a href=#1648 id=1648 data-nosnippet>1648</a>        <span class="kw">let </span>result = GetSelectedExtensionEventsReply { xi_reply_type, sequence, length, this_classes, all_classes };
@@ -1809,7 +1809,7 @@
 <a href=#1809 id=1809 data-nosnippet>1809</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1810 id=1810 data-nosnippet>1810</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1811 id=1811 data-nosnippet>1811</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1812 id=1812 data-nosnippet>1812</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_DEVICE_DONT_PROPAGATE_LIST_REQUEST {
+<a href=#1812 id=1812 data-nosnippet>1812</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_DEVICE_DONT_PROPAGATE_LIST_REQUEST {
 <a href=#1813 id=1813 data-nosnippet>1813</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1814 id=1814 data-nosnippet>1814</a>        }
 <a href=#1815 id=1815 data-nosnippet>1815</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1880,7 +1880,7 @@
 <a href=#1880 id=1880 data-nosnippet>1880</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1881 id=1881 data-nosnippet>1881</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1882 id=1882 data-nosnippet>1882</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1883 id=1883 data-nosnippet>1883</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_DONT_PROPAGATE_LIST_REQUEST {
+<a href=#1883 id=1883 data-nosnippet>1883</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_DONT_PROPAGATE_LIST_REQUEST {
 <a href=#1884 id=1884 data-nosnippet>1884</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1885 id=1885 data-nosnippet>1885</a>        }
 <a href=#1886 id=1886 data-nosnippet>1886</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1924,7 +1924,7 @@
 <a href=#1924 id=1924 data-nosnippet>1924</a>        <span class="kw">let </span>(num_classes, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#1925 id=1925 data-nosnippet>1925</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#1926 id=1926 data-nosnippet>1926</a>        <span class="kw">let </span>(classes, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;EventClass&gt;(remaining, num_classes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#1927 id=1927 data-nosnippet>1927</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1927 id=1927 data-nosnippet>1927</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1928 id=1928 data-nosnippet>1928</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1929 id=1929 data-nosnippet>1929</a>        }
 <a href=#1930 id=1930 data-nosnippet>1930</a>        <span class="kw">let </span>result = GetDeviceDontPropagateListReply { xi_reply_type, sequence, length, classes };
@@ -2045,7 +2045,7 @@
 <a href=#2045 id=2045 data-nosnippet>2045</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2046 id=2046 data-nosnippet>2046</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2047 id=2047 data-nosnippet>2047</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2048 id=2048 data-nosnippet>2048</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_MOTION_EVENTS_REQUEST {
+<a href=#2048 id=2048 data-nosnippet>2048</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_MOTION_EVENTS_REQUEST {
 <a href=#2049 id=2049 data-nosnippet>2049</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2050 id=2050 data-nosnippet>2050</a>        }
 <a href=#2051 id=2051 data-nosnippet>2051</a>        <span class="kw">let </span>(start, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -2105,7 +2105,7 @@
 <a href=#2105 id=2105 data-nosnippet>2105</a>            remaining = new_remaining;
 <a href=#2106 id=2106 data-nosnippet>2106</a>            events.push(v);
 <a href=#2107 id=2107 data-nosnippet>2107</a>        }
-<a href=#2108 id=2108 data-nosnippet>2108</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2108 id=2108 data-nosnippet>2108</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2109 id=2109 data-nosnippet>2109</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2110 id=2110 data-nosnippet>2110</a>        }
 <a href=#2111 id=2111 data-nosnippet>2111</a>        <span class="kw">let </span>device_mode = device_mode.into();
@@ -2189,7 +2189,7 @@
 <a href=#2189 id=2189 data-nosnippet>2189</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2190 id=2190 data-nosnippet>2190</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2191 id=2191 data-nosnippet>2191</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2192 id=2192 data-nosnippet>2192</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_KEYBOARD_DEVICE_REQUEST {
+<a href=#2192 id=2192 data-nosnippet>2192</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_KEYBOARD_DEVICE_REQUEST {
 <a href=#2193 id=2193 data-nosnippet>2193</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2194 id=2194 data-nosnippet>2194</a>        }
 <a href=#2195 id=2195 data-nosnippet>2195</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -2233,7 +2233,7 @@
 <a href=#2233 id=2233 data-nosnippet>2233</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2234 id=2234 data-nosnippet>2234</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2235 id=2235 data-nosnippet>2235</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#2236 id=2236 data-nosnippet>2236</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2236 id=2236 data-nosnippet>2236</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2237 id=2237 data-nosnippet>2237</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2238 id=2238 data-nosnippet>2238</a>        }
 <a href=#2239 id=2239 data-nosnippet>2239</a>        <span class="kw">let </span>status = status.into();
@@ -2336,7 +2336,7 @@
 <a href=#2336 id=2336 data-nosnippet>2336</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2337 id=2337 data-nosnippet>2337</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2338 id=2338 data-nosnippet>2338</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2339 id=2339 data-nosnippet>2339</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_POINTER_DEVICE_REQUEST {
+<a href=#2339 id=2339 data-nosnippet>2339</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_POINTER_DEVICE_REQUEST {
 <a href=#2340 id=2340 data-nosnippet>2340</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2341 id=2341 data-nosnippet>2341</a>        }
 <a href=#2342 id=2342 data-nosnippet>2342</a>        <span class="kw">let </span>(x_axis, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -2384,7 +2384,7 @@
 <a href=#2384 id=2384 data-nosnippet>2384</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2385 id=2385 data-nosnippet>2385</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2386 id=2386 data-nosnippet>2386</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#2387 id=2387 data-nosnippet>2387</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2387 id=2387 data-nosnippet>2387</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2388 id=2388 data-nosnippet>2388</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2389 id=2389 data-nosnippet>2389</a>        }
 <a href=#2390 id=2390 data-nosnippet>2390</a>        <span class="kw">let </span>status = status.into();
@@ -2512,7 +2512,7 @@
 <a href=#2512 id=2512 data-nosnippet>2512</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2513 id=2513 data-nosnippet>2513</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2514 id=2514 data-nosnippet>2514</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2515 id=2515 data-nosnippet>2515</a>        <span class="kw">if </span>header.minor_opcode != GRAB_DEVICE_REQUEST {
+<a href=#2515 id=2515 data-nosnippet>2515</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GRAB_DEVICE_REQUEST {
 <a href=#2516 id=2516 data-nosnippet>2516</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2517 id=2517 data-nosnippet>2517</a>        }
 <a href=#2518 id=2518 data-nosnippet>2518</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -2583,7 +2583,7 @@
 <a href=#2583 id=2583 data-nosnippet>2583</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2584 id=2584 data-nosnippet>2584</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2585 id=2585 data-nosnippet>2585</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#2586 id=2586 data-nosnippet>2586</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2586 id=2586 data-nosnippet>2586</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2587 id=2587 data-nosnippet>2587</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2588 id=2588 data-nosnippet>2588</a>        }
 <a href=#2589 id=2589 data-nosnippet>2589</a>        <span class="kw">let </span>status = status.into();
@@ -2688,7 +2688,7 @@
 <a href=#2688 id=2688 data-nosnippet>2688</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2689 id=2689 data-nosnippet>2689</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2690 id=2690 data-nosnippet>2690</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2691 id=2691 data-nosnippet>2691</a>        <span class="kw">if </span>header.minor_opcode != UNGRAB_DEVICE_REQUEST {
+<a href=#2691 id=2691 data-nosnippet>2691</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= UNGRAB_DEVICE_REQUEST {
 <a href=#2692 id=2692 data-nosnippet>2692</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2693 id=2693 data-nosnippet>2693</a>        }
 <a href=#2694 id=2694 data-nosnippet>2694</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -2837,7 +2837,7 @@
 <a href=#2837 id=2837 data-nosnippet>2837</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2838 id=2838 data-nosnippet>2838</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2839 id=2839 data-nosnippet>2839</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2840 id=2840 data-nosnippet>2840</a>        <span class="kw">if </span>header.minor_opcode != GRAB_DEVICE_KEY_REQUEST {
+<a href=#2840 id=2840 data-nosnippet>2840</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GRAB_DEVICE_KEY_REQUEST {
 <a href=#2841 id=2841 data-nosnippet>2841</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2842 id=2842 data-nosnippet>2842</a>        }
 <a href=#2843 id=2843 data-nosnippet>2843</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -2944,7 +2944,7 @@
 <a href=#2944 id=2944 data-nosnippet>2944</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2945 id=2945 data-nosnippet>2945</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2946 id=2946 data-nosnippet>2946</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2947 id=2947 data-nosnippet>2947</a>        <span class="kw">if </span>header.minor_opcode != UNGRAB_DEVICE_KEY_REQUEST {
+<a href=#2947 id=2947 data-nosnippet>2947</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= UNGRAB_DEVICE_KEY_REQUEST {
 <a href=#2948 id=2948 data-nosnippet>2948</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2949 id=2949 data-nosnippet>2949</a>        }
 <a href=#2950 id=2950 data-nosnippet>2950</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -3042,7 +3042,7 @@
 <a href=#3042 id=3042 data-nosnippet>3042</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3043 id=3043 data-nosnippet>3043</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3044 id=3044 data-nosnippet>3044</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3045 id=3045 data-nosnippet>3045</a>        <span class="kw">if </span>header.minor_opcode != GRAB_DEVICE_BUTTON_REQUEST {
+<a href=#3045 id=3045 data-nosnippet>3045</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GRAB_DEVICE_BUTTON_REQUEST {
 <a href=#3046 id=3046 data-nosnippet>3046</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3047 id=3047 data-nosnippet>3047</a>        }
 <a href=#3048 id=3048 data-nosnippet>3048</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -3149,7 +3149,7 @@
 <a href=#3149 id=3149 data-nosnippet>3149</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3150 id=3150 data-nosnippet>3150</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3151 id=3151 data-nosnippet>3151</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3152 id=3152 data-nosnippet>3152</a>        <span class="kw">if </span>header.minor_opcode != UNGRAB_DEVICE_BUTTON_REQUEST {
+<a href=#3152 id=3152 data-nosnippet>3152</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= UNGRAB_DEVICE_BUTTON_REQUEST {
 <a href=#3153 id=3153 data-nosnippet>3153</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3154 id=3154 data-nosnippet>3154</a>        }
 <a href=#3155 id=3155 data-nosnippet>3155</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -3290,7 +3290,7 @@
 <a href=#3290 id=3290 data-nosnippet>3290</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3291 id=3291 data-nosnippet>3291</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3292 id=3292 data-nosnippet>3292</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3293 id=3293 data-nosnippet>3293</a>        <span class="kw">if </span>header.minor_opcode != ALLOW_DEVICE_EVENTS_REQUEST {
+<a href=#3293 id=3293 data-nosnippet>3293</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= ALLOW_DEVICE_EVENTS_REQUEST {
 <a href=#3294 id=3294 data-nosnippet>3294</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3295 id=3295 data-nosnippet>3295</a>        }
 <a href=#3296 id=3296 data-nosnippet>3296</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -3352,7 +3352,7 @@
 <a href=#3352 id=3352 data-nosnippet>3352</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3353 id=3353 data-nosnippet>3353</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3354 id=3354 data-nosnippet>3354</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3355 id=3355 data-nosnippet>3355</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_FOCUS_REQUEST {
+<a href=#3355 id=3355 data-nosnippet>3355</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_FOCUS_REQUEST {
 <a href=#3356 id=3356 data-nosnippet>3356</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3357 id=3357 data-nosnippet>3357</a>        }
 <a href=#3358 id=3358 data-nosnippet>3358</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -3400,7 +3400,7 @@
 <a href=#3400 id=3400 data-nosnippet>3400</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#3401 id=3401 data-nosnippet>3401</a>        <span class="kw">let </span>(revert_to, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#3402 id=3402 data-nosnippet>3402</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">15</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#3403 id=3403 data-nosnippet>3403</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#3403 id=3403 data-nosnippet>3403</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#3404 id=3404 data-nosnippet>3404</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3405 id=3405 data-nosnippet>3405</a>        }
 <a href=#3406 id=3406 data-nosnippet>3406</a>        <span class="kw">let </span>revert_to = revert_to.into();
@@ -3517,7 +3517,7 @@
 <a href=#3517 id=3517 data-nosnippet>3517</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3518 id=3518 data-nosnippet>3518</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3519 id=3519 data-nosnippet>3519</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3520 id=3520 data-nosnippet>3520</a>        <span class="kw">if </span>header.minor_opcode != SET_DEVICE_FOCUS_REQUEST {
+<a href=#3520 id=3520 data-nosnippet>3520</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_DEVICE_FOCUS_REQUEST {
 <a href=#3521 id=3521 data-nosnippet>3521</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3522 id=3522 data-nosnippet>3522</a>        }
 <a href=#3523 id=3523 data-nosnippet>3523</a>        <span class="kw">let </span>(focus, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -4570,7 +4570,7 @@
 <a href=#4570 id=4570 data-nosnippet>4570</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#4571 id=4571 data-nosnippet>4571</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#4572 id=4572 data-nosnippet>4572</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#4573 id=4573 data-nosnippet>4573</a>        <span class="kw">if </span>header.minor_opcode != GET_FEEDBACK_CONTROL_REQUEST {
+<a href=#4573 id=4573 data-nosnippet>4573</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_FEEDBACK_CONTROL_REQUEST {
 <a href=#4574 id=4574 data-nosnippet>4574</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#4575 id=4575 data-nosnippet>4575</a>        }
 <a href=#4576 id=4576 data-nosnippet>4576</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -4615,7 +4615,7 @@
 <a href=#4615 id=4615 data-nosnippet>4615</a>        <span class="kw">let </span>(num_feedbacks, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#4616 id=4616 data-nosnippet>4616</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#4617 id=4617 data-nosnippet>4617</a>        <span class="kw">let </span>(feedbacks, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;FeedbackState&gt;(remaining, num_feedbacks.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#4618 id=4618 data-nosnippet>4618</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#4618 id=4618 data-nosnippet>4618</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#4619 id=4619 data-nosnippet>4619</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#4620 id=4620 data-nosnippet>4620</a>        }
 <a href=#4621 id=4621 data-nosnippet>4621</a>        <span class="kw">let </span>result = GetFeedbackControlReply { xi_reply_type, sequence, length, feedbacks };
@@ -5599,7 +5599,7 @@
 <a href=#5599 id=5599 data-nosnippet>5599</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#5600 id=5600 data-nosnippet>5600</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#5601 id=5601 data-nosnippet>5601</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#5602 id=5602 data-nosnippet>5602</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_FEEDBACK_CONTROL_REQUEST {
+<a href=#5602 id=5602 data-nosnippet>5602</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_FEEDBACK_CONTROL_REQUEST {
 <a href=#5603 id=5603 data-nosnippet>5603</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5604 id=5604 data-nosnippet>5604</a>        }
 <a href=#5605 id=5605 data-nosnippet>5605</a>        <span class="kw">let </span>(mask, remaining) = u32::try_parse(value)<span class="question-mark">?</span>;
@@ -5667,7 +5667,7 @@
 <a href=#5667 id=5667 data-nosnippet>5667</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#5668 id=5668 data-nosnippet>5668</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#5669 id=5669 data-nosnippet>5669</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#5670 id=5670 data-nosnippet>5670</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_KEY_MAPPING_REQUEST {
+<a href=#5670 id=5670 data-nosnippet>5670</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_KEY_MAPPING_REQUEST {
 <a href=#5671 id=5671 data-nosnippet>5671</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5672 id=5672 data-nosnippet>5672</a>        }
 <a href=#5673 id=5673 data-nosnippet>5673</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -5716,7 +5716,7 @@
 <a href=#5716 id=5716 data-nosnippet>5716</a>        <span class="kw">let </span>(keysyms_per_keycode, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#5717 id=5717 data-nosnippet>5717</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#5718 id=5718 data-nosnippet>5718</a>        <span class="kw">let </span>(keysyms, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;xproto::Keysym&gt;(remaining, length.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#5719 id=5719 data-nosnippet>5719</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#5719 id=5719 data-nosnippet>5719</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#5720 id=5720 data-nosnippet>5720</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5721 id=5721 data-nosnippet>5721</a>        }
 <a href=#5722 id=5722 data-nosnippet>5722</a>        <span class="kw">let </span>result = GetDeviceKeyMappingReply { xi_reply_type, sequence, keysyms_per_keycode, keysyms };
@@ -5807,7 +5807,7 @@
 <a href=#5807 id=5807 data-nosnippet>5807</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#5808 id=5808 data-nosnippet>5808</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#5809 id=5809 data-nosnippet>5809</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#5810 id=5810 data-nosnippet>5810</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_DEVICE_KEY_MAPPING_REQUEST {
+<a href=#5810 id=5810 data-nosnippet>5810</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_DEVICE_KEY_MAPPING_REQUEST {
 <a href=#5811 id=5811 data-nosnippet>5811</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5812 id=5812 data-nosnippet>5812</a>        }
 <a href=#5813 id=5813 data-nosnippet>5813</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -5881,7 +5881,7 @@
 <a href=#5881 id=5881 data-nosnippet>5881</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#5882 id=5882 data-nosnippet>5882</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#5883 id=5883 data-nosnippet>5883</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#5884 id=5884 data-nosnippet>5884</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_MODIFIER_MAPPING_REQUEST {
+<a href=#5884 id=5884 data-nosnippet>5884</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_MODIFIER_MAPPING_REQUEST {
 <a href=#5885 id=5885 data-nosnippet>5885</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5886 id=5886 data-nosnippet>5886</a>        }
 <a href=#5887 id=5887 data-nosnippet>5887</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -5927,7 +5927,7 @@
 <a href=#5927 id=5927 data-nosnippet>5927</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#5928 id=5928 data-nosnippet>5928</a>        <span class="kw">let </span>(keymaps, remaining) = <span class="kw">crate</span>::x11_utils::parse_u8_list(remaining, u32::from(keycodes_per_modifier).checked_mul(<span class="number">8u32</span>).ok_or(ParseError::InvalidExpression)<span class="question-mark">?</span>.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 <a href=#5929 id=5929 data-nosnippet>5929</a>        <span class="kw">let </span>keymaps = keymaps.to_vec();
-<a href=#5930 id=5930 data-nosnippet>5930</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#5930 id=5930 data-nosnippet>5930</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#5931 id=5931 data-nosnippet>5931</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#5932 id=5932 data-nosnippet>5932</a>        }
 <a href=#5933 id=5933 data-nosnippet>5933</a>        <span class="kw">let </span>result = GetDeviceModifierMappingReply { xi_reply_type, sequence, length, keymaps };
@@ -6015,7 +6015,7 @@
 <a href=#6015 id=6015 data-nosnippet>6015</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#6016 id=6016 data-nosnippet>6016</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#6017 id=6017 data-nosnippet>6017</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#6018 id=6018 data-nosnippet>6018</a>        <span class="kw">if </span>header.minor_opcode != SET_DEVICE_MODIFIER_MAPPING_REQUEST {
+<a href=#6018 id=6018 data-nosnippet>6018</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_DEVICE_MODIFIER_MAPPING_REQUEST {
 <a href=#6019 id=6019 data-nosnippet>6019</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6020 id=6020 data-nosnippet>6020</a>        }
 <a href=#6021 id=6021 data-nosnippet>6021</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -6069,7 +6069,7 @@
 <a href=#6069 id=6069 data-nosnippet>6069</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#6070 id=6070 data-nosnippet>6070</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#6071 id=6071 data-nosnippet>6071</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#6072 id=6072 data-nosnippet>6072</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#6072 id=6072 data-nosnippet>6072</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#6073 id=6073 data-nosnippet>6073</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6074 id=6074 data-nosnippet>6074</a>        }
 <a href=#6075 id=6075 data-nosnippet>6075</a>        <span class="kw">let </span>status = status.into();
@@ -6168,7 +6168,7 @@
 <a href=#6168 id=6168 data-nosnippet>6168</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#6169 id=6169 data-nosnippet>6169</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#6170 id=6170 data-nosnippet>6170</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#6171 id=6171 data-nosnippet>6171</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_BUTTON_MAPPING_REQUEST {
+<a href=#6171 id=6171 data-nosnippet>6171</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_BUTTON_MAPPING_REQUEST {
 <a href=#6172 id=6172 data-nosnippet>6172</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6173 id=6173 data-nosnippet>6173</a>        }
 <a href=#6174 id=6174 data-nosnippet>6174</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -6219,7 +6219,7 @@
 <a href=#6219 id=6219 data-nosnippet>6219</a>        </span><span class="kw">let </span>offset = remaining.as_ptr() <span class="kw">as </span>usize - value.as_ptr() <span class="kw">as </span>usize;
 <a href=#6220 id=6220 data-nosnippet>6220</a>        <span class="kw">let </span>misalignment = (<span class="number">4 </span>- (offset % <span class="number">4</span>)) % <span class="number">4</span>;
 <a href=#6221 id=6221 data-nosnippet>6221</a>        <span class="kw">let </span>remaining = remaining.get(misalignment..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#6222 id=6222 data-nosnippet>6222</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#6222 id=6222 data-nosnippet>6222</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#6223 id=6223 data-nosnippet>6223</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6224 id=6224 data-nosnippet>6224</a>        }
 <a href=#6225 id=6225 data-nosnippet>6225</a>        <span class="kw">let </span>result = GetDeviceButtonMappingReply { xi_reply_type, sequence, length, map };
@@ -6305,7 +6305,7 @@
 <a href=#6305 id=6305 data-nosnippet>6305</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#6306 id=6306 data-nosnippet>6306</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#6307 id=6307 data-nosnippet>6307</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#6308 id=6308 data-nosnippet>6308</a>        <span class="kw">if </span>header.minor_opcode != SET_DEVICE_BUTTON_MAPPING_REQUEST {
+<a href=#6308 id=6308 data-nosnippet>6308</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_DEVICE_BUTTON_MAPPING_REQUEST {
 <a href=#6309 id=6309 data-nosnippet>6309</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6310 id=6310 data-nosnippet>6310</a>        }
 <a href=#6311 id=6311 data-nosnippet>6311</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -6359,7 +6359,7 @@
 <a href=#6359 id=6359 data-nosnippet>6359</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#6360 id=6360 data-nosnippet>6360</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#6361 id=6361 data-nosnippet>6361</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#6362 id=6362 data-nosnippet>6362</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#6362 id=6362 data-nosnippet>6362</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#6363 id=6363 data-nosnippet>6363</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#6364 id=6364 data-nosnippet>6364</a>        }
 <a href=#6365 id=6365 data-nosnippet>6365</a>        <span class="kw">let </span>status = status.into();
@@ -7035,7 +7035,7 @@
 <a href=#7035 id=7035 data-nosnippet>7035</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#7036 id=7036 data-nosnippet>7036</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#7037 id=7037 data-nosnippet>7037</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#7038 id=7038 data-nosnippet>7038</a>        <span class="kw">if </span>header.minor_opcode != QUERY_DEVICE_STATE_REQUEST {
+<a href=#7038 id=7038 data-nosnippet>7038</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= QUERY_DEVICE_STATE_REQUEST {
 <a href=#7039 id=7039 data-nosnippet>7039</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#7040 id=7040 data-nosnippet>7040</a>        }
 <a href=#7041 id=7041 data-nosnippet>7041</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -7080,7 +7080,7 @@
 <a href=#7080 id=7080 data-nosnippet>7080</a>        <span class="kw">let </span>(num_classes, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#7081 id=7081 data-nosnippet>7081</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#7082 id=7082 data-nosnippet>7082</a>        <span class="kw">let </span>(classes, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;InputState&gt;(remaining, num_classes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#7083 id=7083 data-nosnippet>7083</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#7083 id=7083 data-nosnippet>7083</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#7084 id=7084 data-nosnippet>7084</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#7085 id=7085 data-nosnippet>7085</a>        }
 <a href=#7086 id=7086 data-nosnippet>7086</a>        <span class="kw">let </span>result = QueryDeviceStateReply { xi_reply_type, sequence, length, classes };
@@ -7165,7 +7165,7 @@
 <a href=#7165 id=7165 data-nosnippet>7165</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#7166 id=7166 data-nosnippet>7166</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#7167 id=7167 data-nosnippet>7167</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#7168 id=7168 data-nosnippet>7168</a>        <span class="kw">if </span>header.minor_opcode != DEVICE_BELL_REQUEST {
+<a href=#7168 id=7168 data-nosnippet>7168</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= DEVICE_BELL_REQUEST {
 <a href=#7169 id=7169 data-nosnippet>7169</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#7170 id=7170 data-nosnippet>7170</a>        }
 <a href=#7171 id=7171 data-nosnippet>7171</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -7236,7 +7236,7 @@
 <a href=#7236 id=7236 data-nosnippet>7236</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#7237 id=7237 data-nosnippet>7237</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#7238 id=7238 data-nosnippet>7238</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#7239 id=7239 data-nosnippet>7239</a>        <span class="kw">if </span>header.minor_opcode != SET_DEVICE_VALUATORS_REQUEST {
+<a href=#7239 id=7239 data-nosnippet>7239</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_DEVICE_VALUATORS_REQUEST {
 <a href=#7240 id=7240 data-nosnippet>7240</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#7241 id=7241 data-nosnippet>7241</a>        }
 <a href=#7242 id=7242 data-nosnippet>7242</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -7293,7 +7293,7 @@
 <a href=#7293 id=7293 data-nosnippet>7293</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#7294 id=7294 data-nosnippet>7294</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#7295 id=7295 data-nosnippet>7295</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#7296 id=7296 data-nosnippet>7296</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#7296 id=7296 data-nosnippet>7296</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#7297 id=7297 data-nosnippet>7297</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#7298 id=7298 data-nosnippet>7298</a>        }
 <a href=#7299 id=7299 data-nosnippet>7299</a>        <span class="kw">let </span>status = status.into();
@@ -8201,7 +8201,7 @@
 <a href=#8201 id=8201 data-nosnippet>8201</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#8202 id=8202 data-nosnippet>8202</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#8203 id=8203 data-nosnippet>8203</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#8204 id=8204 data-nosnippet>8204</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_CONTROL_REQUEST {
+<a href=#8204 id=8204 data-nosnippet>8204</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_CONTROL_REQUEST {
 <a href=#8205 id=8205 data-nosnippet>8205</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#8206 id=8206 data-nosnippet>8206</a>        }
 <a href=#8207 id=8207 data-nosnippet>8207</a>        <span class="kw">let </span>(control_id, remaining) = u16::try_parse(value)<span class="question-mark">?</span>;
@@ -8250,7 +8250,7 @@
 <a href=#8250 id=8250 data-nosnippet>8250</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#8251 id=8251 data-nosnippet>8251</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#8252 id=8252 data-nosnippet>8252</a>        <span class="kw">let </span>(control, remaining) = DeviceState::try_parse(remaining)<span class="question-mark">?</span>;
-<a href=#8253 id=8253 data-nosnippet>8253</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#8253 id=8253 data-nosnippet>8253</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#8254 id=8254 data-nosnippet>8254</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#8255 id=8255 data-nosnippet>8255</a>        }
 <a href=#8256 id=8256 data-nosnippet>8256</a>        <span class="kw">let </span>result = GetDeviceControlReply { xi_reply_type, sequence, length, status, control };
@@ -9055,7 +9055,7 @@
 <a href=#9055 id=9055 data-nosnippet>9055</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#9056 id=9056 data-nosnippet>9056</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#9057 id=9057 data-nosnippet>9057</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#9058 id=9058 data-nosnippet>9058</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_DEVICE_CONTROL_REQUEST {
+<a href=#9058 id=9058 data-nosnippet>9058</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_DEVICE_CONTROL_REQUEST {
 <a href=#9059 id=9059 data-nosnippet>9059</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9060 id=9060 data-nosnippet>9060</a>        }
 <a href=#9061 id=9061 data-nosnippet>9061</a>        <span class="kw">let </span>(control_id, remaining) = u16::try_parse(value)<span class="question-mark">?</span>;
@@ -9104,7 +9104,7 @@
 <a href=#9104 id=9104 data-nosnippet>9104</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#9105 id=9105 data-nosnippet>9105</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#9106 id=9106 data-nosnippet>9106</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#9107 id=9107 data-nosnippet>9107</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#9107 id=9107 data-nosnippet>9107</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#9108 id=9108 data-nosnippet>9108</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9109 id=9109 data-nosnippet>9109</a>        }
 <a href=#9110 id=9110 data-nosnippet>9110</a>        <span class="kw">let </span>result = ChangeDeviceControlReply { xi_reply_type, sequence, length, status };
@@ -9202,7 +9202,7 @@
 <a href=#9202 id=9202 data-nosnippet>9202</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#9203 id=9203 data-nosnippet>9203</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#9204 id=9204 data-nosnippet>9204</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#9205 id=9205 data-nosnippet>9205</a>        <span class="kw">if </span>header.minor_opcode != LIST_DEVICE_PROPERTIES_REQUEST {
+<a href=#9205 id=9205 data-nosnippet>9205</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= LIST_DEVICE_PROPERTIES_REQUEST {
 <a href=#9206 id=9206 data-nosnippet>9206</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9207 id=9207 data-nosnippet>9207</a>        }
 <a href=#9208 id=9208 data-nosnippet>9208</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -9247,7 +9247,7 @@
 <a href=#9247 id=9247 data-nosnippet>9247</a>        <span class="kw">let </span>(num_atoms, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#9248 id=9248 data-nosnippet>9248</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#9249 id=9249 data-nosnippet>9249</a>        <span class="kw">let </span>(atoms, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;xproto::Atom&gt;(remaining, num_atoms.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#9250 id=9250 data-nosnippet>9250</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#9250 id=9250 data-nosnippet>9250</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#9251 id=9251 data-nosnippet>9251</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9252 id=9252 data-nosnippet>9252</a>        }
 <a href=#9253 id=9253 data-nosnippet>9253</a>        <span class="kw">let </span>result = ListDevicePropertiesReply { xi_reply_type, sequence, length, atoms };
@@ -9535,7 +9535,7 @@
 <a href=#9535 id=9535 data-nosnippet>9535</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#9536 id=9536 data-nosnippet>9536</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#9537 id=9537 data-nosnippet>9537</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#9538 id=9538 data-nosnippet>9538</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_DEVICE_PROPERTY_REQUEST {
+<a href=#9538 id=9538 data-nosnippet>9538</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_DEVICE_PROPERTY_REQUEST {
 <a href=#9539 id=9539 data-nosnippet>9539</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9540 id=9540 data-nosnippet>9540</a>        }
 <a href=#9541 id=9541 data-nosnippet>9541</a>        <span class="kw">let </span>(property, remaining) = xproto::Atom::try_parse(value)<span class="question-mark">?</span>;
@@ -9621,7 +9621,7 @@
 <a href=#9621 id=9621 data-nosnippet>9621</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#9622 id=9622 data-nosnippet>9622</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#9623 id=9623 data-nosnippet>9623</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#9624 id=9624 data-nosnippet>9624</a>        <span class="kw">if </span>header.minor_opcode != DELETE_DEVICE_PROPERTY_REQUEST {
+<a href=#9624 id=9624 data-nosnippet>9624</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= DELETE_DEVICE_PROPERTY_REQUEST {
 <a href=#9625 id=9625 data-nosnippet>9625</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9626 id=9626 data-nosnippet>9626</a>        }
 <a href=#9627 id=9627 data-nosnippet>9627</a>        <span class="kw">let </span>(property, remaining) = xproto::Atom::try_parse(value)<span class="question-mark">?</span>;
@@ -9706,7 +9706,7 @@
 <a href=#9706 id=9706 data-nosnippet>9706</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#9707 id=9707 data-nosnippet>9707</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#9708 id=9708 data-nosnippet>9708</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#9709 id=9709 data-nosnippet>9709</a>        <span class="kw">if </span>header.minor_opcode != GET_DEVICE_PROPERTY_REQUEST {
+<a href=#9709 id=9709 data-nosnippet>9709</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_DEVICE_PROPERTY_REQUEST {
 <a href=#9710 id=9710 data-nosnippet>9710</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9711 id=9711 data-nosnippet>9711</a>        }
 <a href=#9712 id=9712 data-nosnippet>9712</a>        <span class="kw">let </span>(property, remaining) = xproto::Atom::try_parse(value)<span class="question-mark">?</span>;
@@ -9890,7 +9890,7 @@
 <a href=#9890 id=9890 data-nosnippet>9890</a>        <span class="kw">let </span>(device_id, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#9891 id=9891 data-nosnippet>9891</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">10</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#9892 id=9892 data-nosnippet>9892</a>        <span class="kw">let </span>(items, remaining) = GetDevicePropertyItems::try_parse(remaining, u8::from(format), u32::from(num_items))<span class="question-mark">?</span>;
-<a href=#9893 id=9893 data-nosnippet>9893</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#9893 id=9893 data-nosnippet>9893</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#9894 id=9894 data-nosnippet>9894</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#9895 id=9895 data-nosnippet>9895</a>        }
 <a href=#9896 id=9896 data-nosnippet>9896</a>        <span class="kw">let </span>result = GetDevicePropertyReply { xi_reply_type, sequence, length, type_, bytes_after, num_items, device_id, items };
@@ -10133,7 +10133,7 @@
 <a href=#10133 id=10133 data-nosnippet>10133</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#10134 id=10134 data-nosnippet>10134</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#10135 id=10135 data-nosnippet>10135</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#10136 id=10136 data-nosnippet>10136</a>        <span class="kw">if </span>header.minor_opcode != XI_QUERY_POINTER_REQUEST {
+<a href=#10136 id=10136 data-nosnippet>10136</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_QUERY_POINTER_REQUEST {
 <a href=#10137 id=10137 data-nosnippet>10137</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#10138 id=10138 data-nosnippet>10138</a>        }
 <a href=#10139 id=10139 data-nosnippet>10139</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -10197,7 +10197,7 @@
 <a href=#10197 id=10197 data-nosnippet>10197</a>        <span class="kw">let </span>(mods, remaining) = ModifierInfo::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#10198 id=10198 data-nosnippet>10198</a>        <span class="kw">let </span>(group, remaining) = GroupInfo::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#10199 id=10199 data-nosnippet>10199</a>        <span class="kw">let </span>(buttons, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;u32&gt;(remaining, buttons_len.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#10200 id=10200 data-nosnippet>10200</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#10200 id=10200 data-nosnippet>10200</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#10201 id=10201 data-nosnippet>10201</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#10202 id=10202 data-nosnippet>10202</a>        }
 <a href=#10203 id=10203 data-nosnippet>10203</a>        <span class="kw">let </span>result = XIQueryPointerReply { sequence, length, root, child, root_x, root_y, win_x, win_y, same_screen, mods, group, buttons };
@@ -10329,7 +10329,7 @@
 <a href=#10329 id=10329 data-nosnippet>10329</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#10330 id=10330 data-nosnippet>10330</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#10331 id=10331 data-nosnippet>10331</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#10332 id=10332 data-nosnippet>10332</a>        <span class="kw">if </span>header.minor_opcode != XI_WARP_POINTER_REQUEST {
+<a href=#10332 id=10332 data-nosnippet>10332</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_WARP_POINTER_REQUEST {
 <a href=#10333 id=10333 data-nosnippet>10333</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#10334 id=10334 data-nosnippet>10334</a>        }
 <a href=#10335 id=10335 data-nosnippet>10335</a>        <span class="kw">let </span>(src_win, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -10414,7 +10414,7 @@
 <a href=#10414 id=10414 data-nosnippet>10414</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#10415 id=10415 data-nosnippet>10415</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#10416 id=10416 data-nosnippet>10416</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#10417 id=10417 data-nosnippet>10417</a>        <span class="kw">if </span>header.minor_opcode != XI_CHANGE_CURSOR_REQUEST {
+<a href=#10417 id=10417 data-nosnippet>10417</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_CHANGE_CURSOR_REQUEST {
 <a href=#10418 id=10418 data-nosnippet>10418</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#10419 id=10419 data-nosnippet>10419</a>        }
 <a href=#10420 id=10420 data-nosnippet>10420</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -11134,7 +11134,7 @@
 <a href=#11134 id=11134 data-nosnippet>11134</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#11135 id=11135 data-nosnippet>11135</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#11136 id=11136 data-nosnippet>11136</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#11137 id=11137 data-nosnippet>11137</a>        <span class="kw">if </span>header.minor_opcode != XI_CHANGE_HIERARCHY_REQUEST {
+<a href=#11137 id=11137 data-nosnippet>11137</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_CHANGE_HIERARCHY_REQUEST {
 <a href=#11138 id=11138 data-nosnippet>11138</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11139 id=11139 data-nosnippet>11139</a>        }
 <a href=#11140 id=11140 data-nosnippet>11140</a>        <span class="kw">let </span>(num_changes, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -11204,7 +11204,7 @@
 <a href=#11204 id=11204 data-nosnippet>11204</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#11205 id=11205 data-nosnippet>11205</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#11206 id=11206 data-nosnippet>11206</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#11207 id=11207 data-nosnippet>11207</a>        <span class="kw">if </span>header.minor_opcode != XI_SET_CLIENT_POINTER_REQUEST {
+<a href=#11207 id=11207 data-nosnippet>11207</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_SET_CLIENT_POINTER_REQUEST {
 <a href=#11208 id=11208 data-nosnippet>11208</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11209 id=11209 data-nosnippet>11209</a>        }
 <a href=#11210 id=11210 data-nosnippet>11210</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -11263,7 +11263,7 @@
 <a href=#11263 id=11263 data-nosnippet>11263</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#11264 id=11264 data-nosnippet>11264</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#11265 id=11265 data-nosnippet>11265</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#11266 id=11266 data-nosnippet>11266</a>        <span class="kw">if </span>header.minor_opcode != XI_GET_CLIENT_POINTER_REQUEST {
+<a href=#11266 id=11266 data-nosnippet>11266</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_GET_CLIENT_POINTER_REQUEST {
 <a href=#11267 id=11267 data-nosnippet>11267</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11268 id=11268 data-nosnippet>11268</a>        }
 <a href=#11269 id=11269 data-nosnippet>11269</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -11308,7 +11308,7 @@
 <a href=#11308 id=11308 data-nosnippet>11308</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">1</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#11309 id=11309 data-nosnippet>11309</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#11310 id=11310 data-nosnippet>11310</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">20</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#11311 id=11311 data-nosnippet>11311</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#11311 id=11311 data-nosnippet>11311</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#11312 id=11312 data-nosnippet>11312</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11313 id=11313 data-nosnippet>11313</a>        }
 <a href=#11314 id=11314 data-nosnippet>11314</a>        <span class="kw">let </span>result = XIGetClientPointerReply { sequence, length, set, deviceid };
@@ -11573,7 +11573,7 @@
 <a href=#11573 id=11573 data-nosnippet>11573</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#11574 id=11574 data-nosnippet>11574</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#11575 id=11575 data-nosnippet>11575</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#11576 id=11576 data-nosnippet>11576</a>        <span class="kw">if </span>header.minor_opcode != XI_SELECT_EVENTS_REQUEST {
+<a href=#11576 id=11576 data-nosnippet>11576</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_SELECT_EVENTS_REQUEST {
 <a href=#11577 id=11577 data-nosnippet>11577</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11578 id=11578 data-nosnippet>11578</a>        }
 <a href=#11579 id=11579 data-nosnippet>11579</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -11642,7 +11642,7 @@
 <a href=#11642 id=11642 data-nosnippet>11642</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#11643 id=11643 data-nosnippet>11643</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#11644 id=11644 data-nosnippet>11644</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#11645 id=11645 data-nosnippet>11645</a>        <span class="kw">if </span>header.minor_opcode != XI_QUERY_VERSION_REQUEST {
+<a href=#11645 id=11645 data-nosnippet>11645</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_QUERY_VERSION_REQUEST {
 <a href=#11646 id=11646 data-nosnippet>11646</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11647 id=11647 data-nosnippet>11647</a>        }
 <a href=#11648 id=11648 data-nosnippet>11648</a>        <span class="kw">let </span>(major_version, remaining) = u16::try_parse(value)<span class="question-mark">?</span>;
@@ -11688,7 +11688,7 @@
 <a href=#11688 id=11688 data-nosnippet>11688</a>        <span class="kw">let </span>(major_version, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#11689 id=11689 data-nosnippet>11689</a>        <span class="kw">let </span>(minor_version, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#11690 id=11690 data-nosnippet>11690</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">20</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#11691 id=11691 data-nosnippet>11691</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#11691 id=11691 data-nosnippet>11691</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#11692 id=11692 data-nosnippet>11692</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#11693 id=11693 data-nosnippet>11693</a>        }
 <a href=#11694 id=11694 data-nosnippet>11694</a>        <span class="kw">let </span>result = XIQueryVersionReply { sequence, length, major_version, minor_version };
@@ -13047,7 +13047,7 @@
 <a href=#13047 id=13047 data-nosnippet>13047</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13048 id=13048 data-nosnippet>13048</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13049 id=13049 data-nosnippet>13049</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13050 id=13050 data-nosnippet>13050</a>        <span class="kw">if </span>header.minor_opcode != XI_QUERY_DEVICE_REQUEST {
+<a href=#13050 id=13050 data-nosnippet>13050</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_QUERY_DEVICE_REQUEST {
 <a href=#13051 id=13051 data-nosnippet>13051</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13052 id=13052 data-nosnippet>13052</a>        }
 <a href=#13053 id=13053 data-nosnippet>13053</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -13091,7 +13091,7 @@
 <a href=#13091 id=13091 data-nosnippet>13091</a>        <span class="kw">let </span>(num_infos, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#13092 id=13092 data-nosnippet>13092</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#13093 id=13093 data-nosnippet>13093</a>        <span class="kw">let </span>(infos, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;XIDeviceInfo&gt;(remaining, num_infos.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#13094 id=13094 data-nosnippet>13094</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#13094 id=13094 data-nosnippet>13094</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#13095 id=13095 data-nosnippet>13095</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13096 id=13096 data-nosnippet>13096</a>        }
 <a href=#13097 id=13097 data-nosnippet>13097</a>        <span class="kw">let </span>result = XIQueryDeviceReply { sequence, length, infos };
@@ -13182,7 +13182,7 @@
 <a href=#13182 id=13182 data-nosnippet>13182</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13183 id=13183 data-nosnippet>13183</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13184 id=13184 data-nosnippet>13184</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13185 id=13185 data-nosnippet>13185</a>        <span class="kw">if </span>header.minor_opcode != XI_SET_FOCUS_REQUEST {
+<a href=#13185 id=13185 data-nosnippet>13185</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_SET_FOCUS_REQUEST {
 <a href=#13186 id=13186 data-nosnippet>13186</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13187 id=13187 data-nosnippet>13187</a>        }
 <a href=#13188 id=13188 data-nosnippet>13188</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -13243,7 +13243,7 @@
 <a href=#13243 id=13243 data-nosnippet>13243</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13244 id=13244 data-nosnippet>13244</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13245 id=13245 data-nosnippet>13245</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13246 id=13246 data-nosnippet>13246</a>        <span class="kw">if </span>header.minor_opcode != XI_GET_FOCUS_REQUEST {
+<a href=#13246 id=13246 data-nosnippet>13246</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_GET_FOCUS_REQUEST {
 <a href=#13247 id=13247 data-nosnippet>13247</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13248 id=13248 data-nosnippet>13248</a>        }
 <a href=#13249 id=13249 data-nosnippet>13249</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -13286,7 +13286,7 @@
 <a href=#13286 id=13286 data-nosnippet>13286</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#13287 id=13287 data-nosnippet>13287</a>        <span class="kw">let </span>(focus, remaining) = xproto::Window::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#13288 id=13288 data-nosnippet>13288</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">20</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#13289 id=13289 data-nosnippet>13289</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#13289 id=13289 data-nosnippet>13289</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#13290 id=13290 data-nosnippet>13290</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13291 id=13291 data-nosnippet>13291</a>        }
 <a href=#13292 id=13292 data-nosnippet>13292</a>        <span class="kw">let </span>result = XIGetFocusReply { sequence, length, focus };
@@ -13489,7 +13489,7 @@
 <a href=#13489 id=13489 data-nosnippet>13489</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13490 id=13490 data-nosnippet>13490</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13491 id=13491 data-nosnippet>13491</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13492 id=13492 data-nosnippet>13492</a>        <span class="kw">if </span>header.minor_opcode != XI_GRAB_DEVICE_REQUEST {
+<a href=#13492 id=13492 data-nosnippet>13492</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_GRAB_DEVICE_REQUEST {
 <a href=#13493 id=13493 data-nosnippet>13493</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13494 id=13494 data-nosnippet>13494</a>        }
 <a href=#13495 id=13495 data-nosnippet>13495</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -13563,7 +13563,7 @@
 <a href=#13563 id=13563 data-nosnippet>13563</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#13564 id=13564 data-nosnippet>13564</a>        <span class="kw">let </span>(status, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#13565 id=13565 data-nosnippet>13565</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">23</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#13566 id=13566 data-nosnippet>13566</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#13566 id=13566 data-nosnippet>13566</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#13567 id=13567 data-nosnippet>13567</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13568 id=13568 data-nosnippet>13568</a>        }
 <a href=#13569 id=13569 data-nosnippet>13569</a>        <span class="kw">let </span>status = status.into();
@@ -13667,7 +13667,7 @@
 <a href=#13667 id=13667 data-nosnippet>13667</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13668 id=13668 data-nosnippet>13668</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13669 id=13669 data-nosnippet>13669</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13670 id=13670 data-nosnippet>13670</a>        <span class="kw">if </span>header.minor_opcode != XI_UNGRAB_DEVICE_REQUEST {
+<a href=#13670 id=13670 data-nosnippet>13670</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_UNGRAB_DEVICE_REQUEST {
 <a href=#13671 id=13671 data-nosnippet>13671</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13672 id=13672 data-nosnippet>13672</a>        }
 <a href=#13673 id=13673 data-nosnippet>13673</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -13817,7 +13817,7 @@
 <a href=#13817 id=13817 data-nosnippet>13817</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#13818 id=13818 data-nosnippet>13818</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#13819 id=13819 data-nosnippet>13819</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#13820 id=13820 data-nosnippet>13820</a>        <span class="kw">if </span>header.minor_opcode != XI_ALLOW_EVENTS_REQUEST {
+<a href=#13820 id=13820 data-nosnippet>13820</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_ALLOW_EVENTS_REQUEST {
 <a href=#13821 id=13821 data-nosnippet>13821</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#13822 id=13822 data-nosnippet>13822</a>        }
 <a href=#13823 id=13823 data-nosnippet>13823</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -14153,7 +14153,7 @@
 <a href=#14153 id=14153 data-nosnippet>14153</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14154 id=14154 data-nosnippet>14154</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14155 id=14155 data-nosnippet>14155</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14156 id=14156 data-nosnippet>14156</a>        <span class="kw">if </span>header.minor_opcode != XI_PASSIVE_GRAB_DEVICE_REQUEST {
+<a href=#14156 id=14156 data-nosnippet>14156</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_PASSIVE_GRAB_DEVICE_REQUEST {
 <a href=#14157 id=14157 data-nosnippet>14157</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14158 id=14158 data-nosnippet>14158</a>        }
 <a href=#14159 id=14159 data-nosnippet>14159</a>        <span class="kw">let </span>(time, remaining) = xproto::Timestamp::try_parse(value)<span class="question-mark">?</span>;
@@ -14239,7 +14239,7 @@
 <a href=#14239 id=14239 data-nosnippet>14239</a>        <span class="kw">let </span>(num_modifiers, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#14240 id=14240 data-nosnippet>14240</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#14241 id=14241 data-nosnippet>14241</a>        <span class="kw">let </span>(modifiers, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;GrabModifierInfo&gt;(remaining, num_modifiers.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#14242 id=14242 data-nosnippet>14242</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#14242 id=14242 data-nosnippet>14242</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#14243 id=14243 data-nosnippet>14243</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14244 id=14244 data-nosnippet>14244</a>        }
 <a href=#14245 id=14245 data-nosnippet>14245</a>        <span class="kw">let </span>result = XIPassiveGrabDeviceReply { sequence, length, modifiers };
@@ -14343,7 +14343,7 @@
 <a href=#14343 id=14343 data-nosnippet>14343</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14344 id=14344 data-nosnippet>14344</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14345 id=14345 data-nosnippet>14345</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14346 id=14346 data-nosnippet>14346</a>        <span class="kw">if </span>header.minor_opcode != XI_PASSIVE_UNGRAB_DEVICE_REQUEST {
+<a href=#14346 id=14346 data-nosnippet>14346</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_PASSIVE_UNGRAB_DEVICE_REQUEST {
 <a href=#14347 id=14347 data-nosnippet>14347</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14348 id=14348 data-nosnippet>14348</a>        }
 <a href=#14349 id=14349 data-nosnippet>14349</a>        <span class="kw">let </span>(grab_window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -14420,7 +14420,7 @@
 <a href=#14420 id=14420 data-nosnippet>14420</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14421 id=14421 data-nosnippet>14421</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14422 id=14422 data-nosnippet>14422</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14423 id=14423 data-nosnippet>14423</a>        <span class="kw">if </span>header.minor_opcode != XI_LIST_PROPERTIES_REQUEST {
+<a href=#14423 id=14423 data-nosnippet>14423</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_LIST_PROPERTIES_REQUEST {
 <a href=#14424 id=14424 data-nosnippet>14424</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14425 id=14425 data-nosnippet>14425</a>        }
 <a href=#14426 id=14426 data-nosnippet>14426</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -14464,7 +14464,7 @@
 <a href=#14464 id=14464 data-nosnippet>14464</a>        <span class="kw">let </span>(num_properties, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#14465 id=14465 data-nosnippet>14465</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#14466 id=14466 data-nosnippet>14466</a>        <span class="kw">let </span>(properties, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;xproto::Atom&gt;(remaining, num_properties.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#14467 id=14467 data-nosnippet>14467</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#14467 id=14467 data-nosnippet>14467</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#14468 id=14468 data-nosnippet>14468</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14469 id=14469 data-nosnippet>14469</a>        }
 <a href=#14470 id=14470 data-nosnippet>14470</a>        <span class="kw">let </span>result = XIListPropertiesReply { sequence, length, properties };
@@ -14691,7 +14691,7 @@
 <a href=#14691 id=14691 data-nosnippet>14691</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14692 id=14692 data-nosnippet>14692</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14693 id=14693 data-nosnippet>14693</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14694 id=14694 data-nosnippet>14694</a>        <span class="kw">if </span>header.minor_opcode != XI_CHANGE_PROPERTY_REQUEST {
+<a href=#14694 id=14694 data-nosnippet>14694</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_CHANGE_PROPERTY_REQUEST {
 <a href=#14695 id=14695 data-nosnippet>14695</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14696 id=14696 data-nosnippet>14696</a>        }
 <a href=#14697 id=14697 data-nosnippet>14697</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -14776,7 +14776,7 @@
 <a href=#14776 id=14776 data-nosnippet>14776</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14777 id=14777 data-nosnippet>14777</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14778 id=14778 data-nosnippet>14778</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14779 id=14779 data-nosnippet>14779</a>        <span class="kw">if </span>header.minor_opcode != XI_DELETE_PROPERTY_REQUEST {
+<a href=#14779 id=14779 data-nosnippet>14779</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_DELETE_PROPERTY_REQUEST {
 <a href=#14780 id=14780 data-nosnippet>14780</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14781 id=14781 data-nosnippet>14781</a>        }
 <a href=#14782 id=14782 data-nosnippet>14782</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -14861,7 +14861,7 @@
 <a href=#14861 id=14861 data-nosnippet>14861</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#14862 id=14862 data-nosnippet>14862</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#14863 id=14863 data-nosnippet>14863</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#14864 id=14864 data-nosnippet>14864</a>        <span class="kw">if </span>header.minor_opcode != XI_GET_PROPERTY_REQUEST {
+<a href=#14864 id=14864 data-nosnippet>14864</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_GET_PROPERTY_REQUEST {
 <a href=#14865 id=14865 data-nosnippet>14865</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#14866 id=14866 data-nosnippet>14866</a>        }
 <a href=#14867 id=14867 data-nosnippet>14867</a>        <span class="kw">let </span>(deviceid, remaining) = DeviceId::try_parse(value)<span class="question-mark">?</span>;
@@ -15042,7 +15042,7 @@
 <a href=#15042 id=15042 data-nosnippet>15042</a>        <span class="kw">let </span>(format, remaining) = u8::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#15043 id=15043 data-nosnippet>15043</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">11</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#15044 id=15044 data-nosnippet>15044</a>        <span class="kw">let </span>(items, remaining) = XIGetPropertyItems::try_parse(remaining, u8::from(format), u32::from(num_items))<span class="question-mark">?</span>;
-<a href=#15045 id=15045 data-nosnippet>15045</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#15045 id=15045 data-nosnippet>15045</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#15046 id=15046 data-nosnippet>15046</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#15047 id=15047 data-nosnippet>15047</a>        }
 <a href=#15048 id=15048 data-nosnippet>15048</a>        <span class="kw">let </span>result = XIGetPropertyReply { sequence, length, type_, bytes_after, num_items, items };
@@ -15109,7 +15109,7 @@
 <a href=#15109 id=15109 data-nosnippet>15109</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#15110 id=15110 data-nosnippet>15110</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#15111 id=15111 data-nosnippet>15111</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#15112 id=15112 data-nosnippet>15112</a>        <span class="kw">if </span>header.minor_opcode != XI_GET_SELECTED_EVENTS_REQUEST {
+<a href=#15112 id=15112 data-nosnippet>15112</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_GET_SELECTED_EVENTS_REQUEST {
 <a href=#15113 id=15113 data-nosnippet>15113</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#15114 id=15114 data-nosnippet>15114</a>        }
 <a href=#15115 id=15115 data-nosnippet>15115</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -15152,7 +15152,7 @@
 <a href=#15152 id=15152 data-nosnippet>15152</a>        <span class="kw">let </span>(num_masks, remaining) = u16::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#15153 id=15153 data-nosnippet>15153</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">22</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#15154 id=15154 data-nosnippet>15154</a>        <span class="kw">let </span>(masks, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;EventMask&gt;(remaining, num_masks.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#15155 id=15155 data-nosnippet>15155</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#15155 id=15155 data-nosnippet>15155</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#15156 id=15156 data-nosnippet>15156</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#15157 id=15157 data-nosnippet>15157</a>        }
 <a href=#15158 id=15158 data-nosnippet>15158</a>        <span class="kw">let </span>result = XIGetSelectedEventsReply { sequence, length, masks };
@@ -15285,7 +15285,7 @@
 <a href=#15285 id=15285 data-nosnippet>15285</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#15286 id=15286 data-nosnippet>15286</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#15287 id=15287 data-nosnippet>15287</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#15288 id=15288 data-nosnippet>15288</a>        <span class="kw">if </span>header.minor_opcode != XI_BARRIER_RELEASE_POINTER_REQUEST {
+<a href=#15288 id=15288 data-nosnippet>15288</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= XI_BARRIER_RELEASE_POINTER_REQUEST {
 <a href=#15289 id=15289 data-nosnippet>15289</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#15290 id=15290 data-nosnippet>15290</a>        }
 <a href=#15291 id=15291 data-nosnippet>15291</a>        <span class="kw">let </span>(num_barriers, remaining) = u32::try_parse(value)<span class="question-mark">?</span>;
@@ -19867,7 +19867,7 @@
 <a href=#19867 id=19867 data-nosnippet>19867</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#19868 id=19868 data-nosnippet>19868</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#19869 id=19869 data-nosnippet>19869</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#19870 id=19870 data-nosnippet>19870</a>        <span class="kw">if </span>header.minor_opcode != SEND_EXTENSION_EVENT_REQUEST {
+<a href=#19870 id=19870 data-nosnippet>19870</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SEND_EXTENSION_EVENT_REQUEST {
 <a href=#19871 id=19871 data-nosnippet>19871</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#19872 id=19872 data-nosnippet>19872</a>        }
 <a href=#19873 id=19873 data-nosnippet>19873</a>        <span class="kw">let </span>(destination, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -19925,4 +19925,5 @@
 <a href=#19925 id=19925 data-nosnippet>19925</a>
 <a href=#19926 id=19926 data-nosnippet>19926</a><span class="doccomment">/// Opcode for the Class error
 <a href=#19927 id=19927 data-nosnippet>19927</a></span><span class="kw">pub const </span>CLASS_ERROR: u8 = <span class="number">4</span>;
-<a href=#19928 id=19928 data-nosnippet>19928</a></code></pre></div></section></main></body></html>
+<a href=#19928 id=19928 data-nosnippet>19928</a>
+</code></pre></div></section></main></body></html>

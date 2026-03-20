@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bon-macros-3.8.1/src/builder/builder_gen/setters/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="bon_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">bon_macros/builder/builder_gen/setters/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">super</span>::member::{SetterClosure, WithConfig};
-<a href=#2 id=2 data-nosnippet>2</a><span class="kw">use super</span>::{BuilderGenCtx, NamedMember};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bon-macros-3.9.1/src/builder/builder_gen/setters/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="bon_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">bon_macros/builder/builder_gen/setters/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">super</span>::member::{SetterClosure, WithConfig};
+<a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>super::{BuilderGenCtx, NamedMember};
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::parsing::ItemSigConfig;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::util::prelude::<span class="kw-2">*</span>;
 <a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>std::iter;
@@ -600,105 +600,113 @@
 <a href=#600 id=600 data-nosnippet>600</a>            .or(common_docs)
 <a href=#601 id=601 data-nosnippet>601</a>            .unwrap_or(<span class="kw-2">&amp;</span>member.docs);
 <a href=#602 id=602 data-nosnippet>602</a>
-<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">let </span>setter_names = (<span class="kw-2">&amp;</span>some_fn_name, <span class="kw-2">&amp;</span>option_fn_name);
-<a href=#604 id=604 data-nosnippet>604</a>
-<a href=#605 id=605 data-nosnippet>605</a>        <span class="kw">let </span>some_fn_docs = {
-<a href=#606 id=606 data-nosnippet>606</a>            <span class="kw">let </span>header = optional_setter_docs(default, setter_names);
-<a href=#607 id=607 data-nosnippet>607</a>
-<a href=#608 id=608 data-nosnippet>608</a>            doc(<span class="kw-2">&amp;</span>header).chain(some_fn_docs.iter().cloned()).collect()
-<a href=#609 id=609 data-nosnippet>609</a>        };
+<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">let </span>some_fn_docs =
+<a href=#604 id=604 data-nosnippet>604</a>            optional_setter_docs(default, <span class="kw-2">&amp;</span>some_fn_name, <span class="kw-2">&amp;</span>option_fn_name, some_fn_docs);
+<a href=#605 id=605 data-nosnippet>605</a>
+<a href=#606 id=606 data-nosnippet>606</a>        <span class="kw">let </span>option_fn_docs = option_fn
+<a href=#607 id=607 data-nosnippet>607</a>            .and_then(ItemSigConfig::docs)
+<a href=#608 id=608 data-nosnippet>608</a>            .or(common_docs)
+<a href=#609 id=609 data-nosnippet>609</a>            .unwrap_or(<span class="kw-2">&amp;</span>member.docs);
 <a href=#610 id=610 data-nosnippet>610</a>
-<a href=#611 id=611 data-nosnippet>611</a>        <span class="kw">let </span>option_fn_docs = option_fn
-<a href=#612 id=612 data-nosnippet>612</a>            .and_then(ItemSigConfig::docs)
-<a href=#613 id=613 data-nosnippet>613</a>            .or(common_docs)
-<a href=#614 id=614 data-nosnippet>614</a>            .unwrap_or(<span class="kw-2">&amp;</span>member.docs);
-<a href=#615 id=615 data-nosnippet>615</a>
-<a href=#616 id=616 data-nosnippet>616</a>        <span class="kw">let </span>option_fn_docs = {
-<a href=#617 id=617 data-nosnippet>617</a>            <span class="kw">let </span>header = optional_setter_docs(default, setter_names);
-<a href=#618 id=618 data-nosnippet>618</a>
-<a href=#619 id=619 data-nosnippet>619</a>            doc(<span class="kw-2">&amp;</span>header).chain(option_fn_docs.iter().cloned()).collect()
-<a href=#620 id=620 data-nosnippet>620</a>        };
+<a href=#611 id=611 data-nosnippet>611</a>        <span class="kw">let </span>option_fn_docs =
+<a href=#612 id=612 data-nosnippet>612</a>            optional_setter_docs(default, <span class="kw-2">&amp;</span>some_fn_name, <span class="kw-2">&amp;</span>option_fn_name, option_fn_docs);
+<a href=#613 id=613 data-nosnippet>613</a>
+<a href=#614 id=614 data-nosnippet>614</a>        <span class="kw">let </span>some_fn = SetterItem {
+<a href=#615 id=615 data-nosnippet>615</a>            name: some_fn_name,
+<a href=#616 id=616 data-nosnippet>616</a>            vis: some_fn
+<a href=#617 id=617 data-nosnippet>617</a>                .and_then(ItemSigConfig::vis)
+<a href=#618 id=618 data-nosnippet>618</a>                .or(common_vis)
+<a href=#619 id=619 data-nosnippet>619</a>                .unwrap_or(<span class="kw-2">&amp;</span>builder_type.vis)
+<a href=#620 id=620 data-nosnippet>620</a>                .clone(),
 <a href=#621 id=621 data-nosnippet>621</a>
-<a href=#622 id=622 data-nosnippet>622</a>        <span class="kw">let </span>some_fn = SetterItem {
-<a href=#623 id=623 data-nosnippet>623</a>            name: some_fn_name,
-<a href=#624 id=624 data-nosnippet>624</a>            vis: some_fn
-<a href=#625 id=625 data-nosnippet>625</a>                .and_then(ItemSigConfig::vis)
-<a href=#626 id=626 data-nosnippet>626</a>                .or(common_vis)
-<a href=#627 id=627 data-nosnippet>627</a>                .unwrap_or(<span class="kw-2">&amp;</span>builder_type.vis)
-<a href=#628 id=628 data-nosnippet>628</a>                .clone(),
-<a href=#629 id=629 data-nosnippet>629</a>
-<a href=#630 id=630 data-nosnippet>630</a>            docs: some_fn_docs,
-<a href=#631 id=631 data-nosnippet>631</a>        };
-<a href=#632 id=632 data-nosnippet>632</a>
-<a href=#633 id=633 data-nosnippet>633</a>        <span class="kw">let </span>option_fn = config.and_then(|config| config.fns.option_fn.as_deref());
-<a href=#634 id=634 data-nosnippet>634</a>        <span class="kw">let </span>option_fn = SetterItem {
-<a href=#635 id=635 data-nosnippet>635</a>            name: option_fn_name,
-<a href=#636 id=636 data-nosnippet>636</a>
-<a href=#637 id=637 data-nosnippet>637</a>            vis: option_fn
-<a href=#638 id=638 data-nosnippet>638</a>                .and_then(ItemSigConfig::vis)
-<a href=#639 id=639 data-nosnippet>639</a>                .or(common_vis)
-<a href=#640 id=640 data-nosnippet>640</a>                .unwrap_or(<span class="kw-2">&amp;</span>builder_type.vis)
-<a href=#641 id=641 data-nosnippet>641</a>                .clone(),
-<a href=#642 id=642 data-nosnippet>642</a>
-<a href=#643 id=643 data-nosnippet>643</a>            docs: option_fn_docs,
-<a href=#644 id=644 data-nosnippet>644</a>        };
-<a href=#645 id=645 data-nosnippet>645</a>
-<a href=#646 id=646 data-nosnippet>646</a>        <span class="self">Self</span>::Optional(OptionalSettersItems { some_fn, option_fn })
-<a href=#647 id=647 data-nosnippet>647</a>    }
-<a href=#648 id=648 data-nosnippet>648</a>}
-<a href=#649 id=649 data-nosnippet>649</a>
-<a href=#650 id=650 data-nosnippet>650</a><span class="kw">fn </span>optional_setter_docs(
-<a href=#651 id=651 data-nosnippet>651</a>    default: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-<a href=#652 id=652 data-nosnippet>652</a>    (some_fn, option_fn): (<span class="kw-2">&amp;</span>syn::Ident, <span class="kw-2">&amp;</span>syn::Ident),
-<a href=#653 id=653 data-nosnippet>653</a>) -&gt; String {
-<a href=#654 id=654 data-nosnippet>654</a>    <span class="kw">let </span>default = default
-<a href=#655 id=655 data-nosnippet>655</a>        .map(|default| {
-<a href=#656 id=656 data-nosnippet>656</a>            <span class="kw">if </span>default.contains(<span class="string">'\n'</span>) || default.len() &gt; <span class="number">80 </span>{
-<a href=#657 id=657 data-nosnippet>657</a>                <span class="macro">format!</span>(<span class="string">" _**Default:**_\n````rust,ignore\n{default}\n````\n\n"</span>)
-<a href=#658 id=658 data-nosnippet>658</a>            } <span class="kw">else </span>{
-<a href=#659 id=659 data-nosnippet>659</a>                <span class="macro">format!</span>(<span class="string">" _**Default:**_ ```{default}```.\n\n"</span>)
-<a href=#660 id=660 data-nosnippet>660</a>            }
-<a href=#661 id=661 data-nosnippet>661</a>        })
-<a href=#662 id=662 data-nosnippet>662</a>        .unwrap_or_default();
-<a href=#663 id=663 data-nosnippet>663</a>
-<a href=#664 id=664 data-nosnippet>664</a>    <span class="macro">format!</span>(
-<a href=#665 id=665 data-nosnippet>665</a>        <span class="string">"_**Optional** \
-<a href=#666 id=666 data-nosnippet>666</a>        ([Some](Self::{some_fn}()) / [Option](Self::{option_fn}()) setters).\
-<a href=#667 id=667 data-nosnippet>667</a>        _{default}\
-<a href=#668 id=668 data-nosnippet>668</a>        \n\n"
-<a href=#669 id=669 data-nosnippet>669</a>    </span>)
-<a href=#670 id=670 data-nosnippet>670</a>}
-<a href=#671 id=671 data-nosnippet>671</a>
-<a href=#672 id=672 data-nosnippet>672</a><span class="kw">fn </span>well_known_default(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; <span class="prelude-ty">Option</span>&lt;syn::Expr&gt; {
-<a href=#673 id=673 data-nosnippet>673</a>    <span class="kw">let </span>path = <span class="kw">match </span>ty {
-<a href=#674 id=674 data-nosnippet>674</a>        syn::Type::Path(syn::TypePath { path, qself: <span class="prelude-val">None </span>}) =&gt; path,
-<a href=#675 id=675 data-nosnippet>675</a>        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#676 id=676 data-nosnippet>676</a>    };
-<a href=#677 id=677 data-nosnippet>677</a>
-<a href=#678 id=678 data-nosnippet>678</a>    <span class="kw">use </span>syn::parse_quote <span class="kw">as </span>pq;
-<a href=#679 id=679 data-nosnippet>679</a>
-<a href=#680 id=680 data-nosnippet>680</a>    <span class="kw">let </span>ident = path.get_ident()<span class="question-mark">?</span>.to_string();
-<a href=#681 id=681 data-nosnippet>681</a>
-<a href=#682 id=682 data-nosnippet>682</a>    <span class="kw">let </span>value = <span class="kw">match </span>ident.as_str() {
-<a href=#683 id=683 data-nosnippet>683</a>        <span class="string">"u8" </span>| <span class="string">"u16" </span>| <span class="string">"u32" </span>| <span class="string">"u64" </span>| <span class="string">"u128" </span>| <span class="string">"usize" </span>| <span class="string">"i8" </span>| <span class="string">"i16" </span>| <span class="string">"i32" </span>| <span class="string">"i64" </span>| <span class="string">"i128"
-<a href=#684 id=684 data-nosnippet>684</a>        </span>| <span class="string">"isize" </span>=&gt; <span class="macro">pq!</span>(<span class="number">0</span>),
-<a href=#685 id=685 data-nosnippet>685</a>        <span class="string">"f32" </span>| <span class="string">"f64" </span>=&gt; <span class="macro">pq!</span>(<span class="number">0.0</span>),
-<a href=#686 id=686 data-nosnippet>686</a>        <span class="string">"bool" </span>=&gt; <span class="macro">pq!</span>(<span class="bool-val">false</span>),
-<a href=#687 id=687 data-nosnippet>687</a>        <span class="string">"char" </span>=&gt; <span class="macro">pq!</span>(<span class="string">'\0'</span>),
-<a href=#688 id=688 data-nosnippet>688</a>        <span class="string">"String" </span>=&gt; <span class="macro">pq!</span>(<span class="string">""</span>),
-<a href=#689 id=689 data-nosnippet>689</a>        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#690 id=690 data-nosnippet>690</a>    };
-<a href=#691 id=691 data-nosnippet>691</a>
-<a href=#692 id=692 data-nosnippet>692</a>    <span class="prelude-val">Some</span>(value)
-<a href=#693 id=693 data-nosnippet>693</a>}
-<a href=#694 id=694 data-nosnippet>694</a>
-<a href=#695 id=695 data-nosnippet>695</a><span class="doccomment">/// Unfortunately there is no `syn::Parse` impl for `PatIdent` directly,
-<a href=#696 id=696 data-nosnippet>696</a>/// so we use this workaround instead.
-<a href=#697 id=697 data-nosnippet>697</a></span><span class="kw">fn </span>pat_ident(ident_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; syn::PatIdent {
-<a href=#698 id=698 data-nosnippet>698</a>    <span class="kw">let </span>ident = syn::Ident::new(ident_name, Span::call_site());
-<a href=#699 id=699 data-nosnippet>699</a>    <span class="kw">let </span>pat: syn::Pat = <span class="macro">syn::parse_quote!</span>(#ident);
-<a href=#700 id=700 data-nosnippet>700</a>    <span class="kw">match </span>pat {
-<a href=#701 id=701 data-nosnippet>701</a>        syn::Pat::Ident(pat_ident) =&gt; pat_ident,
-<a href=#702 id=702 data-nosnippet>702</a>        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"can't parse something else than PatIdent here: {pat:?}"</span>),
-<a href=#703 id=703 data-nosnippet>703</a>    }
-<a href=#704 id=704 data-nosnippet>704</a>}</code></pre></div></section></main></body></html>
+<a href=#622 id=622 data-nosnippet>622</a>            docs: some_fn_docs,
+<a href=#623 id=623 data-nosnippet>623</a>        };
+<a href=#624 id=624 data-nosnippet>624</a>
+<a href=#625 id=625 data-nosnippet>625</a>        <span class="kw">let </span>option_fn = config.and_then(|config| config.fns.option_fn.as_deref());
+<a href=#626 id=626 data-nosnippet>626</a>        <span class="kw">let </span>option_fn = SetterItem {
+<a href=#627 id=627 data-nosnippet>627</a>            name: option_fn_name,
+<a href=#628 id=628 data-nosnippet>628</a>
+<a href=#629 id=629 data-nosnippet>629</a>            vis: option_fn
+<a href=#630 id=630 data-nosnippet>630</a>                .and_then(ItemSigConfig::vis)
+<a href=#631 id=631 data-nosnippet>631</a>                .or(common_vis)
+<a href=#632 id=632 data-nosnippet>632</a>                .unwrap_or(<span class="kw-2">&amp;</span>builder_type.vis)
+<a href=#633 id=633 data-nosnippet>633</a>                .clone(),
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a>            docs: option_fn_docs,
+<a href=#636 id=636 data-nosnippet>636</a>        };
+<a href=#637 id=637 data-nosnippet>637</a>
+<a href=#638 id=638 data-nosnippet>638</a>        <span class="self">Self</span>::Optional(OptionalSettersItems { some_fn, option_fn })
+<a href=#639 id=639 data-nosnippet>639</a>    }
+<a href=#640 id=640 data-nosnippet>640</a>}
+<a href=#641 id=641 data-nosnippet>641</a>
+<a href=#642 id=642 data-nosnippet>642</a><span class="kw">fn </span>optional_setter_docs(
+<a href=#643 id=643 data-nosnippet>643</a>    default: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+<a href=#644 id=644 data-nosnippet>644</a>    some_fn: <span class="kw-2">&amp;</span>syn::Ident,
+<a href=#645 id=645 data-nosnippet>645</a>    option_fn: <span class="kw-2">&amp;</span>syn::Ident,
+<a href=#646 id=646 data-nosnippet>646</a>    doc_comments: <span class="kw-2">&amp;</span>[syn::Attribute],
+<a href=#647 id=647 data-nosnippet>647</a>) -&gt; Vec&lt;syn::Attribute&gt; {
+<a href=#648 id=648 data-nosnippet>648</a>    <span class="kw">let </span>header = <span class="macro">format!</span>(
+<a href=#649 id=649 data-nosnippet>649</a>        <span class="string">"_**Optional** ([Some](Self::{some_fn}()) / [Option](Self::{option_fn}()) setters)._"
+<a href=#650 id=650 data-nosnippet>650</a>    </span>);
+<a href=#651 id=651 data-nosnippet>651</a>
+<a href=#652 id=652 data-nosnippet>652</a>    <span class="kw">let </span><span class="kw-2">mut </span>attrs = <span class="macro">vec!</span>[<span class="macro">syn::parse_quote!</span>(<span class="attr">#[doc = #header]</span>)];
+<a href=#653 id=653 data-nosnippet>653</a>
+<a href=#654 id=654 data-nosnippet>654</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(default) = default {
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>sep = <span class="kw">if </span>doc_comments.is_empty() { <span class="string">"" </span>} <span class="kw">else </span>{ <span class="string">"\n\n" </span>};
+<a href=#656 id=656 data-nosnippet>656</a>
+<a href=#657 id=657 data-nosnippet>657</a>        <span class="kw">if </span>default.contains(<span class="string">'\n'</span>) || default.len() &gt; <span class="number">80 </span>{
+<a href=#658 id=658 data-nosnippet>658</a>            <span class="comment">// `no_doctest` helps to avoid interpreting the code block as
+<a href=#659 id=659 data-nosnippet>659</a>            // an "ignored but still runnable" doc test. See details:
+<a href=#660 id=660 data-nosnippet>660</a>            // - bon issue: https://github.com/elastio/bon/issues/359
+<a href=#661 id=661 data-nosnippet>661</a>            // - rust issue: https://github.com/rust-lang/rust/issues/63193
+<a href=#662 id=662 data-nosnippet>662</a>            </span><span class="kw">let </span>tail = <span class="macro">format!</span>(<span class="string">"\n{default}\n````{sep}"</span>);
+<a href=#663 id=663 data-nosnippet>663</a>            attrs.extend([
+<a href=#664 id=664 data-nosnippet>664</a>                <span class="macro">syn::parse_quote!</span>(<span class="attr">#[doc = <span class="string">" _**Default:**_\n"</span>]</span>),
+<a href=#665 id=665 data-nosnippet>665</a>                <span class="macro">syn::parse_quote!</span>(<span class="attr">#[cfg_attr(doctest, doc = <span class="string">"````no_doctest"</span>)]</span>),
+<a href=#666 id=666 data-nosnippet>666</a>                <span class="macro">syn::parse_quote!</span>(<span class="attr">#[cfg_attr(not(doctest), doc = <span class="string">"````"</span>)]</span>),
+<a href=#667 id=667 data-nosnippet>667</a>                <span class="macro">syn::parse_quote!</span>(<span class="attr">#[doc = #tail]</span>),
+<a href=#668 id=668 data-nosnippet>668</a>            ]);
+<a href=#669 id=669 data-nosnippet>669</a>        } <span class="kw">else </span>{
+<a href=#670 id=670 data-nosnippet>670</a>            <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">" _**Default:**_ ```{default}```.{sep}"</span>);
+<a href=#671 id=671 data-nosnippet>671</a>            attrs.push(<span class="macro">syn::parse_quote!</span>(<span class="attr">#[doc = #doc]</span>));
+<a href=#672 id=672 data-nosnippet>672</a>        }
+<a href=#673 id=673 data-nosnippet>673</a>    }
+<a href=#674 id=674 data-nosnippet>674</a>
+<a href=#675 id=675 data-nosnippet>675</a>    attrs.extend(doc_comments.iter().cloned());
+<a href=#676 id=676 data-nosnippet>676</a>    attrs
+<a href=#677 id=677 data-nosnippet>677</a>}
+<a href=#678 id=678 data-nosnippet>678</a>
+<a href=#679 id=679 data-nosnippet>679</a><span class="kw">fn </span>well_known_default(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; <span class="prelude-ty">Option</span>&lt;syn::Expr&gt; {
+<a href=#680 id=680 data-nosnippet>680</a>    <span class="kw">let </span>path = <span class="kw">match </span>ty {
+<a href=#681 id=681 data-nosnippet>681</a>        syn::Type::Path(syn::TypePath { path, qself: <span class="prelude-val">None </span>}) =&gt; path,
+<a href=#682 id=682 data-nosnippet>682</a>        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#683 id=683 data-nosnippet>683</a>    };
+<a href=#684 id=684 data-nosnippet>684</a>
+<a href=#685 id=685 data-nosnippet>685</a>    <span class="kw">use </span>syn::parse_quote <span class="kw">as </span>pq;
+<a href=#686 id=686 data-nosnippet>686</a>
+<a href=#687 id=687 data-nosnippet>687</a>    <span class="kw">let </span>ident = path.get_ident()<span class="question-mark">?</span>.to_string();
+<a href=#688 id=688 data-nosnippet>688</a>
+<a href=#689 id=689 data-nosnippet>689</a>    <span class="kw">let </span>value = <span class="kw">match </span>ident.as_str() {
+<a href=#690 id=690 data-nosnippet>690</a>        <span class="string">"u8" </span>| <span class="string">"u16" </span>| <span class="string">"u32" </span>| <span class="string">"u64" </span>| <span class="string">"u128" </span>| <span class="string">"usize" </span>| <span class="string">"i8" </span>| <span class="string">"i16" </span>| <span class="string">"i32" </span>| <span class="string">"i64" </span>| <span class="string">"i128"
+<a href=#691 id=691 data-nosnippet>691</a>        </span>| <span class="string">"isize" </span>=&gt; <span class="macro">pq!</span>(<span class="number">0</span>),
+<a href=#692 id=692 data-nosnippet>692</a>        <span class="string">"f32" </span>| <span class="string">"f64" </span>=&gt; <span class="macro">pq!</span>(<span class="number">0.0</span>),
+<a href=#693 id=693 data-nosnippet>693</a>        <span class="string">"bool" </span>=&gt; <span class="macro">pq!</span>(<span class="bool-val">false</span>),
+<a href=#694 id=694 data-nosnippet>694</a>        <span class="string">"char" </span>=&gt; <span class="macro">pq!</span>(<span class="string">'\0'</span>),
+<a href=#695 id=695 data-nosnippet>695</a>        <span class="string">"String" </span>=&gt; <span class="macro">pq!</span>(<span class="string">""</span>),
+<a href=#696 id=696 data-nosnippet>696</a>        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#697 id=697 data-nosnippet>697</a>    };
+<a href=#698 id=698 data-nosnippet>698</a>
+<a href=#699 id=699 data-nosnippet>699</a>    <span class="prelude-val">Some</span>(value)
+<a href=#700 id=700 data-nosnippet>700</a>}
+<a href=#701 id=701 data-nosnippet>701</a>
+<a href=#702 id=702 data-nosnippet>702</a><span class="doccomment">/// Unfortunately there is no `syn::Parse` impl for `PatIdent` directly,
+<a href=#703 id=703 data-nosnippet>703</a>/// so we use this workaround instead.
+<a href=#704 id=704 data-nosnippet>704</a></span><span class="kw">fn </span>pat_ident(ident_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; syn::PatIdent {
+<a href=#705 id=705 data-nosnippet>705</a>    <span class="kw">let </span>ident = syn::Ident::new(ident_name, Span::call_site());
+<a href=#706 id=706 data-nosnippet>706</a>    <span class="kw">let </span>pat: syn::Pat = <span class="macro">syn::parse_quote!</span>(#ident);
+<a href=#707 id=707 data-nosnippet>707</a>    <span class="kw">match </span>pat {
+<a href=#708 id=708 data-nosnippet>708</a>        syn::Pat::Ident(pat_ident) =&gt; pat_ident,
+<a href=#709 id=709 data-nosnippet>709</a>        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"can't parse something else than PatIdent here: {pat:?}"</span>),
+<a href=#710 id=710 data-nosnippet>710</a>    }
+<a href=#711 id=711 data-nosnippet>711</a>}
+</code></pre></div></section></main></body></html>

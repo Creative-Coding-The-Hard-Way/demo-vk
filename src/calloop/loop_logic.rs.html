@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.14.3/src/loop_logic.rs`."><title>loop_logic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>loop_logic.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::cell::{Cell, RefCell};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calloop-0.14.4/src/loop_logic.rs`."><title>loop_logic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calloop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calloop/</div>loop_logic.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::cell::{Cell, RefCell};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>std::fmt::Debug;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>std::rc::{Rc, Weak};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>std::sync::atomic::{AtomicBool, Ordering};
@@ -21,7 +21,7 @@
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span><span class="kw">crate</span>::sources::{Dispatcher, EventSource, Idle, IdleDispatcher};
 <a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span><span class="kw">crate</span>::sys::{Notifier, PollEvent};
 <a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span><span class="kw">crate</span>::token::TokenInner;
-<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use crate</span>::{
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>crate::{
 <a href=#25 id=25 data-nosnippet>25</a>    AdditionalLifecycleEventsSet, InsertError, Poll, PostAction, Readiness, Token, TokenFactory,
 <a href=#26 id=26 data-nosnippet>26</a>};
 <a href=#27 id=27 data-nosnippet>27</a>
@@ -854,7 +854,7 @@
 <a href=#854 id=854 data-nosnippet>854</a></span><span class="kw">mod </span>tests {
 <a href=#855 id=855 data-nosnippet>855</a>    <span class="kw">use </span>std::{cell::Cell, rc::Rc, time::Duration};
 <a href=#856 id=856 data-nosnippet>856</a>
-<a href=#857 id=857 data-nosnippet>857</a>    <span class="kw">use crate</span>::{
+<a href=#857 id=857 data-nosnippet>857</a>    <span class="kw">use </span>crate::{
 <a href=#858 id=858 data-nosnippet>858</a>        channel::{channel, Channel},
 <a href=#859 id=859 data-nosnippet>859</a>        ping::<span class="kw-2">*</span>,
 <a href=#860 id=860 data-nosnippet>860</a>        timer, EventIterator, EventSource, Poll, PostAction, Readiness, RegistrationToken, Token,
@@ -862,7 +862,7 @@
 <a href=#862 id=862 data-nosnippet>862</a>    };
 <a href=#863 id=863 data-nosnippet>863</a>
 <a href=#864 id=864 data-nosnippet>864</a>    <span class="attr">#[cfg(unix)]
-<a href=#865 id=865 data-nosnippet>865</a>    </span><span class="kw">use crate</span>::{generic::Generic, Dispatcher, Interest, Mode};
+<a href=#865 id=865 data-nosnippet>865</a>    </span><span class="kw">use </span>crate::{generic::Generic, Dispatcher, Interest, Mode};
 <a href=#866 id=866 data-nosnippet>866</a>
 <a href=#867 id=867 data-nosnippet>867</a>    <span class="kw">use </span><span class="kw">super</span>::EventLoop;
 <a href=#868 id=868 data-nosnippet>868</a>
@@ -1736,66 +1736,68 @@
 <a href=#1736 id=1736 data-nosnippet>1736</a>    }
 <a href=#1737 id=1737 data-nosnippet>1737</a>
 <a href=#1738 id=1738 data-nosnippet>1738</a>    <span class="comment">// A dummy EventSource to test insertion and removal of sources
-<a href=#1739 id=1739 data-nosnippet>1739</a>    </span><span class="kw">struct </span>DummySource;
-<a href=#1740 id=1740 data-nosnippet>1740</a>
-<a href=#1741 id=1741 data-nosnippet>1741</a>    <span class="kw">impl </span><span class="kw">crate</span>::EventSource <span class="kw">for </span>DummySource {
-<a href=#1742 id=1742 data-nosnippet>1742</a>        <span class="kw">type </span>Event = ();
-<a href=#1743 id=1743 data-nosnippet>1743</a>        <span class="kw">type </span>Metadata = ();
-<a href=#1744 id=1744 data-nosnippet>1744</a>        <span class="kw">type </span>Ret = ();
-<a href=#1745 id=1745 data-nosnippet>1745</a>        <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
-<a href=#1746 id=1746 data-nosnippet>1746</a>
-<a href=#1747 id=1747 data-nosnippet>1747</a>        <span class="kw">fn </span>process_events&lt;F&gt;(
-<a href=#1748 id=1748 data-nosnippet>1748</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1749 id=1749 data-nosnippet>1749</a>            <span class="kw">_</span>: Readiness,
-<a href=#1750 id=1750 data-nosnippet>1750</a>            <span class="kw">_</span>: Token,
-<a href=#1751 id=1751 data-nosnippet>1751</a>            <span class="kw-2">mut </span>callback: F,
-<a href=#1752 id=1752 data-nosnippet>1752</a>        ) -&gt; <span class="prelude-ty">Result</span>&lt;PostAction, <span class="self">Self</span>::Error&gt;
-<a href=#1753 id=1753 data-nosnippet>1753</a>        <span class="kw">where
-<a href=#1754 id=1754 data-nosnippet>1754</a>            </span>F: FnMut(<span class="self">Self</span>::Event, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Metadata) -&gt; <span class="self">Self</span>::Ret,
-<a href=#1755 id=1755 data-nosnippet>1755</a>        {
-<a href=#1756 id=1756 data-nosnippet>1756</a>            callback((), <span class="kw-2">&amp;mut </span>());
-<a href=#1757 id=1757 data-nosnippet>1757</a>            <span class="prelude-val">Ok</span>(PostAction::Continue)
-<a href=#1758 id=1758 data-nosnippet>1758</a>        }
-<a href=#1759 id=1759 data-nosnippet>1759</a>
-<a href=#1760 id=1760 data-nosnippet>1760</a>        <span class="kw">fn </span>register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>TokenFactory) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-<a href=#1761 id=1761 data-nosnippet>1761</a>            <span class="prelude-val">Ok</span>(())
-<a href=#1762 id=1762 data-nosnippet>1762</a>        }
-<a href=#1763 id=1763 data-nosnippet>1763</a>
-<a href=#1764 id=1764 data-nosnippet>1764</a>        <span class="kw">fn </span>reregister(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>TokenFactory) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-<a href=#1765 id=1765 data-nosnippet>1765</a>            <span class="prelude-val">Ok</span>(())
-<a href=#1766 id=1766 data-nosnippet>1766</a>        }
-<a href=#1767 id=1767 data-nosnippet>1767</a>
-<a href=#1768 id=1768 data-nosnippet>1768</a>        <span class="kw">fn </span>unregister(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-<a href=#1769 id=1769 data-nosnippet>1769</a>            <span class="prelude-val">Ok</span>(())
-<a href=#1770 id=1770 data-nosnippet>1770</a>        }
-<a href=#1771 id=1771 data-nosnippet>1771</a>    }
-<a href=#1772 id=1772 data-nosnippet>1772</a>
-<a href=#1773 id=1773 data-nosnippet>1773</a>    <span class="attr">#[test]
-<a href=#1774 id=1774 data-nosnippet>1774</a>    </span><span class="kw">fn </span>weak_loop_handle() {
-<a href=#1775 id=1775 data-nosnippet>1775</a>        <span class="kw">let </span><span class="kw-2">mut </span>event_loop: EventLoop&lt;()&gt; = EventLoop::try_new().unwrap();
-<a href=#1776 id=1776 data-nosnippet>1776</a>        <span class="kw">let </span>weak_handle1 = event_loop.handle().downgrade();
-<a href=#1777 id=1777 data-nosnippet>1777</a>        <span class="kw">let </span>weak_handle2 = weak_handle1.clone();
-<a href=#1778 id=1778 data-nosnippet>1778</a>        <span class="kw">let </span>weak_handle3 = weak_handle1.clone();
-<a href=#1779 id=1779 data-nosnippet>1779</a>
-<a href=#1780 id=1780 data-nosnippet>1780</a>        event_loop
-<a href=#1781 id=1781 data-nosnippet>1781</a>            .handle()
-<a href=#1782 id=1782 data-nosnippet>1782</a>            .insert_source(timer::Timer::immediate(), <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
-<a href=#1783 id=1783 data-nosnippet>1783</a>                <span class="comment">// Hold and use its weak handle in the event loop's callback
-<a href=#1784 id=1784 data-nosnippet>1784</a>                </span><span class="macro">assert!</span>(weak_handle1.upgrade().is_some());
-<a href=#1785 id=1785 data-nosnippet>1785</a>                timer::TimeoutAction::Drop
-<a href=#1786 id=1786 data-nosnippet>1786</a>            })
-<a href=#1787 id=1787 data-nosnippet>1787</a>            .unwrap();
-<a href=#1788 id=1788 data-nosnippet>1788</a>
-<a href=#1789 id=1789 data-nosnippet>1789</a>        event_loop.handle().insert_idle(<span class="kw">move </span>|<span class="kw">_</span>| {
-<a href=#1790 id=1790 data-nosnippet>1790</a>            <span class="comment">// Hold and use its weak handle in the event loop's idle callback
-<a href=#1791 id=1791 data-nosnippet>1791</a>            </span><span class="macro">assert!</span>(weak_handle2.upgrade().is_some());
-<a href=#1792 id=1792 data-nosnippet>1792</a>        });
-<a href=#1793 id=1793 data-nosnippet>1793</a>
-<a href=#1794 id=1794 data-nosnippet>1794</a>        event_loop.dispatch(<span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>()).unwrap();
-<a href=#1795 id=1795 data-nosnippet>1795</a>
-<a href=#1796 id=1796 data-nosnippet>1796</a>        drop(event_loop);
-<a href=#1797 id=1797 data-nosnippet>1797</a>
-<a href=#1798 id=1798 data-nosnippet>1798</a>        <span class="comment">// Test if memory is freed
-<a href=#1799 id=1799 data-nosnippet>1799</a>        </span><span class="macro">assert!</span>(weak_handle3.expired());
-<a href=#1800 id=1800 data-nosnippet>1800</a>    }
-<a href=#1801 id=1801 data-nosnippet>1801</a>}</code></pre></div></section></main></body></html>
+<a href=#1739 id=1739 data-nosnippet>1739</a>    </span><span class="attr">#[allow(dead_code)]
+<a href=#1740 id=1740 data-nosnippet>1740</a>    </span><span class="kw">struct </span>DummySource;
+<a href=#1741 id=1741 data-nosnippet>1741</a>
+<a href=#1742 id=1742 data-nosnippet>1742</a>    <span class="kw">impl </span><span class="kw">crate</span>::EventSource <span class="kw">for </span>DummySource {
+<a href=#1743 id=1743 data-nosnippet>1743</a>        <span class="kw">type </span>Event = ();
+<a href=#1744 id=1744 data-nosnippet>1744</a>        <span class="kw">type </span>Metadata = ();
+<a href=#1745 id=1745 data-nosnippet>1745</a>        <span class="kw">type </span>Ret = ();
+<a href=#1746 id=1746 data-nosnippet>1746</a>        <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
+<a href=#1747 id=1747 data-nosnippet>1747</a>
+<a href=#1748 id=1748 data-nosnippet>1748</a>        <span class="kw">fn </span>process_events&lt;F&gt;(
+<a href=#1749 id=1749 data-nosnippet>1749</a>            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1750 id=1750 data-nosnippet>1750</a>            <span class="kw">_</span>: Readiness,
+<a href=#1751 id=1751 data-nosnippet>1751</a>            <span class="kw">_</span>: Token,
+<a href=#1752 id=1752 data-nosnippet>1752</a>            <span class="kw-2">mut </span>callback: F,
+<a href=#1753 id=1753 data-nosnippet>1753</a>        ) -&gt; <span class="prelude-ty">Result</span>&lt;PostAction, <span class="self">Self</span>::Error&gt;
+<a href=#1754 id=1754 data-nosnippet>1754</a>        <span class="kw">where
+<a href=#1755 id=1755 data-nosnippet>1755</a>            </span>F: FnMut(<span class="self">Self</span>::Event, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Metadata) -&gt; <span class="self">Self</span>::Ret,
+<a href=#1756 id=1756 data-nosnippet>1756</a>        {
+<a href=#1757 id=1757 data-nosnippet>1757</a>            callback((), <span class="kw-2">&amp;mut </span>());
+<a href=#1758 id=1758 data-nosnippet>1758</a>            <span class="prelude-val">Ok</span>(PostAction::Continue)
+<a href=#1759 id=1759 data-nosnippet>1759</a>        }
+<a href=#1760 id=1760 data-nosnippet>1760</a>
+<a href=#1761 id=1761 data-nosnippet>1761</a>        <span class="kw">fn </span>register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>TokenFactory) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+<a href=#1762 id=1762 data-nosnippet>1762</a>            <span class="prelude-val">Ok</span>(())
+<a href=#1763 id=1763 data-nosnippet>1763</a>        }
+<a href=#1764 id=1764 data-nosnippet>1764</a>
+<a href=#1765 id=1765 data-nosnippet>1765</a>        <span class="kw">fn </span>reregister(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>TokenFactory) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+<a href=#1766 id=1766 data-nosnippet>1766</a>            <span class="prelude-val">Ok</span>(())
+<a href=#1767 id=1767 data-nosnippet>1767</a>        }
+<a href=#1768 id=1768 data-nosnippet>1768</a>
+<a href=#1769 id=1769 data-nosnippet>1769</a>        <span class="kw">fn </span>unregister(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Poll) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+<a href=#1770 id=1770 data-nosnippet>1770</a>            <span class="prelude-val">Ok</span>(())
+<a href=#1771 id=1771 data-nosnippet>1771</a>        }
+<a href=#1772 id=1772 data-nosnippet>1772</a>    }
+<a href=#1773 id=1773 data-nosnippet>1773</a>
+<a href=#1774 id=1774 data-nosnippet>1774</a>    <span class="attr">#[test]
+<a href=#1775 id=1775 data-nosnippet>1775</a>    </span><span class="kw">fn </span>weak_loop_handle() {
+<a href=#1776 id=1776 data-nosnippet>1776</a>        <span class="kw">let </span><span class="kw-2">mut </span>event_loop: EventLoop&lt;()&gt; = EventLoop::try_new().unwrap();
+<a href=#1777 id=1777 data-nosnippet>1777</a>        <span class="kw">let </span>weak_handle1 = event_loop.handle().downgrade();
+<a href=#1778 id=1778 data-nosnippet>1778</a>        <span class="kw">let </span>weak_handle2 = weak_handle1.clone();
+<a href=#1779 id=1779 data-nosnippet>1779</a>        <span class="kw">let </span>weak_handle3 = weak_handle1.clone();
+<a href=#1780 id=1780 data-nosnippet>1780</a>
+<a href=#1781 id=1781 data-nosnippet>1781</a>        event_loop
+<a href=#1782 id=1782 data-nosnippet>1782</a>            .handle()
+<a href=#1783 id=1783 data-nosnippet>1783</a>            .insert_source(timer::Timer::immediate(), <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
+<a href=#1784 id=1784 data-nosnippet>1784</a>                <span class="comment">// Hold and use its weak handle in the event loop's callback
+<a href=#1785 id=1785 data-nosnippet>1785</a>                </span><span class="macro">assert!</span>(weak_handle1.upgrade().is_some());
+<a href=#1786 id=1786 data-nosnippet>1786</a>                timer::TimeoutAction::Drop
+<a href=#1787 id=1787 data-nosnippet>1787</a>            })
+<a href=#1788 id=1788 data-nosnippet>1788</a>            .unwrap();
+<a href=#1789 id=1789 data-nosnippet>1789</a>
+<a href=#1790 id=1790 data-nosnippet>1790</a>        event_loop.handle().insert_idle(<span class="kw">move </span>|<span class="kw">_</span>| {
+<a href=#1791 id=1791 data-nosnippet>1791</a>            <span class="comment">// Hold and use its weak handle in the event loop's idle callback
+<a href=#1792 id=1792 data-nosnippet>1792</a>            </span><span class="macro">assert!</span>(weak_handle2.upgrade().is_some());
+<a href=#1793 id=1793 data-nosnippet>1793</a>        });
+<a href=#1794 id=1794 data-nosnippet>1794</a>
+<a href=#1795 id=1795 data-nosnippet>1795</a>        event_loop.dispatch(<span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>()).unwrap();
+<a href=#1796 id=1796 data-nosnippet>1796</a>
+<a href=#1797 id=1797 data-nosnippet>1797</a>        drop(event_loop);
+<a href=#1798 id=1798 data-nosnippet>1798</a>
+<a href=#1799 id=1799 data-nosnippet>1799</a>        <span class="comment">// Test if memory is freed
+<a href=#1800 id=1800 data-nosnippet>1800</a>        </span><span class="macro">assert!</span>(weak_handle3.expired());
+<a href=#1801 id=1801 data-nosnippet>1801</a>    }
+<a href=#1802 id=1802 data-nosnippet>1802</a>}
+</code></pre></div></section></main></body></html>

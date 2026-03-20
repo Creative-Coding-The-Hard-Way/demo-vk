@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/egui-0.33.3/src/ui.rs`."><title>ui.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="egui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">egui/</div>ui.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![warn(missing_docs)] </span><span class="comment">// Let's keep `Ui` well-documented.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/egui-0.33.3/src/ui.rs`."><title>ui.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="egui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">egui/</div>ui.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#![warn(missing_docs)] </span><span class="comment">// Let's keep `Ui` well-documented.
 <a href=#2 id=2 data-nosnippet>2</a></span><span class="attr">#![allow(clippy::use_self)]
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">use </span>emath::GuiRounding <span class="kw">as _</span>;
@@ -10,7 +10,7 @@
 <a href=#10 id=10 data-nosnippet>10</a><span class="attr">#[cfg(debug_assertions)]
 <a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use </span><span class="kw">crate</span>::Stroke;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span><span class="kw">crate</span>::containers::menu;
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use crate</span>::{
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>crate::{
 <a href=#14 id=14 data-nosnippet>14</a>    Align, Color32, Context, CursorIcon, DragAndDrop, Id, InnerResponse, InputState, IntoAtoms,
 <a href=#15 id=15 data-nosnippet>15</a>    LayerId, Memory, Order, Painter, PlatformOutput, Pos2, Rangef, Rect, Response, Rgba, RichText,
 <a href=#16 id=16 data-nosnippet>16</a>    Sense, Style, TextStyle, TextWrapMode, UiBuilder, UiKind, UiStack, UiStackInfo, Vec2,
@@ -2207,7 +2207,7 @@
 <a href=#2207 id=2207 data-nosnippet>2207</a>        atoms: <span class="kw">impl </span>IntoAtoms&lt;<span class="lifetime">'a</span>&gt;,
 <a href=#2208 id=2208 data-nosnippet>2208</a>    ) -&gt; Response {
 <a href=#2209 id=2209 data-nosnippet>2209</a>        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="self">self</span>.radio(<span class="kw-2">*</span>current_value == alternative, atoms);
-<a href=#2210 id=2210 data-nosnippet>2210</a>        <span class="kw">if </span>response.clicked() &amp;&amp; <span class="kw-2">*</span>current_value != alternative {
+<a href=#2210 id=2210 data-nosnippet>2210</a>        <span class="kw">if </span>response.clicked() &amp;&amp; <span class="kw-2">*</span><span class="macro">current_value !</span>= alternative {
 <a href=#2211 id=2211 data-nosnippet>2211</a>            <span class="kw-2">*</span>current_value = alternative;
 <a href=#2212 id=2212 data-nosnippet>2212</a>            response.mark_changed();
 <a href=#2213 id=2213 data-nosnippet>2213</a>        }
@@ -2235,7 +2235,7 @@
 <a href=#2235 id=2235 data-nosnippet>2235</a>        text: <span class="kw">impl </span>IntoAtoms&lt;<span class="lifetime">'a</span>&gt;,
 <a href=#2236 id=2236 data-nosnippet>2236</a>    ) -&gt; Response {
 <a href=#2237 id=2237 data-nosnippet>2237</a>        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="self">self</span>.selectable_label(<span class="kw-2">*</span>current_value == selected_value, text);
-<a href=#2238 id=2238 data-nosnippet>2238</a>        <span class="kw">if </span>response.clicked() &amp;&amp; <span class="kw-2">*</span>current_value != selected_value {
+<a href=#2238 id=2238 data-nosnippet>2238</a>        <span class="kw">if </span>response.clicked() &amp;&amp; <span class="kw-2">*</span><span class="macro">current_value !</span>= selected_value {
 <a href=#2239 id=2239 data-nosnippet>2239</a>            <span class="kw-2">*</span>current_value = selected_value;
 <a href=#2240 id=2240 data-nosnippet>2240</a>            response.mark_changed();
 <a href=#2241 id=2241 data-nosnippet>2241</a>        }
@@ -2265,7 +2265,7 @@
 <a href=#2265 id=2265 data-nosnippet>2265</a>        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="self">self</span>.add(DragValue::new(<span class="kw-2">&amp;mut </span>degrees).speed(<span class="number">1.0</span>).suffix(<span class="string">"°"</span>));
 <a href=#2266 id=2266 data-nosnippet>2266</a>
 <a href=#2267 id=2267 data-nosnippet>2267</a>        <span class="comment">// only touch `*radians` if we actually changed the degree value
-<a href=#2268 id=2268 data-nosnippet>2268</a>        </span><span class="kw">if </span>degrees != radians.to_degrees() {
+<a href=#2268 id=2268 data-nosnippet>2268</a>        </span><span class="kw">if </span><span class="macro">degrees !</span>= radians.to_degrees() {
 <a href=#2269 id=2269 data-nosnippet>2269</a>            <span class="kw-2">*</span>radians = degrees.to_radians();
 <a href=#2270 id=2270 data-nosnippet>2270</a>            response.mark_changed();
 <a href=#2271 id=2271 data-nosnippet>2271</a>        }
@@ -2288,7 +2288,7 @@
 <a href=#2288 id=2288 data-nosnippet>2288</a>        }
 <a href=#2289 id=2289 data-nosnippet>2289</a>
 <a href=#2290 id=2290 data-nosnippet>2290</a>        <span class="comment">// only touch `*radians` if we actually changed the value
-<a href=#2291 id=2291 data-nosnippet>2291</a>        </span><span class="kw">if </span>taus != <span class="kw-2">*</span>radians / TAU {
+<a href=#2291 id=2291 data-nosnippet>2291</a>        </span><span class="kw">if </span><span class="macro">taus !</span>= <span class="kw-2">*</span>radians / TAU {
 <a href=#2292 id=2292 data-nosnippet>2292</a>            <span class="kw-2">*</span>radians = taus * TAU;
 <a href=#2293 id=2293 data-nosnippet>2293</a>            response.mark_changed();
 <a href=#2294 id=2294 data-nosnippet>2294</a>        }
@@ -3326,4 +3326,5 @@
 <a href=#3326 id=3326 data-nosnippet>3326</a></span><span class="kw">fn </span>ui_impl_send_sync() {
 <a href=#3327 id=3327 data-nosnippet>3327</a>    <span class="kw">fn </span>assert_send_sync&lt;T: Send + Sync&gt;() {}
 <a href=#3328 id=3328 data-nosnippet>3328</a>    assert_send_sync::&lt;Ui&gt;();
-<a href=#3329 id=3329 data-nosnippet>3329</a>}</code></pre></div></section></main></body></html>
+<a href=#3329 id=3329 data-nosnippet>3329</a>}
+</code></pre></div></section></main></body></html>

@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["textwrap",[]]]);
+    const implementors = Object.fromEntries([["textwrap",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[15]}
+//{"start":59,"fragment_lengths":[15]}

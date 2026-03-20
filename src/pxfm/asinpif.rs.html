@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pxfm-0.1.26/src/asinpif.rs`."><title>asinpif.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pxfm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pxfm/</div>asinpif.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/*
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pxfm-0.1.28/src/asinpif.rs`."><title>asinpif.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pxfm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pxfm/</div>asinpif.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/*
 <a href=#2 id=2 data-nosnippet>2</a> * // Copyright (c) Radzivon Bartoshyk 6/2025. All rights reserved.
 <a href=#3 id=3 data-nosnippet>3</a> * //
 <a href=#4 id=4 data-nosnippet>4</a> * // Redistribution and use in source and binary forms, with or without modification,
@@ -191,72 +191,105 @@
 <a href=#191 id=191 data-nosnippet>191</a>    ],
 <a href=#192 id=192 data-nosnippet>192</a>];
 <a href=#193 id=193 data-nosnippet>193</a>
-<a href=#194 id=194 data-nosnippet>194</a><span class="doccomment">/// Computes asin(x)/PI
-<a href=#195 id=195 data-nosnippet>195</a>///
-<a href=#196 id=196 data-nosnippet>196</a>/// Max ULP 0.5
-<a href=#197 id=197 data-nosnippet>197</a></span><span class="attr">#[inline]
-<a href=#198 id=198 data-nosnippet>198</a></span><span class="kw">pub fn </span>f_asinpif(x: f32) -&gt; f32 {
-<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">let </span>ax = x.abs();
-<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">let </span>az = ax <span class="kw">as </span>f64;
-<a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">let </span>z = x <span class="kw">as </span>f64;
-<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">let </span>t = x.to_bits();
-<a href=#203 id=203 data-nosnippet>203</a>    <span class="kw">let </span>e: i32 = ((t &gt;&gt; <span class="number">23</span>) &amp; <span class="number">0xff</span>) <span class="kw">as </span>i32;
-<a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">if </span>e &gt;= <span class="number">127 </span>{
-<a href=#205 id=205 data-nosnippet>205</a>        <span class="comment">// |x| &gt;= 1 or nan
-<a href=#206 id=206 data-nosnippet>206</a>        </span><span class="kw">if </span>ax == <span class="number">1.0 </span>{
-<a href=#207 id=207 data-nosnippet>207</a>            <span class="kw">return </span>f32::copysign(<span class="number">0.5</span>, x);
-<a href=#208 id=208 data-nosnippet>208</a>        } <span class="comment">// |x| = 1
-<a href=#209 id=209 data-nosnippet>209</a>        </span><span class="kw">if </span>e == <span class="number">0xff </span>&amp;&amp; (t.wrapping_shl(<span class="number">9</span>)) != <span class="number">0 </span>{
-<a href=#210 id=210 data-nosnippet>210</a>            <span class="kw">return </span>x + x;
-<a href=#211 id=211 data-nosnippet>211</a>        } <span class="comment">// x = nan
-<a href=#212 id=212 data-nosnippet>212</a>        </span><span class="kw">return </span>f32::NAN; <span class="comment">// |x| &gt; 1
-<a href=#213 id=213 data-nosnippet>213</a>    </span>}
-<a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">let </span>s: i32 = <span class="number">146i32</span>.wrapping_sub(e);
-<a href=#215 id=215 data-nosnippet>215</a>    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0i32</span>;
-<a href=#216 id=216 data-nosnippet>216</a>    <span class="comment">// s&lt;32 corresponds to |x| &gt;= 2^-12
-<a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">if </span>s &lt; <span class="number">32 </span>{
-<a href=#218 id=218 data-nosnippet>218</a>        i = (((t &amp; <span class="number">0x007fffff</span>) | <span class="number">1 </span>&lt;&lt; <span class="number">23</span>) &gt;&gt; s) <span class="kw">as </span>i32;
-<a href=#219 id=219 data-nosnippet>219</a>    }
-<a href=#220 id=220 data-nosnippet>220</a>    <span class="kw">let </span>z2 = z * z;
-<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">let </span>z4 = z2 * z2;
-<a href=#222 id=222 data-nosnippet>222</a>    <span class="kw">let </span>c = ASINCOSF_PI_TABLE[i <span class="kw">as </span>usize &amp; <span class="number">15</span>];
-<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">if </span>i == <span class="number">0 </span>{
-<a href=#224 id=224 data-nosnippet>224</a>        <span class="comment">// |x| &lt; 2^-4
-<a href=#225 id=225 data-nosnippet>225</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>c0 = f_fmla(z2, f64::from_bits(c[<span class="number">1</span>]), f64::from_bits(c[<span class="number">0</span>]));
-<a href=#226 id=226 data-nosnippet>226</a>        <span class="kw">let </span>c2 = f_fmla(z2, f64::from_bits(c[<span class="number">3</span>]), f64::from_bits(c[<span class="number">2</span>]));
-<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw">let </span><span class="kw-2">mut </span>c4 = f_fmla(z2, f64::from_bits(c[<span class="number">5</span>]), f64::from_bits(c[<span class="number">4</span>]));
-<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw">let </span>c6 = f_fmla(z2, f64::from_bits(c[<span class="number">7</span>]), f64::from_bits(c[<span class="number">6</span>]));
-<a href=#229 id=229 data-nosnippet>229</a>        c0 = f_fmla(c2, z4, c0);
-<a href=#230 id=230 data-nosnippet>230</a>        c4 = f_fmla(c6, z4, c4);
-<a href=#231 id=231 data-nosnippet>231</a>        c0 += c4 * (z4 * z4);
-<a href=#232 id=232 data-nosnippet>232</a>        (z * c0) <span class="kw">as </span>f32
-<a href=#233 id=233 data-nosnippet>233</a>    } <span class="kw">else </span>{
-<a href=#234 id=234 data-nosnippet>234</a>        <span class="comment">// |x| &gt;= 2^-4
-<a href=#235 id=235 data-nosnippet>235</a>        </span><span class="kw">let </span>f = (<span class="number">1. </span>- az).sqrt();
-<a href=#236 id=236 data-nosnippet>236</a>        <span class="kw">let </span><span class="kw-2">mut </span>c0 = f_fmla(az, f64::from_bits(c[<span class="number">1</span>]), f64::from_bits(c[<span class="number">0</span>]));
-<a href=#237 id=237 data-nosnippet>237</a>        <span class="kw">let </span>c2 = f_fmla(az, f64::from_bits(c[<span class="number">3</span>]), f64::from_bits(c[<span class="number">2</span>]));
-<a href=#238 id=238 data-nosnippet>238</a>        <span class="kw">let </span><span class="kw-2">mut </span>c4 = f_fmla(az, f64::from_bits(c[<span class="number">5</span>]), f64::from_bits(c[<span class="number">4</span>]));
-<a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">let </span>c6 = f_fmla(az, f64::from_bits(c[<span class="number">7</span>]), f64::from_bits(c[<span class="number">6</span>]));
-<a href=#240 id=240 data-nosnippet>240</a>        c0 = f_fmla(c2, z2, c0);
-<a href=#241 id=241 data-nosnippet>241</a>        c4 = f_fmla(c6, z2, c4);
-<a href=#242 id=242 data-nosnippet>242</a>        c0 += c4 * z4;
-<a href=#243 id=243 data-nosnippet>243</a>        <span class="kw">let </span>r = f_fmla(
-<a href=#244 id=244 data-nosnippet>244</a>            -c0,
-<a href=#245 id=245 data-nosnippet>245</a>            f64::copysign(f, x <span class="kw">as </span>f64),
-<a href=#246 id=246 data-nosnippet>246</a>            f64::copysign(<span class="number">0.5</span>, x <span class="kw">as </span>f64),
-<a href=#247 id=247 data-nosnippet>247</a>        );
-<a href=#248 id=248 data-nosnippet>248</a>        r <span class="kw">as </span>f32
-<a href=#249 id=249 data-nosnippet>249</a>    }
-<a href=#250 id=250 data-nosnippet>250</a>}
-<a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a><span class="attr">#[cfg(test)]
-<a href=#253 id=253 data-nosnippet>253</a></span><span class="kw">mod </span>tests {
-<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#255 id=255 data-nosnippet>255</a>
-<a href=#256 id=256 data-nosnippet>256</a>    <span class="attr">#[test]
-<a href=#257 id=257 data-nosnippet>257</a>    </span><span class="kw">fn </span>test_asinpif() {
-<a href=#258 id=258 data-nosnippet>258</a>        <span class="macro">assert_eq!</span>(f_asinpif(<span class="number">0.0</span>), <span class="number">0.</span>);
-<a href=#259 id=259 data-nosnippet>259</a>        <span class="macro">assert_eq!</span>(f_asinpif(<span class="number">0.5</span>), <span class="number">0.16666667</span>);
-<a href=#260 id=260 data-nosnippet>260</a>        <span class="macro">assert!</span>(f_asinpif(<span class="number">1.5</span>).is_nan());
-<a href=#261 id=261 data-nosnippet>261</a>    }
-<a href=#262 id=262 data-nosnippet>262</a>}</code></pre></div></section></main></body></html>
+<a href=#194 id=194 data-nosnippet>194</a><span class="attr">#[inline(always)]
+<a href=#195 id=195 data-nosnippet>195</a></span><span class="kw">fn </span>asinpif_gen_impl&lt;Q: Fn(f64, f64, f64) -&gt; f64&gt;(x: f32, fma: Q) -&gt; f32 {
+<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">let </span>ax = x.abs();
+<a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">let </span>az = ax <span class="kw">as </span>f64;
+<a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">let </span>z = x <span class="kw">as </span>f64;
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">let </span>t = x.to_bits();
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">let </span>e: i32 = ((t &gt;&gt; <span class="number">23</span>) &amp; <span class="number">0xff</span>) <span class="kw">as </span>i32;
+<a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">if </span>e &gt;= <span class="number">127 </span>{
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="comment">// |x| &gt;= 1 or nan
+<a href=#203 id=203 data-nosnippet>203</a>        </span><span class="kw">if </span>ax == <span class="number">1.0 </span>{
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="kw">return </span>f32::copysign(<span class="number">0.5</span>, x);
+<a href=#205 id=205 data-nosnippet>205</a>        } <span class="comment">// |x| = 1
+<a href=#206 id=206 data-nosnippet>206</a>        </span><span class="kw">if </span>e == <span class="number">0xff </span>&amp;&amp; (t.wrapping_shl(<span class="number">9</span>)) != <span class="number">0 </span>{
+<a href=#207 id=207 data-nosnippet>207</a>            <span class="kw">return </span>x + x;
+<a href=#208 id=208 data-nosnippet>208</a>        } <span class="comment">// x = nan
+<a href=#209 id=209 data-nosnippet>209</a>        </span><span class="kw">return </span>f32::NAN; <span class="comment">// |x| &gt; 1
+<a href=#210 id=210 data-nosnippet>210</a>    </span>}
+<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">let </span>s: i32 = <span class="number">146i32</span>.wrapping_sub(e);
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0i32</span>;
+<a href=#213 id=213 data-nosnippet>213</a>    <span class="comment">// s&lt;32 corresponds to |x| &gt;= 2^-12
+<a href=#214 id=214 data-nosnippet>214</a>    </span><span class="kw">if </span>s &lt; <span class="number">32 </span>{
+<a href=#215 id=215 data-nosnippet>215</a>        i = (((t &amp; <span class="number">0x007fffff</span>) | <span class="number">1 </span>&lt;&lt; <span class="number">23</span>) &gt;&gt; s) <span class="kw">as </span>i32;
+<a href=#216 id=216 data-nosnippet>216</a>    }
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">let </span>z2 = z * z;
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="kw">let </span>z4 = z2 * z2;
+<a href=#219 id=219 data-nosnippet>219</a>    <span class="kw">let </span>c = ASINCOSF_PI_TABLE[i <span class="kw">as </span>usize &amp; <span class="number">15</span>];
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="kw">if </span>i == <span class="number">0 </span>{
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="comment">// |x| &lt; 2^-4
+<a href=#222 id=222 data-nosnippet>222</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>c0 = fma(z2, f64::from_bits(c[<span class="number">1</span>]), f64::from_bits(c[<span class="number">0</span>]));
+<a href=#223 id=223 data-nosnippet>223</a>        <span class="kw">let </span>c2 = fma(z2, f64::from_bits(c[<span class="number">3</span>]), f64::from_bits(c[<span class="number">2</span>]));
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">let </span><span class="kw-2">mut </span>c4 = fma(z2, f64::from_bits(c[<span class="number">5</span>]), f64::from_bits(c[<span class="number">4</span>]));
+<a href=#225 id=225 data-nosnippet>225</a>        <span class="kw">let </span>c6 = fma(z2, f64::from_bits(c[<span class="number">7</span>]), f64::from_bits(c[<span class="number">6</span>]));
+<a href=#226 id=226 data-nosnippet>226</a>        c0 = fma(c2, z4, c0);
+<a href=#227 id=227 data-nosnippet>227</a>        c4 = fma(c6, z4, c4);
+<a href=#228 id=228 data-nosnippet>228</a>        c0 += c4 * (z4 * z4);
+<a href=#229 id=229 data-nosnippet>229</a>        (z * c0) <span class="kw">as </span>f32
+<a href=#230 id=230 data-nosnippet>230</a>    } <span class="kw">else </span>{
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="comment">// |x| &gt;= 2^-4
+<a href=#232 id=232 data-nosnippet>232</a>        </span><span class="kw">let </span>f = (<span class="number">1. </span>- az).sqrt();
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">let </span><span class="kw-2">mut </span>c0 = fma(az, f64::from_bits(c[<span class="number">1</span>]), f64::from_bits(c[<span class="number">0</span>]));
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="kw">let </span>c2 = fma(az, f64::from_bits(c[<span class="number">3</span>]), f64::from_bits(c[<span class="number">2</span>]));
+<a href=#235 id=235 data-nosnippet>235</a>        <span class="kw">let </span><span class="kw-2">mut </span>c4 = fma(az, f64::from_bits(c[<span class="number">5</span>]), f64::from_bits(c[<span class="number">4</span>]));
+<a href=#236 id=236 data-nosnippet>236</a>        <span class="kw">let </span>c6 = fma(az, f64::from_bits(c[<span class="number">7</span>]), f64::from_bits(c[<span class="number">6</span>]));
+<a href=#237 id=237 data-nosnippet>237</a>        c0 = fma(c2, z2, c0);
+<a href=#238 id=238 data-nosnippet>238</a>        c4 = fma(c6, z2, c4);
+<a href=#239 id=239 data-nosnippet>239</a>        c0 += c4 * z4;
+<a href=#240 id=240 data-nosnippet>240</a>        <span class="kw">let </span>r = fma(
+<a href=#241 id=241 data-nosnippet>241</a>            -c0,
+<a href=#242 id=242 data-nosnippet>242</a>            f64::copysign(f, x <span class="kw">as </span>f64),
+<a href=#243 id=243 data-nosnippet>243</a>            f64::copysign(<span class="number">0.5</span>, x <span class="kw">as </span>f64),
+<a href=#244 id=244 data-nosnippet>244</a>        );
+<a href=#245 id=245 data-nosnippet>245</a>        r <span class="kw">as </span>f32
+<a href=#246 id=246 data-nosnippet>246</a>    }
+<a href=#247 id=247 data-nosnippet>247</a>}
+<a href=#248 id=248 data-nosnippet>248</a>
+<a href=#249 id=249 data-nosnippet>249</a><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
+<a href=#250 id=250 data-nosnippet>250</a>#[target_feature(enable = <span class="string">"avx"</span>, enable = <span class="string">"fma"</span>)]
+<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">unsafe fn </span>asinpif_fma_impl(x: f32) -&gt; f32 {
+<a href=#252 id=252 data-nosnippet>252</a>    asinpif_gen_impl(x, f64::mul_add)
+<a href=#253 id=253 data-nosnippet>253</a>}
+<a href=#254 id=254 data-nosnippet>254</a>
+<a href=#255 id=255 data-nosnippet>255</a><span class="doccomment">/// Computes asin(x)/PI
+<a href=#256 id=256 data-nosnippet>256</a>///
+<a href=#257 id=257 data-nosnippet>257</a>/// Max ULP 0.5
+<a href=#258 id=258 data-nosnippet>258</a></span><span class="attr">#[inline]
+<a href=#259 id=259 data-nosnippet>259</a></span><span class="kw">pub fn </span>f_asinpif(x: f32) -&gt; f32 {
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="attr">#[cfg(not(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>)))]
+<a href=#261 id=261 data-nosnippet>261</a>    </span>{
+<a href=#262 id=262 data-nosnippet>262</a>        asinpif_gen_impl(x, f_fmla)
+<a href=#263 id=263 data-nosnippet>263</a>    }
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
+<a href=#265 id=265 data-nosnippet>265</a>    </span>{
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">use </span>std::sync::OnceLock;
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">static </span>EXECUTOR: OnceLock&lt;<span class="kw">unsafe fn</span>(f32) -&gt; f32&gt; = OnceLock::new();
+<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">let </span>q = EXECUTOR.get_or_init(|| {
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="kw">if </span><span class="macro">std::arch::is_x86_feature_detected!</span>(<span class="string">"avx"</span>)
+<a href=#270 id=270 data-nosnippet>270</a>                &amp;&amp; <span class="macro">std::arch::is_x86_feature_detected!</span>(<span class="string">"fma"</span>)
+<a href=#271 id=271 data-nosnippet>271</a>            {
+<a href=#272 id=272 data-nosnippet>272</a>                asinpif_fma_impl
+<a href=#273 id=273 data-nosnippet>273</a>            } <span class="kw">else </span>{
+<a href=#274 id=274 data-nosnippet>274</a>                <span class="kw">fn </span>def_asinpif(x: f32) -&gt; f32 {
+<a href=#275 id=275 data-nosnippet>275</a>                    asinpif_gen_impl(x, f_fmla)
+<a href=#276 id=276 data-nosnippet>276</a>                }
+<a href=#277 id=277 data-nosnippet>277</a>                def_asinpif
+<a href=#278 id=278 data-nosnippet>278</a>            }
+<a href=#279 id=279 data-nosnippet>279</a>        });
+<a href=#280 id=280 data-nosnippet>280</a>        <span class="kw">unsafe </span>{ q(x) }
+<a href=#281 id=281 data-nosnippet>281</a>    }
+<a href=#282 id=282 data-nosnippet>282</a>}
+<a href=#283 id=283 data-nosnippet>283</a>
+<a href=#284 id=284 data-nosnippet>284</a><span class="attr">#[cfg(test)]
+<a href=#285 id=285 data-nosnippet>285</a></span><span class="kw">mod </span>tests {
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
+<a href=#287 id=287 data-nosnippet>287</a>
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="attr">#[test]
+<a href=#289 id=289 data-nosnippet>289</a>    </span><span class="kw">fn </span>test_asinpif() {
+<a href=#290 id=290 data-nosnippet>290</a>        <span class="macro">assert_eq!</span>(f_asinpif(<span class="number">0.0</span>), <span class="number">0.</span>);
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro">assert_eq!</span>(f_asinpif(<span class="number">0.5</span>), <span class="number">0.16666667</span>);
+<a href=#292 id=292 data-nosnippet>292</a>        <span class="macro">assert!</span>(f_asinpif(<span class="number">1.5</span>).is_nan());
+<a href=#293 id=293 data-nosnippet>293</a>    }
+<a href=#294 id=294 data-nosnippet>294</a>}
+</code></pre></div></section></main></body></html>

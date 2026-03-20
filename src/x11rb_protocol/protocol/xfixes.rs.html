@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x11rb-protocol-0.13.2/src/protocol/xfixes.rs`."><title>xfixes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb_protocol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">x11rb_protocol/protocol/</div>xfixes.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file contains generated code. Do not edit directly.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x11rb-protocol-0.13.2/src/protocol/xfixes.rs`."><title>xfixes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="x11rb_protocol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">x11rb_protocol/protocol/</div>xfixes.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file contains generated code. Do not edit directly.
 <a href=#2 id=2 data-nosnippet>2</a>// To regenerate this, run 'make'.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! Bindings to the `XFixes` X11 extension.
@@ -79,7 +79,7 @@
 <a href=#79 id=79 data-nosnippet>79</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#80 id=80 data-nosnippet>80</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">if </span>header.minor_opcode != QUERY_VERSION_REQUEST {
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= QUERY_VERSION_REQUEST {
 <a href=#83 id=83 data-nosnippet>83</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#84 id=84 data-nosnippet>84</a>        }
 <a href=#85 id=85 data-nosnippet>85</a>        <span class="kw">let </span>(client_major_version, remaining) = u32::try_parse(value)<span class="question-mark">?</span>;
@@ -125,7 +125,7 @@
 <a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">let </span>(major_version, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">let </span>(minor_version, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#127 id=127 data-nosnippet>127</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">16</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#129 id=129 data-nosnippet>129</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#130 id=130 data-nosnippet>130</a>        }
 <a href=#131 id=131 data-nosnippet>131</a>        <span class="kw">let </span>result = QueryVersionReply { sequence, length, major_version, minor_version };
@@ -411,7 +411,7 @@
 <a href=#411 id=411 data-nosnippet>411</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#412 id=412 data-nosnippet>412</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#413 id=413 data-nosnippet>413</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_SAVE_SET_REQUEST {
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_SAVE_SET_REQUEST {
 <a href=#415 id=415 data-nosnippet>415</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#416 id=416 data-nosnippet>416</a>        }
 <a href=#417 id=417 data-nosnippet>417</a>        <span class="kw">let </span>(mode, remaining) = u8::try_parse(value)<span class="question-mark">?</span>;
@@ -747,7 +747,7 @@
 <a href=#747 id=747 data-nosnippet>747</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#748 id=748 data-nosnippet>748</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#749 id=749 data-nosnippet>749</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#750 id=750 data-nosnippet>750</a>        <span class="kw">if </span>header.minor_opcode != SELECT_SELECTION_INPUT_REQUEST {
+<a href=#750 id=750 data-nosnippet>750</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SELECT_SELECTION_INPUT_REQUEST {
 <a href=#751 id=751 data-nosnippet>751</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#752 id=752 data-nosnippet>752</a>        }
 <a href=#753 id=753 data-nosnippet>753</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1059,7 +1059,7 @@
 <a href=#1059 id=1059 data-nosnippet>1059</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1060 id=1060 data-nosnippet>1060</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1061 id=1061 data-nosnippet>1061</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1062 id=1062 data-nosnippet>1062</a>        <span class="kw">if </span>header.minor_opcode != SELECT_CURSOR_INPUT_REQUEST {
+<a href=#1062 id=1062 data-nosnippet>1062</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SELECT_CURSOR_INPUT_REQUEST {
 <a href=#1063 id=1063 data-nosnippet>1063</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1064 id=1064 data-nosnippet>1064</a>        }
 <a href=#1065 id=1065 data-nosnippet>1065</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -1111,7 +1111,7 @@
 <a href=#1111 id=1111 data-nosnippet>1111</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1112 id=1112 data-nosnippet>1112</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1113 id=1113 data-nosnippet>1113</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1114 id=1114 data-nosnippet>1114</a>        <span class="kw">if </span>header.minor_opcode != GET_CURSOR_IMAGE_REQUEST {
+<a href=#1114 id=1114 data-nosnippet>1114</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_CURSOR_IMAGE_REQUEST {
 <a href=#1115 id=1115 data-nosnippet>1115</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1116 id=1116 data-nosnippet>1116</a>        }
 <a href=#1117 id=1117 data-nosnippet>1117</a>        <span class="kw">let _ </span>= value;
@@ -1165,7 +1165,7 @@
 <a href=#1165 id=1165 data-nosnippet>1165</a>        <span class="kw">let </span>(cursor_serial, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#1166 id=1166 data-nosnippet>1166</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">8</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#1167 id=1167 data-nosnippet>1167</a>        <span class="kw">let </span>(cursor_image, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;u32&gt;(remaining, u32::from(width).checked_mul(u32::from(height)).ok_or(ParseError::InvalidExpression)<span class="question-mark">?</span>.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#1168 id=1168 data-nosnippet>1168</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#1168 id=1168 data-nosnippet>1168</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#1169 id=1169 data-nosnippet>1169</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1170 id=1170 data-nosnippet>1170</a>        }
 <a href=#1171 id=1171 data-nosnippet>1171</a>        <span class="kw">let </span>result = GetCursorImageReply { sequence, length, x, y, width, height, xhot, yhot, cursor_serial, cursor_image };
@@ -1302,7 +1302,7 @@
 <a href=#1302 id=1302 data-nosnippet>1302</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1303 id=1303 data-nosnippet>1303</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1304 id=1304 data-nosnippet>1304</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1305 id=1305 data-nosnippet>1305</a>        <span class="kw">if </span>header.minor_opcode != CREATE_REGION_REQUEST {
+<a href=#1305 id=1305 data-nosnippet>1305</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_REGION_REQUEST {
 <a href=#1306 id=1306 data-nosnippet>1306</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1307 id=1307 data-nosnippet>1307</a>        }
 <a href=#1308 id=1308 data-nosnippet>1308</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1380,7 +1380,7 @@
 <a href=#1380 id=1380 data-nosnippet>1380</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1381 id=1381 data-nosnippet>1381</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1382 id=1382 data-nosnippet>1382</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1383 id=1383 data-nosnippet>1383</a>        <span class="kw">if </span>header.minor_opcode != CREATE_REGION_FROM_BITMAP_REQUEST {
+<a href=#1383 id=1383 data-nosnippet>1383</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_REGION_FROM_BITMAP_REQUEST {
 <a href=#1384 id=1384 data-nosnippet>1384</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1385 id=1385 data-nosnippet>1385</a>        }
 <a href=#1386 id=1386 data-nosnippet>1386</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1450,7 +1450,7 @@
 <a href=#1450 id=1450 data-nosnippet>1450</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1451 id=1451 data-nosnippet>1451</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1452 id=1452 data-nosnippet>1452</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1453 id=1453 data-nosnippet>1453</a>        <span class="kw">if </span>header.minor_opcode != CREATE_REGION_FROM_WINDOW_REQUEST {
+<a href=#1453 id=1453 data-nosnippet>1453</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_REGION_FROM_WINDOW_REQUEST {
 <a href=#1454 id=1454 data-nosnippet>1454</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1455 id=1455 data-nosnippet>1455</a>        }
 <a href=#1456 id=1456 data-nosnippet>1456</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1518,7 +1518,7 @@
 <a href=#1518 id=1518 data-nosnippet>1518</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1519 id=1519 data-nosnippet>1519</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1520 id=1520 data-nosnippet>1520</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1521 id=1521 data-nosnippet>1521</a>        <span class="kw">if </span>header.minor_opcode != CREATE_REGION_FROM_GC_REQUEST {
+<a href=#1521 id=1521 data-nosnippet>1521</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_REGION_FROM_GC_REQUEST {
 <a href=#1522 id=1522 data-nosnippet>1522</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1523 id=1523 data-nosnippet>1523</a>        }
 <a href=#1524 id=1524 data-nosnippet>1524</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1582,7 +1582,7 @@
 <a href=#1582 id=1582 data-nosnippet>1582</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1583 id=1583 data-nosnippet>1583</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1584 id=1584 data-nosnippet>1584</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1585 id=1585 data-nosnippet>1585</a>        <span class="kw">if </span>header.minor_opcode != CREATE_REGION_FROM_PICTURE_REQUEST {
+<a href=#1585 id=1585 data-nosnippet>1585</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_REGION_FROM_PICTURE_REQUEST {
 <a href=#1586 id=1586 data-nosnippet>1586</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1587 id=1587 data-nosnippet>1587</a>        }
 <a href=#1588 id=1588 data-nosnippet>1588</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1640,7 +1640,7 @@
 <a href=#1640 id=1640 data-nosnippet>1640</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1641 id=1641 data-nosnippet>1641</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1642 id=1642 data-nosnippet>1642</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1643 id=1643 data-nosnippet>1643</a>        <span class="kw">if </span>header.minor_opcode != DESTROY_REGION_REQUEST {
+<a href=#1643 id=1643 data-nosnippet>1643</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= DESTROY_REGION_REQUEST {
 <a href=#1644 id=1644 data-nosnippet>1644</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1645 id=1645 data-nosnippet>1645</a>        }
 <a href=#1646 id=1646 data-nosnippet>1646</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1701,7 +1701,7 @@
 <a href=#1701 id=1701 data-nosnippet>1701</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1702 id=1702 data-nosnippet>1702</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1703 id=1703 data-nosnippet>1703</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1704 id=1704 data-nosnippet>1704</a>        <span class="kw">if </span>header.minor_opcode != SET_REGION_REQUEST {
+<a href=#1704 id=1704 data-nosnippet>1704</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_REGION_REQUEST {
 <a href=#1705 id=1705 data-nosnippet>1705</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1706 id=1706 data-nosnippet>1706</a>        }
 <a href=#1707 id=1707 data-nosnippet>1707</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1779,7 +1779,7 @@
 <a href=#1779 id=1779 data-nosnippet>1779</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1780 id=1780 data-nosnippet>1780</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1781 id=1781 data-nosnippet>1781</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1782 id=1782 data-nosnippet>1782</a>        <span class="kw">if </span>header.minor_opcode != COPY_REGION_REQUEST {
+<a href=#1782 id=1782 data-nosnippet>1782</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= COPY_REGION_REQUEST {
 <a href=#1783 id=1783 data-nosnippet>1783</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1784 id=1784 data-nosnippet>1784</a>        }
 <a href=#1785 id=1785 data-nosnippet>1785</a>        <span class="kw">let </span>(source, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1849,7 +1849,7 @@
 <a href=#1849 id=1849 data-nosnippet>1849</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1850 id=1850 data-nosnippet>1850</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1851 id=1851 data-nosnippet>1851</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1852 id=1852 data-nosnippet>1852</a>        <span class="kw">if </span>header.minor_opcode != UNION_REGION_REQUEST {
+<a href=#1852 id=1852 data-nosnippet>1852</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= UNION_REGION_REQUEST {
 <a href=#1853 id=1853 data-nosnippet>1853</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1854 id=1854 data-nosnippet>1854</a>        }
 <a href=#1855 id=1855 data-nosnippet>1855</a>        <span class="kw">let </span>(source1, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1921,7 +1921,7 @@
 <a href=#1921 id=1921 data-nosnippet>1921</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1922 id=1922 data-nosnippet>1922</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1923 id=1923 data-nosnippet>1923</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1924 id=1924 data-nosnippet>1924</a>        <span class="kw">if </span>header.minor_opcode != INTERSECT_REGION_REQUEST {
+<a href=#1924 id=1924 data-nosnippet>1924</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= INTERSECT_REGION_REQUEST {
 <a href=#1925 id=1925 data-nosnippet>1925</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1926 id=1926 data-nosnippet>1926</a>        }
 <a href=#1927 id=1927 data-nosnippet>1927</a>        <span class="kw">let </span>(source1, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -1993,7 +1993,7 @@
 <a href=#1993 id=1993 data-nosnippet>1993</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#1994 id=1994 data-nosnippet>1994</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#1995 id=1995 data-nosnippet>1995</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#1996 id=1996 data-nosnippet>1996</a>        <span class="kw">if </span>header.minor_opcode != SUBTRACT_REGION_REQUEST {
+<a href=#1996 id=1996 data-nosnippet>1996</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SUBTRACT_REGION_REQUEST {
 <a href=#1997 id=1997 data-nosnippet>1997</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#1998 id=1998 data-nosnippet>1998</a>        }
 <a href=#1999 id=1999 data-nosnippet>1999</a>        <span class="kw">let </span>(source1, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -2069,7 +2069,7 @@
 <a href=#2069 id=2069 data-nosnippet>2069</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2070 id=2070 data-nosnippet>2070</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2071 id=2071 data-nosnippet>2071</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2072 id=2072 data-nosnippet>2072</a>        <span class="kw">if </span>header.minor_opcode != INVERT_REGION_REQUEST {
+<a href=#2072 id=2072 data-nosnippet>2072</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= INVERT_REGION_REQUEST {
 <a href=#2073 id=2073 data-nosnippet>2073</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2074 id=2074 data-nosnippet>2074</a>        }
 <a href=#2075 id=2075 data-nosnippet>2075</a>        <span class="kw">let </span>(source, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -2137,7 +2137,7 @@
 <a href=#2137 id=2137 data-nosnippet>2137</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2138 id=2138 data-nosnippet>2138</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2139 id=2139 data-nosnippet>2139</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2140 id=2140 data-nosnippet>2140</a>        <span class="kw">if </span>header.minor_opcode != TRANSLATE_REGION_REQUEST {
+<a href=#2140 id=2140 data-nosnippet>2140</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= TRANSLATE_REGION_REQUEST {
 <a href=#2141 id=2141 data-nosnippet>2141</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2142 id=2142 data-nosnippet>2142</a>        }
 <a href=#2143 id=2143 data-nosnippet>2143</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -2203,7 +2203,7 @@
 <a href=#2203 id=2203 data-nosnippet>2203</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2204 id=2204 data-nosnippet>2204</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2205 id=2205 data-nosnippet>2205</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2206 id=2206 data-nosnippet>2206</a>        <span class="kw">if </span>header.minor_opcode != REGION_EXTENTS_REQUEST {
+<a href=#2206 id=2206 data-nosnippet>2206</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= REGION_EXTENTS_REQUEST {
 <a href=#2207 id=2207 data-nosnippet>2207</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2208 id=2208 data-nosnippet>2208</a>        }
 <a href=#2209 id=2209 data-nosnippet>2209</a>        <span class="kw">let </span>(source, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -2261,7 +2261,7 @@
 <a href=#2261 id=2261 data-nosnippet>2261</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2262 id=2262 data-nosnippet>2262</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2263 id=2263 data-nosnippet>2263</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2264 id=2264 data-nosnippet>2264</a>        <span class="kw">if </span>header.minor_opcode != FETCH_REGION_REQUEST {
+<a href=#2264 id=2264 data-nosnippet>2264</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= FETCH_REGION_REQUEST {
 <a href=#2265 id=2265 data-nosnippet>2265</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2266 id=2266 data-nosnippet>2266</a>        }
 <a href=#2267 id=2267 data-nosnippet>2267</a>        <span class="kw">let </span>(region, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -2304,7 +2304,7 @@
 <a href=#2304 id=2304 data-nosnippet>2304</a>        <span class="kw">let </span>(extents, remaining) = xproto::Rectangle::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#2305 id=2305 data-nosnippet>2305</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">16</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#2306 id=2306 data-nosnippet>2306</a>        <span class="kw">let </span>(rectangles, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;xproto::Rectangle&gt;(remaining, u32::from(length).checked_div(<span class="number">2u32</span>).ok_or(ParseError::InvalidExpression)<span class="question-mark">?</span>.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#2307 id=2307 data-nosnippet>2307</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2307 id=2307 data-nosnippet>2307</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2308 id=2308 data-nosnippet>2308</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2309 id=2309 data-nosnippet>2309</a>        }
 <a href=#2310 id=2310 data-nosnippet>2310</a>        <span class="kw">let </span>result = FetchRegionReply { sequence, extents, rectangles };
@@ -2398,7 +2398,7 @@
 <a href=#2398 id=2398 data-nosnippet>2398</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2399 id=2399 data-nosnippet>2399</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2400 id=2400 data-nosnippet>2400</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2401 id=2401 data-nosnippet>2401</a>        <span class="kw">if </span>header.minor_opcode != SET_GC_CLIP_REGION_REQUEST {
+<a href=#2401 id=2401 data-nosnippet>2401</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_GC_CLIP_REGION_REQUEST {
 <a href=#2402 id=2402 data-nosnippet>2402</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2403 id=2403 data-nosnippet>2403</a>        }
 <a href=#2404 id=2404 data-nosnippet>2404</a>        <span class="kw">let </span>(gc, remaining) = xproto::Gcontext::try_parse(value)<span class="question-mark">?</span>;
@@ -2480,7 +2480,7 @@
 <a href=#2480 id=2480 data-nosnippet>2480</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2481 id=2481 data-nosnippet>2481</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2482 id=2482 data-nosnippet>2482</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2483 id=2483 data-nosnippet>2483</a>        <span class="kw">if </span>header.minor_opcode != SET_WINDOW_SHAPE_REGION_REQUEST {
+<a href=#2483 id=2483 data-nosnippet>2483</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_WINDOW_SHAPE_REGION_REQUEST {
 <a href=#2484 id=2484 data-nosnippet>2484</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2485 id=2485 data-nosnippet>2485</a>        }
 <a href=#2486 id=2486 data-nosnippet>2486</a>        <span class="kw">let </span>(dest, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -2560,7 +2560,7 @@
 <a href=#2560 id=2560 data-nosnippet>2560</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2561 id=2561 data-nosnippet>2561</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2562 id=2562 data-nosnippet>2562</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2563 id=2563 data-nosnippet>2563</a>        <span class="kw">if </span>header.minor_opcode != SET_PICTURE_CLIP_REGION_REQUEST {
+<a href=#2563 id=2563 data-nosnippet>2563</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_PICTURE_CLIP_REGION_REQUEST {
 <a href=#2564 id=2564 data-nosnippet>2564</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2565 id=2565 data-nosnippet>2565</a>        }
 <a href=#2566 id=2566 data-nosnippet>2566</a>        <span class="kw">let </span>(picture, remaining) = render::Picture::try_parse(value)<span class="question-mark">?</span>;
@@ -2632,7 +2632,7 @@
 <a href=#2632 id=2632 data-nosnippet>2632</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2633 id=2633 data-nosnippet>2633</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2634 id=2634 data-nosnippet>2634</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2635 id=2635 data-nosnippet>2635</a>        <span class="kw">if </span>header.minor_opcode != SET_CURSOR_NAME_REQUEST {
+<a href=#2635 id=2635 data-nosnippet>2635</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_CURSOR_NAME_REQUEST {
 <a href=#2636 id=2636 data-nosnippet>2636</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2637 id=2637 data-nosnippet>2637</a>        }
 <a href=#2638 id=2638 data-nosnippet>2638</a>        <span class="kw">let </span>(cursor, remaining) = xproto::Cursor::try_parse(value)<span class="question-mark">?</span>;
@@ -2699,7 +2699,7 @@
 <a href=#2699 id=2699 data-nosnippet>2699</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2700 id=2700 data-nosnippet>2700</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2701 id=2701 data-nosnippet>2701</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2702 id=2702 data-nosnippet>2702</a>        <span class="kw">if </span>header.minor_opcode != GET_CURSOR_NAME_REQUEST {
+<a href=#2702 id=2702 data-nosnippet>2702</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_CURSOR_NAME_REQUEST {
 <a href=#2703 id=2703 data-nosnippet>2703</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2704 id=2704 data-nosnippet>2704</a>        }
 <a href=#2705 id=2705 data-nosnippet>2705</a>        <span class="kw">let </span>(cursor, remaining) = xproto::Cursor::try_parse(value)<span class="question-mark">?</span>;
@@ -2745,7 +2745,7 @@
 <a href=#2745 id=2745 data-nosnippet>2745</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">18</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
 <a href=#2746 id=2746 data-nosnippet>2746</a>        <span class="kw">let </span>(name, remaining) = <span class="kw">crate</span>::x11_utils::parse_u8_list(remaining, nbytes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 <a href=#2747 id=2747 data-nosnippet>2747</a>        <span class="kw">let </span>name = name.to_vec();
-<a href=#2748 id=2748 data-nosnippet>2748</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2748 id=2748 data-nosnippet>2748</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2749 id=2749 data-nosnippet>2749</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2750 id=2750 data-nosnippet>2750</a>        }
 <a href=#2751 id=2751 data-nosnippet>2751</a>        <span class="kw">let </span>result = GetCursorNameReply { sequence, length, atom, name };
@@ -2818,7 +2818,7 @@
 <a href=#2818 id=2818 data-nosnippet>2818</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2819 id=2819 data-nosnippet>2819</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2820 id=2820 data-nosnippet>2820</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2821 id=2821 data-nosnippet>2821</a>        <span class="kw">if </span>header.minor_opcode != GET_CURSOR_IMAGE_AND_NAME_REQUEST {
+<a href=#2821 id=2821 data-nosnippet>2821</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_CURSOR_IMAGE_AND_NAME_REQUEST {
 <a href=#2822 id=2822 data-nosnippet>2822</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2823 id=2823 data-nosnippet>2823</a>        }
 <a href=#2824 id=2824 data-nosnippet>2824</a>        <span class="kw">let _ </span>= value;
@@ -2878,7 +2878,7 @@
 <a href=#2878 id=2878 data-nosnippet>2878</a>        <span class="kw">let </span>(cursor_image, remaining) = <span class="kw">crate</span>::x11_utils::parse_list::&lt;u32&gt;(remaining, u32::from(width).checked_mul(u32::from(height)).ok_or(ParseError::InvalidExpression)<span class="question-mark">?</span>.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 <a href=#2879 id=2879 data-nosnippet>2879</a>        <span class="kw">let </span>(name, remaining) = <span class="kw">crate</span>::x11_utils::parse_u8_list(remaining, nbytes.try_to_usize()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 <a href=#2880 id=2880 data-nosnippet>2880</a>        <span class="kw">let </span>name = name.to_vec();
-<a href=#2881 id=2881 data-nosnippet>2881</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#2881 id=2881 data-nosnippet>2881</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#2882 id=2882 data-nosnippet>2882</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2883 id=2883 data-nosnippet>2883</a>        }
 <a href=#2884 id=2884 data-nosnippet>2884</a>        <span class="kw">let </span>result = GetCursorImageAndNameReply { sequence, length, x, y, width, height, xhot, yhot, cursor_serial, cursor_atom, cursor_image, name };
@@ -2973,7 +2973,7 @@
 <a href=#2973 id=2973 data-nosnippet>2973</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#2974 id=2974 data-nosnippet>2974</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#2975 id=2975 data-nosnippet>2975</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#2976 id=2976 data-nosnippet>2976</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_CURSOR_REQUEST {
+<a href=#2976 id=2976 data-nosnippet>2976</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_CURSOR_REQUEST {
 <a href=#2977 id=2977 data-nosnippet>2977</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#2978 id=2978 data-nosnippet>2978</a>        }
 <a href=#2979 id=2979 data-nosnippet>2979</a>        <span class="kw">let </span>(source, remaining) = xproto::Cursor::try_parse(value)<span class="question-mark">?</span>;
@@ -3041,7 +3041,7 @@
 <a href=#3041 id=3041 data-nosnippet>3041</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3042 id=3042 data-nosnippet>3042</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3043 id=3043 data-nosnippet>3043</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3044 id=3044 data-nosnippet>3044</a>        <span class="kw">if </span>header.minor_opcode != CHANGE_CURSOR_BY_NAME_REQUEST {
+<a href=#3044 id=3044 data-nosnippet>3044</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CHANGE_CURSOR_BY_NAME_REQUEST {
 <a href=#3045 id=3045 data-nosnippet>3045</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3046 id=3046 data-nosnippet>3046</a>        }
 <a href=#3047 id=3047 data-nosnippet>3047</a>        <span class="kw">let </span>(src, remaining) = xproto::Cursor::try_parse(value)<span class="question-mark">?</span>;
@@ -3130,7 +3130,7 @@
 <a href=#3130 id=3130 data-nosnippet>3130</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3131 id=3131 data-nosnippet>3131</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3132 id=3132 data-nosnippet>3132</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3133 id=3133 data-nosnippet>3133</a>        <span class="kw">if </span>header.minor_opcode != EXPAND_REGION_REQUEST {
+<a href=#3133 id=3133 data-nosnippet>3133</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= EXPAND_REGION_REQUEST {
 <a href=#3134 id=3134 data-nosnippet>3134</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3135 id=3135 data-nosnippet>3135</a>        }
 <a href=#3136 id=3136 data-nosnippet>3136</a>        <span class="kw">let </span>(source, remaining) = Region::try_parse(value)<span class="question-mark">?</span>;
@@ -3196,7 +3196,7 @@
 <a href=#3196 id=3196 data-nosnippet>3196</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3197 id=3197 data-nosnippet>3197</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3198 id=3198 data-nosnippet>3198</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3199 id=3199 data-nosnippet>3199</a>        <span class="kw">if </span>header.minor_opcode != HIDE_CURSOR_REQUEST {
+<a href=#3199 id=3199 data-nosnippet>3199</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= HIDE_CURSOR_REQUEST {
 <a href=#3200 id=3200 data-nosnippet>3200</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3201 id=3201 data-nosnippet>3201</a>        }
 <a href=#3202 id=3202 data-nosnippet>3202</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -3252,7 +3252,7 @@
 <a href=#3252 id=3252 data-nosnippet>3252</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3253 id=3253 data-nosnippet>3253</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3254 id=3254 data-nosnippet>3254</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3255 id=3255 data-nosnippet>3255</a>        <span class="kw">if </span>header.minor_opcode != SHOW_CURSOR_REQUEST {
+<a href=#3255 id=3255 data-nosnippet>3255</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SHOW_CURSOR_REQUEST {
 <a href=#3256 id=3256 data-nosnippet>3256</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3257 id=3257 data-nosnippet>3257</a>        }
 <a href=#3258 id=3258 data-nosnippet>3258</a>        <span class="kw">let </span>(window, remaining) = xproto::Window::try_parse(value)<span class="question-mark">?</span>;
@@ -3401,7 +3401,7 @@
 <a href=#3401 id=3401 data-nosnippet>3401</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3402 id=3402 data-nosnippet>3402</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3403 id=3403 data-nosnippet>3403</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3404 id=3404 data-nosnippet>3404</a>        <span class="kw">if </span>header.minor_opcode != CREATE_POINTER_BARRIER_REQUEST {
+<a href=#3404 id=3404 data-nosnippet>3404</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= CREATE_POINTER_BARRIER_REQUEST {
 <a href=#3405 id=3405 data-nosnippet>3405</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3406 id=3406 data-nosnippet>3406</a>        }
 <a href=#3407 id=3407 data-nosnippet>3407</a>        <span class="kw">let </span>(barrier, remaining) = Barrier::try_parse(value)<span class="question-mark">?</span>;
@@ -3487,7 +3487,7 @@
 <a href=#3487 id=3487 data-nosnippet>3487</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3488 id=3488 data-nosnippet>3488</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3489 id=3489 data-nosnippet>3489</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3490 id=3490 data-nosnippet>3490</a>        <span class="kw">if </span>header.minor_opcode != DELETE_POINTER_BARRIER_REQUEST {
+<a href=#3490 id=3490 data-nosnippet>3490</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= DELETE_POINTER_BARRIER_REQUEST {
 <a href=#3491 id=3491 data-nosnippet>3491</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3492 id=3492 data-nosnippet>3492</a>        }
 <a href=#3493 id=3493 data-nosnippet>3493</a>        <span class="kw">let </span>(barrier, remaining) = Barrier::try_parse(value)<span class="question-mark">?</span>;
@@ -3604,7 +3604,7 @@
 <a href=#3604 id=3604 data-nosnippet>3604</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3605 id=3605 data-nosnippet>3605</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3606 id=3606 data-nosnippet>3606</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3607 id=3607 data-nosnippet>3607</a>        <span class="kw">if </span>header.minor_opcode != SET_CLIENT_DISCONNECT_MODE_REQUEST {
+<a href=#3607 id=3607 data-nosnippet>3607</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= SET_CLIENT_DISCONNECT_MODE_REQUEST {
 <a href=#3608 id=3608 data-nosnippet>3608</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3609 id=3609 data-nosnippet>3609</a>        }
 <a href=#3610 id=3610 data-nosnippet>3610</a>        <span class="kw">let </span>(disconnect_mode, remaining) = u32::try_parse(value)<span class="question-mark">?</span>;
@@ -3654,7 +3654,7 @@
 <a href=#3654 id=3654 data-nosnippet>3654</a>    <span class="doccomment">/// Parse this request given its header, its body, and any fds that go along with it
 <a href=#3655 id=3655 data-nosnippet>3655</a>    </span><span class="attr">#[cfg(feature = <span class="string">"request-parsing"</span>)]
 <a href=#3656 id=3656 data-nosnippet>3656</a>    </span><span class="kw">pub fn </span>try_parse_request(header: RequestHeader, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-<a href=#3657 id=3657 data-nosnippet>3657</a>        <span class="kw">if </span>header.minor_opcode != GET_CLIENT_DISCONNECT_MODE_REQUEST {
+<a href=#3657 id=3657 data-nosnippet>3657</a>        <span class="kw">if </span>header.<span class="macro">minor_opcode !</span>= GET_CLIENT_DISCONNECT_MODE_REQUEST {
 <a href=#3658 id=3658 data-nosnippet>3658</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3659 id=3659 data-nosnippet>3659</a>        }
 <a href=#3660 id=3660 data-nosnippet>3660</a>        <span class="kw">let _ </span>= value;
@@ -3699,7 +3699,7 @@
 <a href=#3699 id=3699 data-nosnippet>3699</a>        <span class="kw">let </span>(length, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#3700 id=3700 data-nosnippet>3700</a>        <span class="kw">let </span>(disconnect_mode, remaining) = u32::try_parse(remaining)<span class="question-mark">?</span>;
 <a href=#3701 id=3701 data-nosnippet>3701</a>        <span class="kw">let </span>remaining = remaining.get(<span class="number">20</span>..).ok_or(ParseError::InsufficientData)<span class="question-mark">?</span>;
-<a href=#3702 id=3702 data-nosnippet>3702</a>        <span class="kw">if </span>response_type != <span class="number">1 </span>{
+<a href=#3702 id=3702 data-nosnippet>3702</a>        <span class="kw">if </span><span class="macro">response_type !</span>= <span class="number">1 </span>{
 <a href=#3703 id=3703 data-nosnippet>3703</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidValue);
 <a href=#3704 id=3704 data-nosnippet>3704</a>        }
 <a href=#3705 id=3705 data-nosnippet>3705</a>        <span class="kw">let </span>disconnect_mode = disconnect_mode.into();
@@ -3763,4 +3763,5 @@
 <a href=#3763 id=3763 data-nosnippet>3763</a>        bytes.extend_from_slice(<span class="kw-2">&amp;</span>[<span class="number">0</span>; <span class="number">20</span>]);
 <a href=#3764 id=3764 data-nosnippet>3764</a>    }
 <a href=#3765 id=3765 data-nosnippet>3765</a>}
-<a href=#3766 id=3766 data-nosnippet>3766</a></code></pre></div></section></main></body></html>
+<a href=#3766 id=3766 data-nosnippet>3766</a>
+</code></pre></div></section></main></body></html>

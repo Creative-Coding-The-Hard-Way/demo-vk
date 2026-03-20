@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/exr-1.74.0/src/compression/piz/huffman.rs`."><title>huffman.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="exr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">exr/compression/piz/</div>huffman.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! 16-bit Huffman compression and decompression.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/exr-1.74.0/src/compression/piz/huffman.rs`."><title>huffman.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="exr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">exr/compression/piz/</div>huffman.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! 16-bit Huffman compression and decompression.
 <a href=#2 id=2 data-nosnippet>2</a>//! Huffman compression and decompression routines written
 <a href=#3 id=3 data-nosnippet>3</a>//!	by Christian Rouet for his PIZ image file format.
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">// see https://github.com/AcademySoftwareFoundation/openexr/blob/88246d991e0318c043e6f584f7493da08a31f9f8/OpenEXR/IlmImf/ImfHuf.cpp
@@ -254,7 +254,7 @@
 <a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">let </span>code = code(encoded_code);
 <a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">let </span>length = length(encoded_code);
 <a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a>        <span class="kw">if </span>code &gt;&gt; length != <span class="number">0 </span>{
+<a href=#257 id=257 data-nosnippet>257</a>        <span class="kw">if </span>code &gt;&gt; <span class="macro">length !</span>= <span class="number">0 </span>{
 <a href=#258 id=258 data-nosnippet>258</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::invalid(INVALID_TABLE_ENTRY));
 <a href=#259 id=259 data-nosnippet>259</a>        }
 <a href=#260 id=260 data-nosnippet>260</a>
@@ -267,7 +267,7 @@
 <a href=#267 id=267 data-nosnippet>267</a>                <span class="kw">_ </span>=&gt; { <span class="kw">return </span><span class="prelude-val">Err</span>(Error::invalid(INVALID_TABLE_ENTRY)); }
 <a href=#268 id=268 data-nosnippet>268</a>            }
 <a href=#269 id=269 data-nosnippet>269</a>        }
-<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">else if </span>length != <span class="number">0 </span>{
+<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">else if </span><span class="macro">length !</span>= <span class="number">0 </span>{
 <a href=#271 id=271 data-nosnippet>271</a>            <span class="kw">let </span>default_value = Code::Short(ShortCode {
 <a href=#272 id=272 data-nosnippet>272</a>                value: code_index,
 <a href=#273 id=273 data-nosnippet>273</a>                len: length <span class="kw">as </span>u8,
@@ -513,7 +513,7 @@
 <a href=#513 id=513 data-nosnippet>513</a>
 <a href=#514 id=514 data-nosnippet>514</a>    <span class="kw">let </span>data_length = out.position() - start_position; <span class="comment">// we shouldn't count the last byte write
 <a href=#515 id=515 data-nosnippet>515</a>
-<a href=#516 id=516 data-nosnippet>516</a>    </span><span class="kw">if </span>code_bit_count != <span class="number">0 </span>{
+<a href=#516 id=516 data-nosnippet>516</a>    </span><span class="kw">if </span><span class="macro">code_bit_count !</span>= <span class="number">0 </span>{
 <a href=#517 id=517 data-nosnippet>517</a>        out.write(<span class="kw-2">&amp;</span>[
 <a href=#518 id=518 data-nosnippet>518</a>            (code_bits &lt;&lt; (<span class="number">8 </span>- code_bit_count) &amp; <span class="number">0xff</span>) <span class="kw">as </span>u8
 <a href=#519 id=519 data-nosnippet>519</a>        ])<span class="question-mark">?</span>;
@@ -700,7 +700,7 @@
 <a href=#700 id=700 data-nosnippet>700</a>
 <a href=#701 id=701 data-nosnippet>701</a>    <span class="comment">// This is a good solution since we don't have usize::MAX items (no panics or UB),
 <a href=#702 id=702 data-nosnippet>702</a>    // and since this is short-circuit, it stops at the first in order non zero element.
-<a href=#703 id=703 data-nosnippet>703</a>    </span><span class="kw">let </span>min_frequency_index = frequencies.iter().position(|f| <span class="kw-2">*</span>f != <span class="number">0</span>).unwrap_or(<span class="number">0</span>);
+<a href=#703 id=703 data-nosnippet>703</a>    </span><span class="kw">let </span>min_frequency_index = frequencies.iter().position(|f| <span class="kw-2">*</span><span class="macro">f !</span>= <span class="number">0</span>).unwrap_or(<span class="number">0</span>);
 <a href=#704 id=704 data-nosnippet>704</a>
 <a href=#705 id=705 data-nosnippet>705</a>    <span class="kw">let </span><span class="kw-2">mut </span>max_frequency_index = <span class="number">0</span>;
 <a href=#706 id=706 data-nosnippet>706</a>    <span class="kw">let </span><span class="kw-2">mut </span>frequency_count = <span class="number">0</span>;
@@ -841,7 +841,7 @@
 <a href=#841 id=841 data-nosnippet>841</a>
 <a href=#842 id=842 data-nosnippet>842</a><span class="attr">#[cfg(test)]
 <a href=#843 id=843 data-nosnippet>843</a></span><span class="kw">mod </span>test {
-<a href=#844 id=844 data-nosnippet>844</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#844 id=844 data-nosnippet>844</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
 <a href=#845 id=845 data-nosnippet>845</a>    <span class="kw">use </span>rand::{Rng, SeedableRng};
 <a href=#846 id=846 data-nosnippet>846</a>
 <a href=#847 id=847 data-nosnippet>847</a>    <span class="kw">const </span>UNCOMPRESSED_ARRAY: [u16; <span class="number">100</span>] = [
@@ -989,4 +989,5 @@
 <a href=#989 id=989 data-nosnippet>989</a>        <span class="number">12</span>,<span class="number">155</span>,<span class="number">32</span>,<span class="number">34</span>,<span class="number">12</span>,<span class="number">109</span>,<span class="number">98</span>,<span class="number">54</span>,
 <a href=#990 id=990 data-nosnippet>990</a>        <span class="number">12</span>,<span class="number">35</span>,<span class="number">32</span>,<span class="number">34</span>,<span class="number">112</span>,<span class="number">109</span>,<span class="number">48</span>,<span class="number">54</span>,
 <a href=#991 id=991 data-nosnippet>991</a>    ];
-<a href=#992 id=992 data-nosnippet>992</a>}</code></pre></div></section></main></body></html>
+<a href=#992 id=992 data-nosnippet>992</a>}
+</code></pre></div></section></main></body></html>

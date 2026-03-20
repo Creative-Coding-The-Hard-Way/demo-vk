@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["dpi",[]],["winit",[]]]);
+    const implementors = Object.fromEntries([["dpi",[]],["winit",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[10,13]}
+//{"start":59,"fragment_lengths":[10,13]}

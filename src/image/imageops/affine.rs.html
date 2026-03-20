@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.9/src/imageops/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="image" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">image/imageops/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Functions for performing affine transformations.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/src/imageops/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="image" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">image/imageops/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Functions for performing affine transformations.
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span><span class="kw">crate</span>::error::{ImageError, ParameterError, ParameterErrorKind};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::traits::Pixel;
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use crate</span>::{GenericImage, GenericImageView, ImageBuffer};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>crate::{GenericImage, GenericImageView, ImageBuffer};
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="doccomment">/// Rotate an image 90 degrees clockwise.
 <a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub fn </span>rotate90&lt;I: GenericImageView&gt;(
@@ -54,7 +54,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>    Container: std::ops::DerefMut&lt;Target = [&lt;I::Pixel <span class="kw">as </span>Pixel&gt;::Subpixel]&gt;,
 <a href=#55 id=55 data-nosnippet>55</a>{
 <a href=#56 id=56 data-nosnippet>56</a>    <span class="kw">let </span>((w0, h0), (w1, h1)) = (image.dimensions(), destination.dimensions());
-<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">if </span>w0 != h1 || h0 != w1 {
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">if </span><span class="macro">w0 !</span>= h1 || <span class="macro">h0 !</span>= w1 {
 <a href=#58 id=58 data-nosnippet>58</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ImageError::Parameter(ParameterError::from_kind(
 <a href=#59 id=59 data-nosnippet>59</a>            ParameterErrorKind::DimensionMismatch,
 <a href=#60 id=60 data-nosnippet>60</a>        )));
@@ -80,7 +80,7 @@
 <a href=#80 id=80 data-nosnippet>80</a>    Container: std::ops::DerefMut&lt;Target = [&lt;I::Pixel <span class="kw">as </span>Pixel&gt;::Subpixel]&gt;,
 <a href=#81 id=81 data-nosnippet>81</a>{
 <a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">let </span>((w0, h0), (w1, h1)) = (image.dimensions(), destination.dimensions());
-<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">if </span>w0 != w1 || h0 != h1 {
+<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">if </span><span class="macro">w0 !</span>= w1 || <span class="macro">h0 !</span>= h1 {
 <a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ImageError::Parameter(ParameterError::from_kind(
 <a href=#85 id=85 data-nosnippet>85</a>            ParameterErrorKind::DimensionMismatch,
 <a href=#86 id=86 data-nosnippet>86</a>        )));
@@ -106,7 +106,7 @@
 <a href=#106 id=106 data-nosnippet>106</a>    Container: std::ops::DerefMut&lt;Target = [&lt;I::Pixel <span class="kw">as </span>Pixel&gt;::Subpixel]&gt;,
 <a href=#107 id=107 data-nosnippet>107</a>{
 <a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">let </span>((w0, h0), (w1, h1)) = (image.dimensions(), destination.dimensions());
-<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">if </span>w0 != h1 || h0 != w1 {
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">if </span><span class="macro">w0 !</span>= h1 || <span class="macro">h0 !</span>= w1 {
 <a href=#110 id=110 data-nosnippet>110</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ImageError::Parameter(ParameterError::from_kind(
 <a href=#111 id=111 data-nosnippet>111</a>            ParameterErrorKind::DimensionMismatch,
 <a href=#112 id=112 data-nosnippet>112</a>        )));
@@ -156,7 +156,7 @@
 <a href=#156 id=156 data-nosnippet>156</a>    Container: std::ops::DerefMut&lt;Target = [&lt;I::Pixel <span class="kw">as </span>Pixel&gt;::Subpixel]&gt;,
 <a href=#157 id=157 data-nosnippet>157</a>{
 <a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">let </span>((w0, h0), (w1, h1)) = (image.dimensions(), destination.dimensions());
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">if </span>w0 != w1 || h0 != h1 {
+<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">if </span><span class="macro">w0 !</span>= w1 || <span class="macro">h0 !</span>= h1 {
 <a href=#160 id=160 data-nosnippet>160</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ImageError::Parameter(ParameterError::from_kind(
 <a href=#161 id=161 data-nosnippet>161</a>            ParameterErrorKind::DimensionMismatch,
 <a href=#162 id=162 data-nosnippet>162</a>        )));
@@ -182,7 +182,7 @@
 <a href=#182 id=182 data-nosnippet>182</a>    Container: std::ops::DerefMut&lt;Target = [&lt;I::Pixel <span class="kw">as </span>Pixel&gt;::Subpixel]&gt;,
 <a href=#183 id=183 data-nosnippet>183</a>{
 <a href=#184 id=184 data-nosnippet>184</a>    <span class="kw">let </span>((w0, h0), (w1, h1)) = (image.dimensions(), destination.dimensions());
-<a href=#185 id=185 data-nosnippet>185</a>    <span class="kw">if </span>w0 != w1 || h0 != h1 {
+<a href=#185 id=185 data-nosnippet>185</a>    <span class="kw">if </span><span class="macro">w0 !</span>= w1 || <span class="macro">h0 !</span>= h1 {
 <a href=#186 id=186 data-nosnippet>186</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ImageError::Parameter(ParameterError::from_kind(
 <a href=#187 id=187 data-nosnippet>187</a>            ParameterErrorKind::DimensionMismatch,
 <a href=#188 id=188 data-nosnippet>188</a>        )));
@@ -260,20 +260,20 @@
 <a href=#260 id=260 data-nosnippet>260</a>
 <a href=#261 id=261 data-nosnippet>261</a><span class="attr">#[cfg(test)]
 <a href=#262 id=262 data-nosnippet>262</a></span><span class="kw">mod </span>test {
-<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">use super</span>::{
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="kw">use </span>super::{
 <a href=#264 id=264 data-nosnippet>264</a>        flip_horizontal, flip_horizontal_in_place, flip_vertical, flip_vertical_in_place,
 <a href=#265 id=265 data-nosnippet>265</a>        rotate180, rotate180_in_place, rotate270, rotate90,
 <a href=#266 id=266 data-nosnippet>266</a>    };
 <a href=#267 id=267 data-nosnippet>267</a>
 <a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">use </span><span class="kw">crate</span>::traits::Pixel;
-<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">use crate</span>::{GenericImage, GrayImage, ImageBuffer};
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">use </span>crate::{GenericImage, GrayImage, ImageBuffer};
 <a href=#270 id=270 data-nosnippet>270</a>
 <a href=#271 id=271 data-nosnippet>271</a>    <span class="macro">macro_rules!</span> assert_pixels_eq {
 <a href=#272 id=272 data-nosnippet>272</a>        (<span class="macro-nonterminal">$actual</span>:expr, <span class="macro-nonterminal">$expected</span>:expr) =&gt; {{
 <a href=#273 id=273 data-nosnippet>273</a>            <span class="kw">let </span>actual_dim = <span class="macro-nonterminal">$actual</span>.dimensions();
 <a href=#274 id=274 data-nosnippet>274</a>            <span class="kw">let </span>expected_dim = <span class="macro-nonterminal">$expected</span>.dimensions();
 <a href=#275 id=275 data-nosnippet>275</a>
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">if </span>actual_dim != expected_dim {
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">if </span><span class="macro">actual_dim !</span>= expected_dim {
 <a href=#277 id=277 data-nosnippet>277</a>                <span class="macro">panic!</span>(
 <a href=#278 id=278 data-nosnippet>278</a>                    <span class="string">"dimensions do not match. \
 <a href=#279 id=279 data-nosnippet>279</a>                     actual: {:?}, expected: {:?}"</span>,
@@ -402,7 +402,8 @@
 <a href=#402 id=402 data-nosnippet>402</a>    {
 <a href=#403 id=403 data-nosnippet>403</a>        left.pixels()
 <a href=#404 id=404 data-nosnippet>404</a>            .zip(right.pixels())
-<a href=#405 id=405 data-nosnippet>405</a>            .filter(|<span class="kw-2">&amp;</span>(p, q)| p != q)
+<a href=#405 id=405 data-nosnippet>405</a>            .filter(|<span class="kw-2">&amp;</span>(p, q)| <span class="macro">p !</span>= q)
 <a href=#406 id=406 data-nosnippet>406</a>            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
 <a href=#407 id=407 data-nosnippet>407</a>    }
-<a href=#408 id=408 data-nosnippet>408</a>}</code></pre></div></section></main></body></html>
+<a href=#408 id=408 data-nosnippet>408</a>}
+</code></pre></div></section></main></body></html>

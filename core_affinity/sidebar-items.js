@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_core_ids","set_for_current"],"struct":["CoreId"]};

@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["quick_error",[]]]);
+    const implementors = Object.fromEntries([["quick_error",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[18]}
+//{"start":59,"fragment_lengths":[18]}

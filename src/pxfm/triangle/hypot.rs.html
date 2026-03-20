@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pxfm-0.1.26/src/triangle/hypot.rs`."><title>hypot.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pxfm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pxfm/triangle/</div>hypot.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/*
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pxfm-0.1.28/src/triangle/hypot.rs`."><title>hypot.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pxfm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">pxfm/triangle/</div>hypot.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">/*
 <a href=#2 id=2 data-nosnippet>2</a> * // Copyright (c) Radzivon Bartoshyk 9/2025. All rights reserved.
 <a href=#3 id=3 data-nosnippet>3</a> * //
 <a href=#4 id=4 data-nosnippet>4</a> * // Redistribution and use in source and binary forms, with or without modification,
@@ -69,22 +69,22 @@
 <a href=#69 id=69 data-nosnippet>69</a>    // if D=0 and tm is odd, the result is a midpoint
 <a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">let </span>rb: i32 = (tm &amp; <span class="number">1</span>) <span class="kw">as </span>i32; <span class="comment">// round bit for rm
 <a href=#71 id=71 data-nosnippet>71</a>    </span><span class="kw">let </span>rb2: i32 = (denom &gt;= tm) <span class="kw">as </span>i32; <span class="comment">// round bit for tm
-<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">let </span>sb: i32 = (denom != <span class="number">0</span>) <span class="kw">as </span>i32; <span class="comment">// sticky bit for rm
+<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">let </span>sb: i32 = (<span class="macro">denom !</span>= <span class="number">0</span>) <span class="kw">as </span>i32; <span class="comment">// sticky bit for rm
 <a href=#73 id=73 data-nosnippet>73</a>    </span>rm = (tm &gt;&gt; <span class="number">1</span>) <span class="kw">as </span>u64; <span class="comment">// truncate the low bit
 <a href=#74 id=74 data-nosnippet>74</a>    </span>underflow = rm &lt; <span class="number">0x10000000000000u64</span>;
-<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">if </span>rb != <span class="number">0 </span>|| sb != <span class="number">0 </span>{
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">if </span><span class="macro">rb !</span>= <span class="number">0 </span>|| <span class="macro">sb !</span>= <span class="number">0 </span>{
 <a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">let </span>op = <span class="number">1.0 </span>+ f64::from_bits(<span class="number">0x3c90000000000000</span>);
 <a href=#77 id=77 data-nosnippet>77</a>        <span class="kw">let </span>om = <span class="number">1.0 </span>- f64::from_bits(<span class="number">0x3c90000000000000</span>);
 <a href=#78 id=78 data-nosnippet>78</a>        <span class="kw">if </span>op == om {
 <a href=#79 id=79 data-nosnippet>79</a>            <span class="comment">// rounding to nearest
-<a href=#80 id=80 data-nosnippet>80</a>            </span><span class="kw">if </span>sb != <span class="number">0 </span>{
+<a href=#80 id=80 data-nosnippet>80</a>            </span><span class="kw">if </span><span class="macro">sb !</span>= <span class="number">0 </span>{
 <a href=#81 id=81 data-nosnippet>81</a>                rm = rm.wrapping_add(rb <span class="kw">as </span>u64);
 <a href=#82 id=82 data-nosnippet>82</a>                <span class="comment">// we have no underflow when rm is now 2^52 and rb2 != 0
 <a href=#83 id=83 data-nosnippet>83</a>                // Remark: we cannot have a^2+b^2 = (tm+1/2)^2 exactly
 <a href=#84 id=84 data-nosnippet>84</a>                // since this would mean a^2+b^2 = tm^2+tm+1/4,
 <a href=#85 id=85 data-nosnippet>85</a>                // thus a^2+b^2 would be an odd multiple of 2^-1077
 <a href=#86 id=86 data-nosnippet>86</a>                // (since ulp(tm) = 2^-1075)
-<a href=#87 id=87 data-nosnippet>87</a>                </span><span class="kw">if </span>rm &gt;&gt; <span class="number">52 </span>!= <span class="number">0 </span>&amp;&amp; rb2 != <span class="number">0 </span>{
+<a href=#87 id=87 data-nosnippet>87</a>                </span><span class="kw">if </span>rm &gt;&gt; <span class="number">52 </span>!= <span class="number">0 </span>&amp;&amp; <span class="macro">rb2 !</span>= <span class="number">0 </span>{
 <a href=#88 id=88 data-nosnippet>88</a>                    underflow = <span class="bool-val">false</span>;
 <a href=#89 id=89 data-nosnippet>89</a>                }
 <a href=#90 id=90 data-nosnippet>90</a>            } <span class="kw">else </span>{
@@ -160,12 +160,12 @@
 <a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">break</span>;
 <a href=#161 id=161 data-nosnippet>161</a>        }
 <a href=#162 id=162 data-nosnippet>162</a>    }
-<a href=#163 id=163 data-nosnippet>163</a>    <span class="kw">if </span>denom != <span class="number">0 </span>{
+<a href=#163 id=163 data-nosnippet>163</a>    <span class="kw">if </span><span class="macro">denom !</span>= <span class="number">0 </span>{
 <a href=#164 id=164 data-nosnippet>164</a>        <span class="kw">if </span>op == om {
 <a href=#165 id=165 data-nosnippet>165</a>            <span class="kw">let </span>ssm = <span class="kw">if </span>rm &lt;= (<span class="number">1u64 </span>&lt;&lt; <span class="number">53</span>) { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
 <a href=#166 id=166 data-nosnippet>166</a>            <span class="kw">let </span>tm: u64 = (rm &lt;&lt; k) - (<span class="number">1 </span>&lt;&lt; (k - ssm));
 <a href=#167 id=167 data-nosnippet>167</a>            denom = (m2 <span class="kw">as </span>i64).wrapping_sub(tm.wrapping_mul(tm) <span class="kw">as </span>i64);
-<a href=#168 id=168 data-nosnippet>168</a>            <span class="kw">if </span>denom != <span class="number">0 </span>{
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="kw">if </span><span class="macro">denom !</span>= <span class="number">0 </span>{
 <a href=#169 id=169 data-nosnippet>169</a>                rm = rm.wrapping_add((denom &gt;&gt; <span class="number">63</span>) <span class="kw">as </span>u64);
 <a href=#170 id=170 data-nosnippet>170</a>            } <span class="kw">else </span>{
 <a href=#171 id=171 data-nosnippet>171</a>                rm = rm.wrapping_sub(rm &amp; <span class="number">1</span>);
@@ -207,7 +207,7 @@
 <a href=#207 id=207 data-nosnippet>207</a>        <span class="comment">/* ninf is 1 when only one of x and y is +/-Inf
 <a href=#208 id=208 data-nosnippet>208</a>        nqnn is 1 when only one of x and y is qNaN
 <a href=#209 id=209 data-nosnippet>209</a>        IEEE 754 says that hypot(+/-Inf,qNaN)=hypot(qNaN,+/-Inf)=+Inf. */
-<a href=#210 id=210 data-nosnippet>210</a>        </span><span class="kw">if </span>ninf != <span class="number">0 </span>&amp;&amp; nqnn != <span class="number">0 </span>{
+<a href=#210 id=210 data-nosnippet>210</a>        </span><span class="kw">if </span><span class="macro">ninf !</span>= <span class="number">0 </span>&amp;&amp; <span class="macro">nqnn !</span>= <span class="number">0 </span>{
 <a href=#211 id=211 data-nosnippet>211</a>            <span class="kw">return if </span>wx == wm { x * x } <span class="kw">else </span>{ y * y };
 <a href=#212 id=212 data-nosnippet>212</a>        }
 <a href=#213 id=213 data-nosnippet>213</a>        <span class="kw">return </span>x + y; <span class="comment">/* inf, nan */
@@ -279,7 +279,7 @@
 <a href=#279 id=279 data-nosnippet>279</a>
 <a href=#280 id=280 data-nosnippet>280</a><span class="attr">#[cfg(test)]
 <a href=#281 id=281 data-nosnippet>281</a></span><span class="kw">mod </span>tests {
-<a href=#282 id=282 data-nosnippet>282</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#282 id=282 data-nosnippet>282</a>    <span class="kw">use </span>super::<span class="kw-2">*</span>;
 <a href=#283 id=283 data-nosnippet>283</a>    <span class="attr">#[test]
 <a href=#284 id=284 data-nosnippet>284</a>    </span><span class="kw">fn </span>test_hypot() {
 <a href=#285 id=285 data-nosnippet>285</a>        <span class="macro">assert_eq!</span>(
@@ -292,4 +292,5 @@
 <a href=#292 id=292 data-nosnippet>292</a>        </span>);
 <a href=#293 id=293 data-nosnippet>293</a>        <span class="macro">assert_eq!</span>(f_hypot(<span class="number">2.</span>, <span class="number">4.</span>), <span class="number">4.47213595499958</span>);
 <a href=#294 id=294 data-nosnippet>294</a>    }
-<a href=#295 id=295 data-nosnippet>295</a>}</code></pre></div></section></main></body></html>
+<a href=#295 id=295 data-nosnippet>295</a>}
+</code></pre></div></section></main></body></html>

@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["maybe_rayon",[]],["rayon",[]]]);
+    const implementors = Object.fromEntries([["maybe_rayon",[]],["rayon",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[18,13]}
+//{"start":59,"fragment_lengths":[18,13]}

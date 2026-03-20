@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Marker"],"mod":["errors"],"struct":["ImageInfo","JpegDecoder"]};
+window.SIDEBAR_ITEMS = {"enum":["Marker","SampleRatios"],"mod":["errors"],"struct":["ImageInfo","JpegDecoder"]};

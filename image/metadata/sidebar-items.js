@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CicpColorPrimaries","CicpMatrixCoefficients","CicpTransferCharacteristics","CicpVideoFullRangeFlag","Orientation"],"struct":["Cicp","CicpTransform"]};
+window.SIDEBAR_ITEMS = {"enum":["CicpColorPrimaries","CicpMatrixCoefficients","CicpTransferCharacteristics","CicpVideoFullRangeFlag","LoopCount","Orientation"],"struct":["Cicp","CicpTransform"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/src/encoder.rs`."><title>encoder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rav1e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rav1e/</div>encoder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (c) 2018-2023, The rav1e contributors. All rights reserved
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/src/encoder.rs`."><title>encoder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rav1e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rav1e/</div>encoder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (c) 2018-2023, The rav1e contributors. All rights reserved
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// This source code is subject to the terms of the BSD 2 Clause License and
 <a href=#4 id=4 data-nosnippet>4</a>// the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -837,12 +837,12 @@
 <a href=#837 id=837 data-nosnippet>837</a>    </span>);
 <a href=#838 id=838 data-nosnippet>838</a>
 <a href=#839 id=839 data-nosnippet>839</a>    <span class="kw">let </span>(width, height) = (config.width, config.height);
-<a href=#840 id=840 data-nosnippet>840</a>    <span class="kw">let </span>frame_size_override_flag = width <span class="kw">as </span>u32 != sequence.max_frame_width
-<a href=#841 id=841 data-nosnippet>841</a>      || height <span class="kw">as </span>u32 != sequence.max_frame_height;
+<a href=#840 id=840 data-nosnippet>840</a>    <span class="kw">let </span>frame_size_override_flag = width <span class="kw">as </span><span class="macro">u32 !</span>= sequence.max_frame_width
+<a href=#841 id=841 data-nosnippet>841</a>      || height <span class="kw">as </span><span class="macro">u32 !</span>= sequence.max_frame_height;
 <a href=#842 id=842 data-nosnippet>842</a>
 <a href=#843 id=843 data-nosnippet>843</a>    <span class="kw">let </span>(render_width, render_height) = config.render_size();
 <a href=#844 id=844 data-nosnippet>844</a>    <span class="kw">let </span>render_and_frame_size_different =
-<a href=#845 id=845 data-nosnippet>845</a>      render_width != width || render_height != height;
+<a href=#845 id=845 data-nosnippet>845</a>      <span class="macro">render_width !</span>= width || <span class="macro">render_height !</span>= height;
 <a href=#846 id=846 data-nosnippet>846</a>
 <a href=#847 id=847 data-nosnippet>847</a>    <span class="kw">let </span>use_reduced_tx_set = config.speed_settings.transform.reduced_tx_set;
 <a href=#848 id=848 data-nosnippet>848</a>    <span class="kw">let </span>use_tx_domain_distortion = config.tune == Tune::Psnr
@@ -933,8 +933,8 @@
 <a href=#933 id=933 data-nosnippet>933</a>      tx_mode_select: <span class="bool-val">false</span>,
 <a href=#934 id=934 data-nosnippet>934</a>      default_filter: FilterMode::REGULAR,
 <a href=#935 id=935 data-nosnippet>935</a>      cpu_feature_level: Default::default(),
-<a href=#936 id=936 data-nosnippet>936</a>      enable_segmentation: config.speed_settings.segmentation
-<a href=#937 id=937 data-nosnippet>937</a>        != SegmentationLevel::Disabled,
+<a href=#936 id=936 data-nosnippet>936</a>      enable_segmentation: config.speed_settings.<span class="macro">segmentation
+<a href=#937 id=937 data-nosnippet>937</a>        !</span>= SegmentationLevel::Disabled,
 <a href=#938 id=938 data-nosnippet>938</a>      enable_inter_txfm_split: config
 <a href=#939 id=939 data-nosnippet>939</a>        .speed_settings
 <a href=#940 id=940 data-nosnippet>940</a>        .transform
@@ -1016,8 +1016,8 @@
 <a href=#1016 id=1016 data-nosnippet>1016</a>      <span class="comment">// force frame_size_with_refs() code path if render size != frame size
 <a href=#1017 id=1017 data-nosnippet>1017</a>      </span><span class="bool-val">true
 <a href=#1018 id=1018 data-nosnippet>1018</a>    </span>} <span class="kw">else </span>{
-<a href=#1019 id=1019 data-nosnippet>1019</a>      fi.width <span class="kw">as </span>u32 != fi.sequence.max_frame_width
-<a href=#1020 id=1020 data-nosnippet>1020</a>        || fi.height <span class="kw">as </span>u32 != fi.sequence.max_frame_height
+<a href=#1019 id=1019 data-nosnippet>1019</a>      fi.width <span class="kw">as </span><span class="macro">u32 !</span>= fi.sequence.max_frame_width
+<a href=#1020 id=1020 data-nosnippet>1020</a>        || fi.height <span class="kw">as </span><span class="macro">u32 !</span>= fi.sequence.max_frame_height
 <a href=#1021 id=1021 data-nosnippet>1021</a>    };
 <a href=#1022 id=1022 data-nosnippet>1022</a>
 <a href=#1023 id=1023 data-nosnippet>1023</a>    <span class="comment">// this is the slot that the current frame is going to be saved into
@@ -1093,7 +1093,7 @@
 <a href=#1093 id=1093 data-nosnippet>1093</a>
 <a href=#1094 id=1094 data-nosnippet>1094</a>    fi.set_ref_frame_sign_bias();
 <a href=#1095 id=1095 data-nosnippet>1095</a>
-<a href=#1096 id=1096 data-nosnippet>1096</a>    fi.reference_mode = <span class="kw">if </span>inter_cfg.multiref &amp;&amp; fi.idx_in_group_output != <span class="number">0 </span>{
+<a href=#1096 id=1096 data-nosnippet>1096</a>    fi.reference_mode = <span class="kw">if </span>inter_cfg.multiref &amp;&amp; fi.<span class="macro">idx_in_group_output !</span>= <span class="number">0 </span>{
 <a href=#1097 id=1097 data-nosnippet>1097</a>      ReferenceMode::SELECT
 <a href=#1098 id=1098 data-nosnippet>1098</a>    } <span class="kw">else </span>{
 <a href=#1099 id=1099 data-nosnippet>1099</a>      ReferenceMode::SINGLE
@@ -1363,7 +1363,7 @@
 <a href=#1363 id=1363 data-nosnippet>1363</a>  <span class="kw">let </span>height = src1.rect().height;
 <a href=#1364 id=1364 data-nosnippet>1364</a>
 <a href=#1365 id=1365 data-nosnippet>1365</a>  <span class="kw">if </span>width == <span class="number">0
-<a href=#1366 id=1366 data-nosnippet>1366</a>    </span>|| width != src2.rect().width
+<a href=#1366 id=1366 data-nosnippet>1366</a>    </span>|| <span class="macro">width !</span>= src2.rect().width
 <a href=#1367 id=1367 data-nosnippet>1367</a>    || height == <span class="number">0
 <a href=#1368 id=1368 data-nosnippet>1368</a>    </span>|| src1.rows_iter().len() != src2.rows_iter().len()
 <a href=#1369 id=1369 data-nosnippet>1369</a>  {
@@ -1451,7 +1451,7 @@
 <a href=#1451 id=1451 data-nosnippet>1451</a>
 <a href=#1452 id=1452 data-nosnippet>1452</a>  <span class="kw">let </span>plane_bsize = bsize.subsampled_size(xdec, ydec).unwrap();
 <a href=#1453 id=1453 data-nosnippet>1453</a>
-<a href=#1454 id=1454 data-nosnippet>1454</a>  <span class="macro">debug_assert!</span>(p != <span class="number">0 </span>|| !mode.is_intra() || tx_size.block_size() == plane_bsize || need_recon_pixel,
+<a href=#1454 id=1454 data-nosnippet>1454</a>  <span class="macro">debug_assert!</span>(<span class="macro">p !</span>= <span class="number">0 </span>|| !mode.is_intra() || tx_size.block_size() == plane_bsize || need_recon_pixel,
 <a href=#1455 id=1455 data-nosnippet>1455</a>    <span class="string">"mode.is_intra()={:#?}, plane={:#?}, tx_size.block_size()={:#?}, plane_bsize={:#?}, need_recon_pixel={:#?}"</span>,
 <a href=#1456 id=1456 data-nosnippet>1456</a>    mode.is_intra(), p, tx_size.block_size(), plane_bsize, need_recon_pixel);
 <a href=#1457 id=1457 data-nosnippet>1457</a>
@@ -1529,7 +1529,7 @@
 <a href=#1529 id=1529 data-nosnippet>1529</a>    (frame_bo.<span class="number">0</span>.y &lt;&lt; MI_SIZE_LOG2) &gt;&gt; ydec,
 <a href=#1530 id=1530 data-nosnippet>1530</a>  );
 <a href=#1531 id=1531 data-nosnippet>1531</a>
-<a href=#1532 id=1532 data-nosnippet>1532</a>  <span class="kw">if </span>visible_tx_w != <span class="number">0 </span>&amp;&amp; visible_tx_h != <span class="number">0 </span>{
+<a href=#1532 id=1532 data-nosnippet>1532</a>  <span class="kw">if </span><span class="macro">visible_tx_w !</span>= <span class="number">0 </span>&amp;&amp; <span class="macro">visible_tx_h !</span>= <span class="number">0 </span>{
 <a href=#1533 id=1533 data-nosnippet>1533</a>    diff(
 <a href=#1534 id=1534 data-nosnippet>1534</a>      residual,
 <a href=#1535 id=1535 data-nosnippet>1535</a>      <span class="kw-2">&amp;</span>ts.input_tile.planes[p].subregion(area),
@@ -1615,7 +1615,7 @@
 <a href=#1615 id=1615 data-nosnippet>1615</a>  }
 <a href=#1616 id=1616 data-nosnippet>1616</a>
 <a href=#1617 id=1617 data-nosnippet>1617</a>  <span class="kw">let </span>tx_dist =
-<a href=#1618 id=1618 data-nosnippet>1618</a>    <span class="kw">if </span>rdo_type.needs_tx_dist() &amp;&amp; visible_tx_w != <span class="number">0 </span>&amp;&amp; visible_tx_h != <span class="number">0 </span>{
+<a href=#1618 id=1618 data-nosnippet>1618</a>    <span class="kw">if </span>rdo_type.needs_tx_dist() &amp;&amp; <span class="macro">visible_tx_w !</span>= <span class="number">0 </span>&amp;&amp; <span class="macro">visible_tx_h !</span>= <span class="number">0 </span>{
 <a href=#1619 id=1619 data-nosnippet>1619</a>      <span class="comment">// Store tx-domain distortion of this block
 <a href=#1620 id=1620 data-nosnippet>1620</a>      // rcoeffs above 32 rows/cols aren't held in the array, because they are
 <a href=#1621 id=1621 data-nosnippet>1621</a>      // always 0. The first 32x32 is stored first in coeffs so we can iterate
@@ -2025,7 +2025,7 @@
 <a href=#2025 id=2025 data-nosnippet>2025</a>        [MotionVector::default(); <span class="number">2</span>]
 <a href=#2026 id=2026 data-nosnippet>2026</a>      };
 <a href=#2027 id=2027 data-nosnippet>2027</a>
-<a href=#2028 id=2028 data-nosnippet>2028</a>      <span class="kw">let </span>mv_precision = <span class="kw">if </span>fi.force_integer_mv != <span class="number">0 </span>{
+<a href=#2028 id=2028 data-nosnippet>2028</a>      <span class="kw">let </span>mv_precision = <span class="kw">if </span>fi.<span class="macro">force_integer_mv !</span>= <span class="number">0 </span>{
 <a href=#2029 id=2029 data-nosnippet>2029</a>        MvSubpelPrecision::MV_SUBPEL_NONE
 <a href=#2030 id=2030 data-nosnippet>2030</a>      } <span class="kw">else if </span>fi.allow_high_precision_mv {
 <a href=#2031 id=2031 data-nosnippet>2031</a>        MvSubpelPrecision::MV_SUBPEL_HIGH_PRECISION
@@ -2047,7 +2047,7 @@
 <a href=#2047 id=2047 data-nosnippet>2047</a>
 <a href=#2048 id=2048 data-nosnippet>2048</a>      <span class="kw">if </span>luma_mode.has_nearmv() {
 <a href=#2049 id=2049 data-nosnippet>2049</a>        <span class="kw">let </span>ref_mv_idx = luma_mode.ref_mv_idx();
-<a href=#2050 id=2050 data-nosnippet>2050</a>        <span class="kw">if </span>luma_mode != PredictionMode::NEAR0MV {
+<a href=#2050 id=2050 data-nosnippet>2050</a>        <span class="kw">if </span><span class="macro">luma_mode !</span>= PredictionMode::NEAR0MV {
 <a href=#2051 id=2051 data-nosnippet>2051</a>          <span class="macro">assert!</span>(num_mv_found &gt; ref_mv_idx);
 <a href=#2052 id=2052 data-nosnippet>2052</a>        }
 <a href=#2053 id=2053 data-nosnippet>2053</a>
@@ -2665,7 +2665,7 @@
 <a href=#2665 id=2665 data-nosnippet>2665</a>
 <a href=#2666 id=2666 data-nosnippet>2666</a>  <span class="kw">let </span>can_split = <span class="comment">// FIXME: sub-8x8 inter blocks not supported for non-4:2:0 sampling
 <a href=#2667 id=2667 data-nosnippet>2667</a>    </span><span class="kw">if </span>fi.frame_type.has_inter() &amp;&amp;
-<a href=#2668 id=2668 data-nosnippet>2668</a>      fi.sequence.chroma_sampling != ChromaSampling::Cs420 &amp;&amp;
+<a href=#2668 id=2668 data-nosnippet>2668</a>      fi.sequence.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs420 &amp;&amp;
 <a href=#2669 id=2669 data-nosnippet>2669</a>      bsize &lt;= BlockSize::BLOCK_8X8 {
 <a href=#2670 id=2670 data-nosnippet>2670</a>      <span class="bool-val">false
 <a href=#2671 id=2671 data-nosnippet>2671</a>    </span>} <span class="kw">else </span>{
@@ -2753,11 +2753,11 @@
 <a href=#2753 id=2753 data-nosnippet>2753</a>      </span><span class="macro">debug_assert!</span>((has_rows &amp;&amp; has_cols) || must_split);
 <a href=#2754 id=2754 data-nosnippet>2754</a>      <span class="comment">// (!has_rows &amp;&amp; has_cols) --&gt; partition != PartitionType::PARTITION_VERT
 <a href=#2755 id=2755 data-nosnippet>2755</a>      </span><span class="macro">debug_assert!</span>(
-<a href=#2756 id=2756 data-nosnippet>2756</a>        has_rows || !has_cols || (partition != PartitionType::PARTITION_VERT)
+<a href=#2756 id=2756 data-nosnippet>2756</a>        has_rows || !has_cols || (<span class="macro">partition !</span>= PartitionType::PARTITION_VERT)
 <a href=#2757 id=2757 data-nosnippet>2757</a>      );
 <a href=#2758 id=2758 data-nosnippet>2758</a>      <span class="comment">// (has_rows &amp;&amp; !has_cols) --&gt; partition != PartitionType::PARTITION_HORZ
 <a href=#2759 id=2759 data-nosnippet>2759</a>      </span><span class="macro">debug_assert!</span>(
-<a href=#2760 id=2760 data-nosnippet>2760</a>        !has_rows || has_cols || (partition != PartitionType::PARTITION_HORZ)
+<a href=#2760 id=2760 data-nosnippet>2760</a>        !has_rows || has_cols || (<span class="macro">partition !</span>= PartitionType::PARTITION_HORZ)
 <a href=#2761 id=2761 data-nosnippet>2761</a>      );
 <a href=#2762 id=2762 data-nosnippet>2762</a>      <span class="comment">// (!has_rows &amp;&amp; !has_cols) --&gt; partition == PartitionType::PARTITION_SPLIT
 <a href=#2763 id=2763 data-nosnippet>2763</a>      </span><span class="macro">debug_assert!</span>(
@@ -2817,16 +2817,16 @@
 <a href=#2817 id=2817 data-nosnippet>2817</a>        <span class="kw">let </span>cost = child_rdo_output.rd_cost;
 <a href=#2818 id=2818 data-nosnippet>2818</a>        <span class="macro">assert!</span>(cost &gt;= <span class="number">0.0</span>);
 <a href=#2819 id=2819 data-nosnippet>2819</a>
-<a href=#2820 id=2820 data-nosnippet>2820</a>        <span class="kw">if </span>cost != f64::MAX {
+<a href=#2820 id=2820 data-nosnippet>2820</a>        <span class="kw">if </span><span class="macro">cost !</span>= f64::MAX {
 <a href=#2821 id=2821 data-nosnippet>2821</a>          rd_cost += cost;
 <a href=#2822 id=2822 data-nosnippet>2822</a>          <span class="kw">if </span>!must_split
 <a href=#2823 id=2823 data-nosnippet>2823</a>            &amp;&amp; fi.enable_early_exit
 <a href=#2824 id=2824 data-nosnippet>2824</a>            &amp;&amp; (rd_cost &gt;= best_rd || rd_cost &gt;= ref_rd_cost)
 <a href=#2825 id=2825 data-nosnippet>2825</a>          {
-<a href=#2826 id=2826 data-nosnippet>2826</a>            <span class="macro">assert!</span>(cost != f64::MAX);
+<a href=#2826 id=2826 data-nosnippet>2826</a>            <span class="macro">assert!</span>(<span class="macro">cost !</span>= f64::MAX);
 <a href=#2827 id=2827 data-nosnippet>2827</a>            early_exit = <span class="bool-val">true</span>;
 <a href=#2828 id=2828 data-nosnippet>2828</a>            <span class="kw">break</span>;
-<a href=#2829 id=2829 data-nosnippet>2829</a>          } <span class="kw">else if </span>partition != PartitionType::PARTITION_SPLIT {
+<a href=#2829 id=2829 data-nosnippet>2829</a>          } <span class="kw">else if </span><span class="macro">partition !</span>= PartitionType::PARTITION_SPLIT {
 <a href=#2830 id=2830 data-nosnippet>2830</a>            child_modes.push(child_rdo_output.part_modes[<span class="number">0</span>].clone());
 <a href=#2831 id=2831 data-nosnippet>2831</a>          }
 <a href=#2832 id=2832 data-nosnippet>2832</a>        }
@@ -2835,7 +2835,7 @@
 <a href=#2835 id=2835 data-nosnippet>2835</a>      <span class="kw">if </span>!early_exit &amp;&amp; rd_cost &lt; best_rd {
 <a href=#2836 id=2836 data-nosnippet>2836</a>        best_rd = rd_cost;
 <a href=#2837 id=2837 data-nosnippet>2837</a>        best_partition = partition;
-<a href=#2838 id=2838 data-nosnippet>2838</a>        <span class="kw">if </span>partition != PartitionType::PARTITION_SPLIT {
+<a href=#2838 id=2838 data-nosnippet>2838</a>        <span class="kw">if </span><span class="macro">partition !</span>= PartitionType::PARTITION_SPLIT {
 <a href=#2839 id=2839 data-nosnippet>2839</a>          <span class="macro">assert!</span>(!child_modes.is_empty());
 <a href=#2840 id=2840 data-nosnippet>2840</a>          rdo_output.part_modes = child_modes;
 <a href=#2841 id=2841 data-nosnippet>2841</a>        }
@@ -2843,17 +2843,17 @@
 <a href=#2843 id=2843 data-nosnippet>2843</a>    }
 <a href=#2844 id=2844 data-nosnippet>2844</a>
 <a href=#2845 id=2845 data-nosnippet>2845</a>    <span class="macro">debug_assert!</span>(
-<a href=#2846 id=2846 data-nosnippet>2846</a>      early_exit || best_partition != PartitionType::PARTITION_INVALID
+<a href=#2846 id=2846 data-nosnippet>2846</a>      early_exit || <span class="macro">best_partition !</span>= PartitionType::PARTITION_INVALID
 <a href=#2847 id=2847 data-nosnippet>2847</a>    );
 <a href=#2848 id=2848 data-nosnippet>2848</a>
 <a href=#2849 id=2849 data-nosnippet>2849</a>    <span class="comment">// If the best partition is not PARTITION_SPLIT, recode it
-<a href=#2850 id=2850 data-nosnippet>2850</a>    </span><span class="kw">if </span>best_partition != PartitionType::PARTITION_SPLIT {
+<a href=#2850 id=2850 data-nosnippet>2850</a>    </span><span class="kw">if </span><span class="macro">best_partition !</span>= PartitionType::PARTITION_SPLIT {
 <a href=#2851 id=2851 data-nosnippet>2851</a>      <span class="macro">assert!</span>(!rdo_output.part_modes.is_empty());
 <a href=#2852 id=2852 data-nosnippet>2852</a>      cw.rollback(<span class="kw-2">&amp;</span>cw_checkpoint);
 <a href=#2853 id=2853 data-nosnippet>2853</a>      w_pre_cdef.rollback(<span class="kw-2">&amp;</span>w_pre_checkpoint);
 <a href=#2854 id=2854 data-nosnippet>2854</a>      w_post_cdef.rollback(<span class="kw-2">&amp;</span>w_post_checkpoint);
 <a href=#2855 id=2855 data-nosnippet>2855</a>
-<a href=#2856 id=2856 data-nosnippet>2856</a>      <span class="macro">assert!</span>(best_partition != PartitionType::PARTITION_NONE || !must_split);
+<a href=#2856 id=2856 data-nosnippet>2856</a>      <span class="macro">assert!</span>(<span class="macro">best_partition !</span>= PartitionType::PARTITION_NONE || !must_split);
 <a href=#2857 id=2857 data-nosnippet>2857</a>      <span class="kw">let </span>subsize = bsize.subsize(best_partition).unwrap();
 <a href=#2858 id=2858 data-nosnippet>2858</a>
 <a href=#2859 id=2859 data-nosnippet>2859</a>      <span class="kw">if </span>bsize &gt;= BlockSize::BLOCK_8X8 {
@@ -2891,12 +2891,12 @@
 <a href=#2891 id=2891 data-nosnippet>2891</a>    }
 <a href=#2892 id=2892 data-nosnippet>2892</a>  } <span class="comment">// if can_split {
 <a href=#2893 id=2893 data-nosnippet>2893</a>
-<a href=#2894 id=2894 data-nosnippet>2894</a>  </span><span class="macro">assert!</span>(best_partition != PartitionType::PARTITION_INVALID);
+<a href=#2894 id=2894 data-nosnippet>2894</a>  </span><span class="macro">assert!</span>(<span class="macro">best_partition !</span>= PartitionType::PARTITION_INVALID);
 <a href=#2895 id=2895 data-nosnippet>2895</a>
 <a href=#2896 id=2896 data-nosnippet>2896</a>  <span class="kw">if </span>is_square
 <a href=#2897 id=2897 data-nosnippet>2897</a>    &amp;&amp; bsize &gt;= BlockSize::BLOCK_8X8
 <a href=#2898 id=2898 data-nosnippet>2898</a>    &amp;&amp; (bsize == BlockSize::BLOCK_8X8
-<a href=#2899 id=2899 data-nosnippet>2899</a>      || best_partition != PartitionType::PARTITION_SPLIT)
+<a href=#2899 id=2899 data-nosnippet>2899</a>      || <span class="macro">best_partition !</span>= PartitionType::PARTITION_SPLIT)
 <a href=#2900 id=2900 data-nosnippet>2900</a>  {
 <a href=#2901 id=2901 data-nosnippet>2901</a>    cw.bc.update_partition_context(
 <a href=#2902 id=2902 data-nosnippet>2902</a>      tile_bo,
@@ -2908,7 +2908,7 @@
 <a href=#2908 id=2908 data-nosnippet>2908</a>  rdo_output.rd_cost = best_rd;
 <a href=#2909 id=2909 data-nosnippet>2909</a>  rdo_output.part_type = best_partition;
 <a href=#2910 id=2910 data-nosnippet>2910</a>
-<a href=#2911 id=2911 data-nosnippet>2911</a>  <span class="kw">if </span>best_partition != PartitionType::PARTITION_NONE {
+<a href=#2911 id=2911 data-nosnippet>2911</a>  <span class="kw">if </span><span class="macro">best_partition !</span>= PartitionType::PARTITION_NONE {
 <a href=#2912 id=2912 data-nosnippet>2912</a>    rdo_output.part_modes.clear();
 <a href=#2913 id=2913 data-nosnippet>2913</a>  }
 <a href=#2914 id=2914 data-nosnippet>2914</a>  rdo_output
@@ -2938,7 +2938,7 @@
 <a href=#2938 id=2938 data-nosnippet>2938</a>
 <a href=#2939 id=2939 data-nosnippet>2939</a>  <span class="kw">let </span>can_split = <span class="comment">// FIXME: sub-8x8 inter blocks not supported for non-4:2:0 sampling
 <a href=#2940 id=2940 data-nosnippet>2940</a>    </span><span class="kw">if </span>fi.frame_type.has_inter() &amp;&amp;
-<a href=#2941 id=2941 data-nosnippet>2941</a>      fi.sequence.chroma_sampling != ChromaSampling::Cs420 &amp;&amp;
+<a href=#2941 id=2941 data-nosnippet>2941</a>      fi.sequence.<span class="macro">chroma_sampling !</span>= ChromaSampling::Cs420 &amp;&amp;
 <a href=#2942 id=2942 data-nosnippet>2942</a>      bsize &lt;= BlockSize::BLOCK_8X8 {
 <a href=#2943 id=2943 data-nosnippet>2943</a>      <span class="bool-val">false
 <a href=#2944 id=2944 data-nosnippet>2944</a>    </span>} <span class="kw">else </span>{
@@ -2977,7 +2977,7 @@
 <a href=#2977 id=2977 data-nosnippet>2977</a>    </span>PartitionType::PARTITION_NONE
 <a href=#2978 id=2978 data-nosnippet>2978</a>  };
 <a href=#2979 id=2979 data-nosnippet>2979</a>
-<a href=#2980 id=2980 data-nosnippet>2980</a>  <span class="macro">debug_assert!</span>(partition != PartitionType::PARTITION_INVALID);
+<a href=#2980 id=2980 data-nosnippet>2980</a>  <span class="macro">debug_assert!</span>(<span class="macro">partition !</span>= PartitionType::PARTITION_INVALID);
 <a href=#2981 id=2981 data-nosnippet>2981</a>
 <a href=#2982 id=2982 data-nosnippet>2982</a>  <span class="kw">let </span>subsize = bsize.subsize(partition).unwrap();
 <a href=#2983 id=2983 data-nosnippet>2983</a>
@@ -3033,7 +3033,7 @@
 <a href=#3033 id=3033 data-nosnippet>3033</a>
 <a href=#3034 id=3034 data-nosnippet>3034</a>      <span class="comment">// TODO: proper remap when is_compound is true
 <a href=#3035 id=3035 data-nosnippet>3035</a>      </span><span class="kw">if </span>!mode_luma.is_intra() {
-<a href=#3036 id=3036 data-nosnippet>3036</a>        <span class="kw">if </span>is_compound &amp;&amp; mode_luma != PredictionMode::GLOBAL_GLOBALMV {
+<a href=#3036 id=3036 data-nosnippet>3036</a>        <span class="kw">if </span>is_compound &amp;&amp; <span class="macro">mode_luma !</span>= PredictionMode::GLOBAL_GLOBALMV {
 <a href=#3037 id=3037 data-nosnippet>3037</a>          <span class="kw">let </span>match0 = mv_stack[<span class="number">0</span>].this_mv.row == mvs[<span class="number">0</span>].row
 <a href=#3038 id=3038 data-nosnippet>3038</a>            &amp;&amp; mv_stack[<span class="number">0</span>].this_mv.col == mvs[<span class="number">0</span>].col;
 <a href=#3039 id=3039 data-nosnippet>3039</a>          <span class="kw">let </span>match1 = mv_stack[<span class="number">0</span>].comp_mv.row == mvs[<span class="number">1</span>].row
@@ -3066,7 +3066,7 @@
 <a href=#3066 id=3066 data-nosnippet>3066</a>            PredictionMode::NEW_NEWMV
 <a href=#3067 id=3067 data-nosnippet>3067</a>          };
 <a href=#3068 id=3068 data-nosnippet>3068</a>
-<a href=#3069 id=3069 data-nosnippet>3069</a>          <span class="kw">if </span>mode_luma != PredictionMode::NEAREST_NEARESTMV
+<a href=#3069 id=3069 data-nosnippet>3069</a>          <span class="kw">if </span><span class="macro">mode_luma !</span>= PredictionMode::NEAREST_NEARESTMV
 <a href=#3070 id=3070 data-nosnippet>3070</a>            &amp;&amp; mvs[<span class="number">0</span>].row == <span class="number">0
 <a href=#3071 id=3071 data-nosnippet>3071</a>            </span>&amp;&amp; mvs[<span class="number">0</span>].col == <span class="number">0
 <a href=#3072 id=3072 data-nosnippet>3072</a>            </span>&amp;&amp; mvs[<span class="number">1</span>].row == <span class="number">0
@@ -3075,7 +3075,7 @@
 <a href=#3075 id=3075 data-nosnippet>3075</a>            mode_luma = PredictionMode::GLOBAL_GLOBALMV;
 <a href=#3076 id=3076 data-nosnippet>3076</a>          }
 <a href=#3077 id=3077 data-nosnippet>3077</a>          mode_chroma = mode_luma;
-<a href=#3078 id=3078 data-nosnippet>3078</a>        } <span class="kw">else if </span>!is_compound &amp;&amp; mode_luma != PredictionMode::GLOBALMV {
+<a href=#3078 id=3078 data-nosnippet>3078</a>        } <span class="kw">else if </span>!is_compound &amp;&amp; <span class="macro">mode_luma !</span>= PredictionMode::GLOBALMV {
 <a href=#3079 id=3079 data-nosnippet>3079</a>          mode_luma = PredictionMode::NEWMV;
 <a href=#3080 id=3080 data-nosnippet>3080</a>          <span class="kw">for </span>(c, m) <span class="kw">in </span>mv_stack.iter().take(<span class="number">4</span>).zip(
 <a href=#3081 id=3081 data-nosnippet>3081</a>            [
@@ -3214,7 +3214,7 @@
 <a href=#3214 id=3214 data-nosnippet>3214</a>  <span class="kw">if </span>is_square
 <a href=#3215 id=3215 data-nosnippet>3215</a>    &amp;&amp; bsize &gt;= BlockSize::BLOCK_8X8
 <a href=#3216 id=3216 data-nosnippet>3216</a>    &amp;&amp; (bsize == BlockSize::BLOCK_8X8
-<a href=#3217 id=3217 data-nosnippet>3217</a>      || partition != PartitionType::PARTITION_SPLIT)
+<a href=#3217 id=3217 data-nosnippet>3217</a>      || <span class="macro">partition !</span>= PartitionType::PARTITION_SPLIT)
 <a href=#3218 id=3218 data-nosnippet>3218</a>  {
 <a href=#3219 id=3219 data-nosnippet>3219</a>    cw.bc.update_partition_context(tile_bo, subsize, bsize);
 <a href=#3220 id=3220 data-nosnippet>3220</a>  }
@@ -3355,7 +3355,7 @@
 <a href=#3355 id=3355 data-nosnippet>3355</a>  bw.byte_align().unwrap();
 <a href=#3356 id=3356 data-nosnippet>3356</a>  <span class="kw">for </span>(i, raw_tile) <span class="kw">in </span>raw_tiles.iter().enumerate() {
 <a href=#3357 id=3357 data-nosnippet>3357</a>    <span class="kw">let </span>last = raw_tiles.len() - <span class="number">1</span>;
-<a href=#3358 id=3358 data-nosnippet>3358</a>    <span class="kw">if </span>i != last {
+<a href=#3358 id=3358 data-nosnippet>3358</a>    <span class="kw">if </span><span class="macro">i !</span>= last {
 <a href=#3359 id=3359 data-nosnippet>3359</a>      <span class="kw">let </span>tile_size_minus_1 = raw_tile.len() - <span class="number">1</span>;
 <a href=#3360 id=3360 data-nosnippet>3360</a>      bw.write_le(max_tile_size_bytes, tile_size_minus_1 <span class="kw">as </span>u64).unwrap();
 <a href=#3361 id=3361 data-nosnippet>3361</a>    }
@@ -3846,7 +3846,7 @@
 <a href=#3846 id=3846 data-nosnippet>3846</a>
 <a href=#3847 id=3847 data-nosnippet>3847</a><span class="attr">#[cfg(test)]
 <a href=#3848 id=3848 data-nosnippet>3848</a></span><span class="kw">mod </span>test {
-<a href=#3849 id=3849 data-nosnippet>3849</a>  <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#3849 id=3849 data-nosnippet>3849</a>  <span class="kw">use </span>super::<span class="kw-2">*</span>;
 <a href=#3850 id=3850 data-nosnippet>3850</a>
 <a href=#3851 id=3851 data-nosnippet>3851</a>  <span class="attr">#[test]
 <a href=#3852 id=3852 data-nosnippet>3852</a>  </span><span class="kw">fn </span>check_partition_types_order() {
@@ -3855,4 +3855,5 @@
 <a href=#3855 id=3855 data-nosnippet>3855</a>      PartitionType::PARTITION_SPLIT
 <a href=#3856 id=3856 data-nosnippet>3856</a>    );
 <a href=#3857 id=3857 data-nosnippet>3857</a>  }
-<a href=#3858 id=3858 data-nosnippet>3858</a>}</code></pre></div></section></main></body></html>
+<a href=#3858 id=3858 data-nosnippet>3858</a>}
+</code></pre></div></section></main></body></html>

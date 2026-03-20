@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/smithay-client-toolkit-0.20.0/src/compositor.rs`."><title>compositor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="smithay_client_toolkit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">smithay_client_toolkit/</div>compositor.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::mem;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/smithay-client-toolkit-0.20.0/src/compositor.rs`."><title>compositor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="smithay_client_toolkit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">smithay_client_toolkit/</div>compositor.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::mem;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>std::os::unix::io::OwnedFd;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>std::sync::MutexGuard;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>std::sync::{
@@ -15,7 +15,7 @@
 <a href=#15 id=15 data-nosnippet>15</a>    Connection, Dispatch, Proxy, QueueHandle, WEnum,
 <a href=#16 id=16 data-nosnippet>16</a>};
 <a href=#17 id=17 data-nosnippet>17</a>
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use crate</span>::{
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>crate::{
 <a href=#19 id=19 data-nosnippet>19</a>    error::GlobalError,
 <a href=#20 id=20 data-nosnippet>20</a>    globals::{GlobalData, ProvidesBoundGlobal},
 <a href=#21 id=21 data-nosnippet>21</a>    output::{OutputData, OutputHandler, OutputState, ScaleWatcherHandle},
@@ -262,35 +262,35 @@
 <a href=#262 id=262 data-nosnippet>262</a><span class="attr">#[macro_export]
 <a href=#263 id=263 data-nosnippet>263</a></span><span class="macro">macro_rules!</span> delegate_compositor {
 <a href=#264 id=264 data-nosnippet>264</a>    ($(@&lt;$( <span class="macro-nonterminal">$lt</span>:tt $( : <span class="macro-nonterminal">$clt</span>:tt $(+ <span class="macro-nonterminal">$dlt</span>:tt )* )<span class="question-mark">? </span>),+&gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>: ty) =&gt; {
-<a href=#265 id=265 data-nosnippet>265</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::delegate_compositor!</span>(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface: []);
-<a href=#266 id=266 data-nosnippet>266</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::delegate_compositor!</span>(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface-only: <span class="macro-nonterminal">$crate::compositor::SurfaceData</span>);
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="macro-nonterminal">$crate::delegate_compositor</span>!(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface: []);
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="macro-nonterminal">$crate::delegate_compositor</span>!(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface-only: <span class="macro-nonterminal">$crate::compositor::SurfaceData</span>);
 <a href=#267 id=267 data-nosnippet>267</a>    };
 <a href=#268 id=268 data-nosnippet>268</a>    ($(@&lt;$( <span class="macro-nonterminal">$lt</span>:tt $( : <span class="macro-nonterminal">$clt</span>:tt $(+ <span class="macro-nonterminal">$dlt</span>:tt )* )<span class="question-mark">? </span>),+&gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>: ty, surface: [$(<span class="macro-nonterminal">$surface</span>: ty),<span class="kw-2">*</span>$(,)<span class="question-mark">?</span>]) =&gt; {
-<a href=#269 id=269 data-nosnippet>269</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::delegate_compositor!</span>(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface: [ $(<span class="macro-nonterminal">$surface</span>),* ]);
+<a href=#269 id=269 data-nosnippet>269</a>        <span class="macro-nonterminal">$crate::delegate_compositor</span>!(@{ $(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty </span>}; surface: [ $(<span class="macro-nonterminal">$surface</span>),* ]);
 <a href=#270 id=270 data-nosnippet>270</a>    };
 <a href=#271 id=271 data-nosnippet>271</a>    (@{$(<span class="macro-nonterminal">$ty</span>:tt)<span class="kw-2">*</span>}; surface: []) =&gt; {
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::reexports::client::delegate_dispatch!</span>($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
+<a href=#272 id=272 data-nosnippet>272</a>        <span class="macro-nonterminal">$crate::reexports::client::delegate_dispatch</span>!($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
 <a href=#273 id=273 data-nosnippet>273</a>            [
 <a href=#274 id=274 data-nosnippet>274</a>                <span class="macro-nonterminal">$crate::reexports::client::protocol::wl_compositor::WlCompositor</span>: <span class="macro-nonterminal">$crate::globals::GlobalData
 <a href=#275 id=275 data-nosnippet>275</a>            </span>] =&gt; <span class="macro-nonterminal">$crate::compositor::CompositorState
 <a href=#276 id=276 data-nosnippet>276</a>        </span>);
-<a href=#277 id=277 data-nosnippet>277</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::reexports::client::delegate_dispatch!</span>($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="macro-nonterminal">$crate::reexports::client::delegate_dispatch</span>!($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
 <a href=#278 id=278 data-nosnippet>278</a>            [
 <a href=#279 id=279 data-nosnippet>279</a>                <span class="macro-nonterminal">$crate::reexports::client::protocol::wl_callback::WlCallback</span>: <span class="macro-nonterminal">$crate::reexports::client::protocol::wl_surface::WlSurface
 <a href=#280 id=280 data-nosnippet>280</a>            </span>] =&gt; <span class="macro-nonterminal">$crate::compositor::CompositorState
 <a href=#281 id=281 data-nosnippet>281</a>        </span>);
 <a href=#282 id=282 data-nosnippet>282</a>    };
 <a href=#283 id=283 data-nosnippet>283</a>    (@{$(<span class="macro-nonterminal">$ty</span>:tt)<span class="kw-2">*</span>}; surface-only: <span class="macro-nonterminal">$surface</span>:ty) =&gt; {
-<a href=#284 id=284 data-nosnippet>284</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::reexports::client::delegate_dispatch!</span>($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="macro-nonterminal">$crate::reexports::client::delegate_dispatch</span>!($(<span class="macro-nonterminal">$ty</span>)<span class="kw-2">*</span>:
 <a href=#285 id=285 data-nosnippet>285</a>            [
 <a href=#286 id=286 data-nosnippet>286</a>                    <span class="macro-nonterminal">$crate::reexports::client::protocol::wl_surface::WlSurface</span>: <span class="macro-nonterminal">$surface
 <a href=#287 id=287 data-nosnippet>287</a>            </span>] =&gt; <span class="macro-nonterminal">$crate::compositor::CompositorState
 <a href=#288 id=288 data-nosnippet>288</a>        </span>);
 <a href=#289 id=289 data-nosnippet>289</a>    };
 <a href=#290 id=290 data-nosnippet>290</a>    (@<span class="macro-nonterminal">$ty</span>:tt; surface: [ $(<span class="macro-nonterminal">$surface</span>:ty),+ ]) =&gt; {
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::delegate_compositor!</span>(@<span class="macro-nonterminal">$ty</span>; surface: []);
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro-nonterminal">$crate::delegate_compositor</span>!(@<span class="macro-nonterminal">$ty</span>; surface: []);
 <a href=#292 id=292 data-nosnippet>292</a>        $(
-<a href=#293 id=293 data-nosnippet>293</a>            <span class="macro-nonterminal">$</span><span class="macro">crate::delegate_compositor!</span>(@<span class="macro-nonterminal">$ty</span>; surface-only: <span class="macro-nonterminal">$surface</span>);
+<a href=#293 id=293 data-nosnippet>293</a>            <span class="macro-nonterminal">$crate::delegate_compositor</span>!(@<span class="macro-nonterminal">$ty</span>; surface-only: <span class="macro-nonterminal">$surface</span>);
 <a href=#294 id=294 data-nosnippet>294</a>        )*
 <a href=#295 id=295 data-nosnippet>295</a>    };
 <a href=#296 id=296 data-nosnippet>296</a>}
@@ -319,14 +319,14 @@
 <a href=#319 id=319 data-nosnippet>319</a>                enter_or_leave_output.replace((output, <span class="bool-val">true</span>));
 <a href=#320 id=320 data-nosnippet>320</a>            }
 <a href=#321 id=321 data-nosnippet>321</a>            wl_surface::Event::Leave { output } =&gt; {
-<a href=#322 id=322 data-nosnippet>322</a>                inner.outputs.retain(|o| o != <span class="kw-2">&amp;</span>output);
+<a href=#322 id=322 data-nosnippet>322</a>                inner.outputs.retain(|o| <span class="macro">o !</span>= <span class="kw-2">&amp;</span>output);
 <a href=#323 id=323 data-nosnippet>323</a>                enter_or_leave_output.replace((output, <span class="bool-val">false</span>));
 <a href=#324 id=324 data-nosnippet>324</a>            }
 <a href=#325 id=325 data-nosnippet>325</a>            wl_surface::Event::PreferredBufferScale { factor } =&gt; {
 <a href=#326 id=326 data-nosnippet>326</a>                <span class="kw">let </span>current_scale = data.scale_factor.load(Ordering::Relaxed);
 <a href=#327 id=327 data-nosnippet>327</a>                drop(inner);
 <a href=#328 id=328 data-nosnippet>328</a>                data.scale_factor.store(factor, Ordering::Relaxed);
-<a href=#329 id=329 data-nosnippet>329</a>                <span class="kw">if </span>current_scale != factor {
+<a href=#329 id=329 data-nosnippet>329</a>                <span class="kw">if </span><span class="macro">current_scale !</span>= factor {
 <a href=#330 id=330 data-nosnippet>330</a>                    state.scale_factor_changed(conn, qh, surface, factor);
 <a href=#331 id=331 data-nosnippet>331</a>                }
 <a href=#332 id=332 data-nosnippet>332</a>                <span class="kw">return</span>;
@@ -336,7 +336,7 @@
 <a href=#336 id=336 data-nosnippet>336</a>                </span><span class="kw">if let </span>WEnum::Value(transform) = transform {
 <a href=#337 id=337 data-nosnippet>337</a>                    <span class="kw">let </span>old_transform = std::mem::replace(<span class="kw-2">&amp;mut </span>inner.transform, transform);
 <a href=#338 id=338 data-nosnippet>338</a>                    drop(inner);
-<a href=#339 id=339 data-nosnippet>339</a>                    <span class="kw">if </span>old_transform != transform {
+<a href=#339 id=339 data-nosnippet>339</a>                    <span class="kw">if </span><span class="macro">old_transform !</span>= transform {
 <a href=#340 id=340 data-nosnippet>340</a>                        state.transform_changed(conn, qh, surface, transform);
 <a href=#341 id=341 data-nosnippet>341</a>                    }
 <a href=#342 id=342 data-nosnippet>342</a>                }
@@ -418,11 +418,11 @@
 <a href=#418 id=418 data-nosnippet>418</a>    <span class="comment">// Drop the mutex before we send of any events.
 <a href=#419 id=419 data-nosnippet>419</a>    </span>drop(inner);
 <a href=#420 id=420 data-nosnippet>420</a>
-<a href=#421 id=421 data-nosnippet>421</a>    <span class="kw">if </span>factor != current_scale {
+<a href=#421 id=421 data-nosnippet>421</a>    <span class="kw">if </span><span class="macro">factor !</span>= current_scale {
 <a href=#422 id=422 data-nosnippet>422</a>        state.scale_factor_changed(conn, qh, surface, factor);
 <a href=#423 id=423 data-nosnippet>423</a>    }
 <a href=#424 id=424 data-nosnippet>424</a>
-<a href=#425 id=425 data-nosnippet>425</a>    <span class="kw">if </span>transform != old_transform {
+<a href=#425 id=425 data-nosnippet>425</a>    <span class="kw">if </span><span class="macro">transform !</span>= old_transform {
 <a href=#426 id=426 data-nosnippet>426</a>        state.transform_changed(conn, qh, surface, transform);
 <a href=#427 id=427 data-nosnippet>427</a>    }
 <a href=#428 id=428 data-nosnippet>428</a>}
@@ -525,4 +525,5 @@
 <a href=#525 id=525 data-nosnippet>525</a>            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
 <a href=#526 id=526 data-nosnippet>526</a>        }
 <a href=#527 id=527 data-nosnippet>527</a>    }
-<a href=#528 id=528 data-nosnippet>528</a>}</code></pre></div></section></main></body></html>
+<a href=#528 id=528 data-nosnippet>528</a>}
+</code></pre></div></section></main></body></html>

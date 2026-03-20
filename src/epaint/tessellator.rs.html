@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/epaint-0.33.3/src/tessellator.rs`."><title>tessellator.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="epaint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">epaint/</div>tessellator.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Converts graphics primitives into textured triangles.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/epaint-0.33.3/src/tessellator.rs`."><title>tessellator.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="epaint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">epaint/</div>tessellator.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Converts graphics primitives into textured triangles.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module converts lines, circles, text and more represented by [`Shape`]
 <a href=#4 id=4 data-nosnippet>4</a>//! into textured triangles represented by [`Mesh`].
@@ -7,7 +7,7 @@
 <a href=#7 id=7 data-nosnippet>7</a>
 <a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">use </span>emath::{GuiRounding <span class="kw">as _</span>, NumExt <span class="kw">as _</span>, Pos2, Rect, Rot2, Vec2, pos2, remap, vec2};
 <a href=#9 id=9 data-nosnippet>9</a>
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use crate</span>::{
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>crate::{
 <a href=#11 id=11 data-nosnippet>11</a>    CircleShape, ClippedPrimitive, ClippedShape, Color32, CornerRadiusF32, CubicBezierShape,
 <a href=#12 id=12 data-nosnippet>12</a>    EllipseShape, Mesh, PathShape, Primitive, QuadraticBezierShape, RectShape, Shape, Stroke,
 <a href=#13 id=13 data-nosnippet>13</a>    StrokeKind, TextShape, TextureId, Vertex, WHITE_UV, color::ColorMode, emath,
@@ -939,7 +939,7 @@
 <a href=#939 id=939 data-nosnippet>939</a>        </span><span class="kw">return </span>fill_closed_path(feathering, path, color_fill, out);
 <a href=#940 id=940 data-nosnippet>940</a>    }
 <a href=#941 id=941 data-nosnippet>941</a>
-<a href=#942 id=942 data-nosnippet>942</a>    <span class="kw">if </span>color_fill != Color32::TRANSPARENT &amp;&amp; cw_signed_area(path) &lt; <span class="number">0.0 </span>{
+<a href=#942 id=942 data-nosnippet>942</a>    <span class="kw">if </span><span class="macro">color_fill !</span>= Color32::TRANSPARENT &amp;&amp; cw_signed_area(path) &lt; <span class="number">0.0 </span>{
 <a href=#943 id=943 data-nosnippet>943</a>        <span class="comment">// Wrong winding order - fix:
 <a href=#944 id=944 data-nosnippet>944</a>        </span>path.reverse();
 <a href=#945 id=945 data-nosnippet>945</a>        <span class="kw">for </span>point <span class="kw">in </span><span class="kw-2">&amp;mut *</span>path {
@@ -1012,7 +1012,7 @@
 <a href=#1012 id=1012 data-nosnippet>1012</a>            // then we risk severe aliasing.
 <a href=#1013 id=1013 data-nosnippet>1013</a>            // Instead, we paint the stroke as a triangular ridge, two feather-widths wide,
 <a href=#1014 id=1014 data-nosnippet>1014</a>            // and lessen the opacity of the middle part instead of making it thinner.
-<a href=#1015 id=1015 data-nosnippet>1015</a>            </span><span class="kw">if </span>color_fill != Color32::TRANSPARENT &amp;&amp; stroke.width &lt; feathering {
+<a href=#1015 id=1015 data-nosnippet>1015</a>            </span><span class="kw">if </span><span class="macro">color_fill !</span>= Color32::TRANSPARENT &amp;&amp; stroke.width &lt; feathering {
 <a href=#1016 id=1016 data-nosnippet>1016</a>                <span class="comment">// If this is filled shape, then we need to also compensate so that the
 <a href=#1017 id=1017 data-nosnippet>1017</a>                // filled area remains the same as it would have been without the
 <a href=#1018 id=1018 data-nosnippet>1018</a>                // artificially wide line.
@@ -1056,7 +1056,7 @@
 <a href=#1056 id=1056 data-nosnippet>1056</a>                i0 = i1;
 <a href=#1057 id=1057 data-nosnippet>1057</a>            }
 <a href=#1058 id=1058 data-nosnippet>1058</a>
-<a href=#1059 id=1059 data-nosnippet>1059</a>            <span class="kw">if </span>color_fill != Color32::TRANSPARENT {
+<a href=#1059 id=1059 data-nosnippet>1059</a>            <span class="kw">if </span><span class="macro">color_fill !</span>= Color32::TRANSPARENT {
 <a href=#1060 id=1060 data-nosnippet>1060</a>                out.reserve_triangles(n <span class="kw">as </span>usize - <span class="number">2</span>);
 <a href=#1061 id=1061 data-nosnippet>1061</a>                <span class="kw">let </span>idx_fill = idx + <span class="number">2</span>;
 <a href=#1062 id=1062 data-nosnippet>1062</a>                <span class="kw">for </span>i <span class="kw">in </span><span class="number">2</span>..n {
@@ -1112,7 +1112,7 @@
 <a href=#1112 id=1112 data-nosnippet>1112</a>                        i0 = i1;
 <a href=#1113 id=1113 data-nosnippet>1113</a>                    }
 <a href=#1114 id=1114 data-nosnippet>1114</a>
-<a href=#1115 id=1115 data-nosnippet>1115</a>                    <span class="kw">if </span>color_fill != Color32::TRANSPARENT {
+<a href=#1115 id=1115 data-nosnippet>1115</a>                    <span class="kw">if </span><span class="macro">color_fill !</span>= Color32::TRANSPARENT {
 <a href=#1116 id=1116 data-nosnippet>1116</a>                        out.reserve_triangles(n <span class="kw">as </span>usize - <span class="number">2</span>);
 <a href=#1117 id=1117 data-nosnippet>1117</a>                        <span class="kw">let </span>idx_fill = idx + <span class="number">3</span>;
 <a href=#1118 id=1118 data-nosnippet>1118</a>                        <span class="kw">for </span>i <span class="kw">in </span><span class="number">2</span>..n {
@@ -1275,7 +1275,7 @@
 <a href=#1275 id=1275 data-nosnippet>1275</a>            }
 <a href=#1276 id=1276 data-nosnippet>1276</a>        }
 <a href=#1277 id=1277 data-nosnippet>1277</a>
-<a href=#1278 id=1278 data-nosnippet>1278</a>        <span class="kw">if </span>color_fill != Color32::TRANSPARENT {
+<a href=#1278 id=1278 data-nosnippet>1278</a>        <span class="kw">if </span><span class="macro">color_fill !</span>= Color32::TRANSPARENT {
 <a href=#1279 id=1279 data-nosnippet>1279</a>            <span class="comment">// We Need to create new vertices, because the ones we used for the stroke
 <a href=#1280 id=1280 data-nosnippet>1280</a>            // has the wrong color.
 <a href=#1281 id=1281 data-nosnippet>1281</a>
@@ -1386,10 +1386,10 @@
 <a href=#1386 id=1386 data-nosnippet>1386</a>        <span class="kw">let </span>start_new_mesh = <span class="kw">match </span>out_primitives.last() {
 <a href=#1387 id=1387 data-nosnippet>1387</a>            <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
 <a href=#1388 id=1388 data-nosnippet>1388</a>            <span class="prelude-val">Some</span>(output_clipped_primitive) =&gt; {
-<a href=#1389 id=1389 data-nosnippet>1389</a>                output_clipped_primitive.clip_rect != clip_rect
+<a href=#1389 id=1389 data-nosnippet>1389</a>                output_clipped_primitive.<span class="macro">clip_rect !</span>= clip_rect
 <a href=#1390 id=1390 data-nosnippet>1390</a>                    || <span class="kw">match </span><span class="kw-2">&amp;</span>output_clipped_primitive.primitive {
 <a href=#1391 id=1391 data-nosnippet>1391</a>                        Primitive::Mesh(output_mesh) =&gt; {
-<a href=#1392 id=1392 data-nosnippet>1392</a>                            output_mesh.texture_id != shape.texture_id()
+<a href=#1392 id=1392 data-nosnippet>1392</a>                            output_mesh.<span class="macro">texture_id !</span>= shape.texture_id()
 <a href=#1393 id=1393 data-nosnippet>1393</a>                        }
 <a href=#1394 id=1394 data-nosnippet>1394</a>                        Primitive::Callback(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
 <a href=#1395 id=1395 data-nosnippet>1395</a>                    }
@@ -1504,7 +1504,7 @@
 <a href=#1504 id=1504 data-nosnippet>1504</a>            <span class="kw">return</span>;
 <a href=#1505 id=1505 data-nosnippet>1505</a>        }
 <a href=#1506 id=1506 data-nosnippet>1506</a>
-<a href=#1507 id=1507 data-nosnippet>1507</a>        <span class="kw">if </span><span class="self">self</span>.options.prerasterized_discs &amp;&amp; fill != Color32::TRANSPARENT {
+<a href=#1507 id=1507 data-nosnippet>1507</a>        <span class="kw">if </span><span class="self">self</span>.options.prerasterized_discs &amp;&amp; <span class="macro">fill !</span>= Color32::TRANSPARENT {
 <a href=#1508 id=1508 data-nosnippet>1508</a>            <span class="kw">let </span>radius_px = radius * <span class="self">self</span>.pixels_per_point;
 <a href=#1509 id=1509 data-nosnippet>1509</a>            <span class="comment">// strike the right balance between some circles becoming too blurry, and some too sharp.
 <a href=#1510 id=1510 data-nosnippet>1510</a>            </span><span class="kw">let </span>cutoff_radius = radius_px * <span class="number">2.0_f32</span>.powf(<span class="number">0.25</span>);
@@ -1999,7 +1999,7 @@
 <a href=#1999 id=1999 data-nosnippet>1999</a>            <span class="kw">return</span>;
 <a href=#2000 id=2000 data-nosnippet>2000</a>        }
 <a href=#2001 id=2001 data-nosnippet>2001</a>
-<a href=#2002 id=2002 data-nosnippet>2002</a>        <span class="kw">if </span>galley.pixels_per_point != <span class="self">self</span>.pixels_per_point {
+<a href=#2002 id=2002 data-nosnippet>2002</a>        <span class="kw">if </span>galley.<span class="macro">pixels_per_point !</span>= <span class="self">self</span>.pixels_per_point {
 <a href=#2003 id=2003 data-nosnippet>2003</a>            <span class="macro">log::warn!</span>(
 <a href=#2004 id=2004 data-nosnippet>2004</a>                <span class="string">"epaint: WARNING: pixels_per_point (dpi scale) have changed between text layout and tessellation. \
 <a href=#2005 id=2005 data-nosnippet>2005</a>                       You must recreate your text shapes if pixels_per_point changes."
@@ -2032,7 +2032,7 @@
 <a href=#2032 id=2032 data-nosnippet>2032</a>            <span class="kw">let </span>final_row_pos = galley_pos + rotator * row.pos.to_vec2();
 <a href=#2033 id=2033 data-nosnippet>2033</a>
 <a href=#2034 id=2034 data-nosnippet>2034</a>            <span class="kw">let </span><span class="kw-2">mut </span>row_rect = row.visuals.mesh_bounds;
-<a href=#2035 id=2035 data-nosnippet>2035</a>            <span class="kw">if </span><span class="kw-2">*</span>angle != <span class="number">0.0 </span>{
+<a href=#2035 id=2035 data-nosnippet>2035</a>            <span class="kw">if </span><span class="kw-2">*</span><span class="macro">angle !</span>= <span class="number">0.0 </span>{
 <a href=#2036 id=2036 data-nosnippet>2036</a>                row_rect = row_rect.rotate_bb(rotator);
 <a href=#2037 id=2037 data-nosnippet>2037</a>            }
 <a href=#2038 id=2038 data-nosnippet>2038</a>            row_rect = row_rect.translate(final_row_pos.to_vec2());
@@ -2075,7 +2075,7 @@
 <a href=#2075 id=2075 data-nosnippet>2075</a>                            color = color.gamma_multiply(<span class="kw-2">*</span>opacity_factor);
 <a href=#2076 id=2076 data-nosnippet>2076</a>                        }
 <a href=#2077 id=2077 data-nosnippet>2077</a>
-<a href=#2078 id=2078 data-nosnippet>2078</a>                        <span class="macro">debug_assert!</span>(color != Color32::PLACEHOLDER, <span class="string">"A placeholder color made it to the tessellator. You forgot to set a fallback color."</span>);
+<a href=#2078 id=2078 data-nosnippet>2078</a>                        <span class="macro">debug_assert!</span>(<span class="macro">color !</span>= Color32::PLACEHOLDER, <span class="string">"A placeholder color made it to the tessellator. You forgot to set a fallback color."</span>);
 <a href=#2079 id=2079 data-nosnippet>2079</a>
 <a href=#2080 id=2080 data-nosnippet>2080</a>                        <span class="kw">let </span>offset = <span class="kw">if </span><span class="kw-2">*</span>angle == <span class="number">0.0 </span>{
 <a href=#2081 id=2081 data-nosnippet>2081</a>                            pos.to_vec2()
@@ -2091,7 +2091,7 @@
 <a href=#2091 id=2091 data-nosnippet>2091</a>                    }),
 <a href=#2092 id=2092 data-nosnippet>2092</a>            );
 <a href=#2093 id=2093 data-nosnippet>2093</a>
-<a href=#2094 id=2094 data-nosnippet>2094</a>            <span class="kw">if </span><span class="kw-2">*</span>underline != Stroke::NONE {
+<a href=#2094 id=2094 data-nosnippet>2094</a>            <span class="kw">if </span><span class="kw-2">*</span><span class="macro">underline !</span>= Stroke::NONE {
 <a href=#2095 id=2095 data-nosnippet>2095</a>                <span class="self">self</span>.tessellate_line_segment(
 <a href=#2096 id=2096 data-nosnippet>2096</a>                    [row_rect.left_bottom(), row_rect.right_bottom()],
 <a href=#2097 id=2097 data-nosnippet>2097</a>                    <span class="kw-2">*</span>underline,
@@ -2335,7 +2335,7 @@
 <a href=#2335 id=2335 data-nosnippet>2335</a>
 <a href=#2336 id=2336 data-nosnippet>2336</a><span class="attr">#[test]
 <a href=#2337 id=2337 data-nosnippet>2337</a></span><span class="kw">fn </span>test_tessellator() {
-<a href=#2338 id=2338 data-nosnippet>2338</a>    <span class="kw">use crate</span>::<span class="kw-2">*</span>;
+<a href=#2338 id=2338 data-nosnippet>2338</a>    <span class="kw">use </span>crate::<span class="kw-2">*</span>;
 <a href=#2339 id=2339 data-nosnippet>2339</a>
 <a href=#2340 id=2340 data-nosnippet>2340</a>    <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::with_capacity(<span class="number">2</span>);
 <a href=#2341 id=2341 data-nosnippet>2341</a>
@@ -2367,7 +2367,7 @@
 <a href=#2367 id=2367 data-nosnippet>2367</a>
 <a href=#2368 id=2368 data-nosnippet>2368</a><span class="attr">#[test]
 <a href=#2369 id=2369 data-nosnippet>2369</a></span><span class="kw">fn </span>path_bounding_box() {
-<a href=#2370 id=2370 data-nosnippet>2370</a>    <span class="kw">use crate</span>::<span class="kw-2">*</span>;
+<a href=#2370 id=2370 data-nosnippet>2370</a>    <span class="kw">use </span>crate::<span class="kw-2">*</span>;
 <a href=#2371 id=2371 data-nosnippet>2371</a>
 <a href=#2372 id=2372 data-nosnippet>2372</a>    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..=<span class="number">100 </span>{
 <a href=#2373 id=2373 data-nosnippet>2373</a>        <span class="kw">let </span>width = i <span class="kw">as </span>f32;
@@ -2408,4 +2408,5 @@
 <a href=#2408 id=2408 data-nosnippet>2408</a>            <span class="kw-2">&amp;mut </span>mesh,
 <a href=#2409 id=2409 data-nosnippet>2409</a>        );
 <a href=#2410 id=2410 data-nosnippet>2410</a>    }
-<a href=#2411 id=2411 data-nosnippet>2411</a>}</code></pre></div></section></main></body></html>
+<a href=#2411 id=2411 data-nosnippet>2411</a>}
+</code></pre></div></section></main></body></html>

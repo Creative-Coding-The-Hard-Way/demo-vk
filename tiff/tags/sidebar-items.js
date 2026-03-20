@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CompressionMethod","PhotometricInterpretation","PlanarConfiguration","Predictor","ResolutionUnit","SampleFormat","Tag","Type"],"struct":["IfdPointer"]};
+window.SIDEBAR_ITEMS = {"enum":["ByteOrder","CompressionMethod","ExtraSamples","PhotometricInterpretation","PlanarConfiguration","Predictor","ResolutionUnit","SampleFormat","Tag","Type"],"struct":["IfdPointer","ValueBuffer"]};

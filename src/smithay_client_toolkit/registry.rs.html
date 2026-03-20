@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/smithay-client-toolkit-0.20.0/src/registry.rs`."><title>registry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="smithay_client_toolkit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">smithay_client_toolkit/</div>registry.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Utilities for binding globals with [`wl_registry`] in delegates.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/smithay-client-toolkit-0.20.0/src/registry.rs`."><title>registry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-77263533.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="smithay_client_toolkit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.94.0 (4a4ef493e 2026-03-02)" data-channel="1.94.0" data-search-js="search-9e2438ea.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7bab91a1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-ffcac47a.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">smithay_client_toolkit/</div>registry.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Utilities for binding globals with [`wl_registry`] in delegates.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module is based around the [`RegistryHandler`] trait and [`RegistryState`].
 <a href=#4 id=4 data-nosnippet>4</a>//!
@@ -69,7 +69,7 @@
 <a href=#69 id=69 data-nosnippet>69</a>//! }
 <a href=#70 id=70 data-nosnippet>70</a>//! ```
 <a href=#71 id=71 data-nosnippet>71</a>
-<a href=#72 id=72 data-nosnippet>72</a></span><span class="kw">use crate</span>::{error::GlobalError, globals::ProvidesBoundGlobal};
+<a href=#72 id=72 data-nosnippet>72</a></span><span class="kw">use </span>crate::{error::GlobalError, globals::ProvidesBoundGlobal};
 <a href=#73 id=73 data-nosnippet>73</a><span class="kw">use </span>wayland_client::{
 <a href=#74 id=74 data-nosnippet>74</a>    globals::{BindError, Global, GlobalList, GlobalListContents},
 <a href=#75 id=75 data-nosnippet>75</a>    protocol::wl_registry,
@@ -238,7 +238,7 @@
 <a href=#238 id=238 data-nosnippet>238</a>        }
 <a href=#239 id=239 data-nosnippet>239</a>        <span class="comment">// Optimize for runtime_add_global which will use the last entry
 <a href=#240 id=240 data-nosnippet>240</a>        </span><span class="kw">for </span>global <span class="kw">in </span><span class="self">self</span>.globals.iter().rev() {
-<a href=#241 id=241 data-nosnippet>241</a>            <span class="kw">if </span>global.name != name || global.interface != iface.name {
+<a href=#241 id=241 data-nosnippet>241</a>            <span class="kw">if </span>global.<span class="macro">name !</span>= name || global.<span class="macro">interface !</span>= iface.name {
 <a href=#242 id=242 data-nosnippet>242</a>                <span class="kw">continue</span>;
 <a href=#243 id=243 data-nosnippet>243</a>            }
 <a href=#244 id=244 data-nosnippet>244</a>            <span class="kw">if </span>global.version &lt; <span class="kw-2">*</span>version.start() {
@@ -298,7 +298,7 @@
 <a href=#298 id=298 data-nosnippet>298</a></span><span class="attr">#[macro_export]
 <a href=#299 id=299 data-nosnippet>299</a></span><span class="macro">macro_rules!</span> delegate_registry {
 <a href=#300 id=300 data-nosnippet>300</a>    ($(@&lt;$( <span class="macro-nonterminal">$lt</span>:tt $( : <span class="macro-nonterminal">$clt</span>:tt $(+ <span class="macro-nonterminal">$dlt</span>:tt )* )<span class="question-mark">? </span>),+&gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>: ty) =&gt; {
-<a href=#301 id=301 data-nosnippet>301</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::reexports::client::delegate_dispatch!</span>($(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>:
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="macro-nonterminal">$crate::reexports::client::delegate_dispatch</span>!($(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>:
 <a href=#302 id=302 data-nosnippet>302</a>            [
 <a href=#303 id=303 data-nosnippet>303</a>                <span class="macro-nonterminal">$crate::reexports::client::protocol::wl_registry::WlRegistry</span>: <span class="macro-nonterminal">$crate::reexports::client::globals::GlobalListContents
 <a href=#304 id=304 data-nosnippet>304</a>            </span>]  =&gt; <span class="macro-nonterminal">$crate::registry::RegistryState
@@ -451,7 +451,7 @@
 <a href=#451 id=451 data-nosnippet>451</a>    }
 <a href=#452 id=452 data-nosnippet>452</a>    <span class="kw">let </span><span class="kw-2">mut </span>rv = Vec::new();
 <a href=#453 id=453 data-nosnippet>453</a>    <span class="kw">for </span>global <span class="kw">in </span>globals {
-<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">if </span>global.interface != iface.name {
+<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">if </span>global.<span class="macro">interface !</span>= iface.name {
 <a href=#455 id=455 data-nosnippet>455</a>            <span class="kw">continue</span>;
 <a href=#456 id=456 data-nosnippet>456</a>        }
 <a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">if </span>global.version &lt; <span class="kw-2">*</span>version.start() {
@@ -492,7 +492,7 @@
 <a href=#492 id=492 data-nosnippet>492</a>        </span><span class="macro">log::trace!</span>(target: <span class="string">"sctk"</span>, <span class="string">"Version {} of {} is available; binding is currently limited to {}"</span>, iface.version, iface.name, version.end());
 <a href=#493 id=493 data-nosnippet>493</a>    }
 <a href=#494 id=494 data-nosnippet>494</a>    <span class="kw">for </span>global <span class="kw">in </span>globals {
-<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">if </span>global.interface != iface.name {
+<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">if </span>global.<span class="macro">interface !</span>= iface.name {
 <a href=#496 id=496 data-nosnippet>496</a>            <span class="kw">continue</span>;
 <a href=#497 id=497 data-nosnippet>497</a>        }
 <a href=#498 id=498 data-nosnippet>498</a>        <span class="kw">if </span>global.version &lt; <span class="kw-2">*</span>version.start() {
@@ -510,7 +510,7 @@
 <a href=#510 id=510 data-nosnippet>510</a><span class="attr">#[macro_export]
 <a href=#511 id=511 data-nosnippet>511</a></span><span class="macro">macro_rules!</span> delegate_simple {
 <a href=#512 id=512 data-nosnippet>512</a>    ($(@&lt;$( <span class="macro-nonterminal">$lt</span>:tt $( : <span class="macro-nonterminal">$clt</span>:tt $(+ <span class="macro-nonterminal">$dlt</span>:tt )* )<span class="question-mark">? </span>),+&gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>:ty, <span class="macro-nonterminal">$iface</span>:ty, <span class="macro-nonterminal">$max</span>:expr) =&gt; {
-<a href=#513 id=513 data-nosnippet>513</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::reexports::client::delegate_dispatch!</span>($(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>: [ <span class="macro-nonterminal">$iface</span>: () ]
+<a href=#513 id=513 data-nosnippet>513</a>        <span class="macro-nonterminal">$crate::reexports::client::delegate_dispatch</span>!($(@&lt; $( <span class="macro-nonterminal">$lt </span>$( : <span class="macro-nonterminal">$clt </span>$(+ <span class="macro-nonterminal">$dlt </span>)* )<span class="question-mark">? </span>),+ &gt;)<span class="question-mark">? </span><span class="macro-nonterminal">$ty</span>: [ <span class="macro-nonterminal">$iface</span>: () ]
 <a href=#514 id=514 data-nosnippet>514</a>            =&gt; <span class="macro-nonterminal">$crate::registry::SimpleGlobal</span>&lt;<span class="macro-nonterminal">$iface</span>, <span class="macro-nonterminal">$max</span>&gt;
 <a href=#515 id=515 data-nosnippet>515</a>        );
 <a href=#516 id=516 data-nosnippet>516</a>    };
@@ -547,4 +547,5 @@
 <a href=#547 id=547 data-nosnippet>547</a>            )*
 <a href=#548 id=548 data-nosnippet>548</a>        }
 <a href=#549 id=549 data-nosnippet>549</a>    }
-<a href=#550 id=550 data-nosnippet>550</a>}</code></pre></div></section></main></body></html>
+<a href=#550 id=550 data-nosnippet>550</a>}
+</code></pre></div></section></main></body></html>
